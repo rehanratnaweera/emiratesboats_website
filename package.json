@@ -7,7 +7,8 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "oxfmt"
+    "format": "oxfmt",
+    "prepare": "husky"
   },
   "dependencies": {
     "@types/three": "^0.185.4",
@@ -16,6 +17,8 @@
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/git": "^11.0.1",
     "@semantic-release/github": "^12.0.9",
@@ -24,6 +27,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.0",
+    "husky": "^9.1.7",
     "oxfmt": "^0.2.0",
     "semantic-release": "^25.0.9",
     "semantic-release-pnpm": "^1.0.2",
