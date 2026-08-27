@@ -1,0 +1,45 @@
+name: Production Release Pipeline
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm (v12)
+        uses: pnpm/setup@v2 # Updated for pnpm 12 support
+        with:
+          version: 12.0.0-rc.11 # Matching your package.json
+          cache: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ^22.0.0 # pnpm 12 recommended Node version
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Project
+        run: pnpm run build # Generates /dist folder
+
+      - name: Bundle Assets
+        # Bundle the /dist folder for your VPS script to grab
+        run: tar -czf build-output.tar.gz -C dist .
+
+      - name: Run Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release

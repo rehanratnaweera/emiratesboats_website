@@ -1,0 +1,10 @@
+{
+  "description": "Explore detailed 3D boat models to help customers visualize and choose the perfect design from a professional boat builder's collection.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

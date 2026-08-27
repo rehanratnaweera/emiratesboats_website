@@ -1,0 +1,16 @@
+{
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    ["semantic-release-pnpm", { "npmPublish": false }],
+    ["@semantic-release/github", {
+      "assets": [
+        {
+          "path": "build-output.tar.gz",
+          "label": "Production Build v${nextRelease.version}",
+          "name": "emirates-boats-v${nextRelease.version}.tar.gz"
+        }
+      ]
+    }]
+  ]
+}
