@@ -1,34 +1,25 @@
-## React + Vite + Tailwind CSS project
+# Emirates Boats Interactive 3D Showcase
 
+A high-performance, containerized web application built to render interactive 3D marine models using React, Vite, and Three.js. 
 
-## Github actions to auto-create release
+## Architecture & DevOps
 
-## Development Server
+This repository serves as a fully automated GitOps pipeline, demonstrating secure, zero-downtime deployments to an on-premise server.
 
-- `pnpm install`
-- `pnpm run dev`
+* **CI/CD Pipeline**: GitHub Actions automatically lints, builds, and publishes production-ready Docker images to the GitHub Container Registry (GHCR).
+* **Automated Versioning**: `semantic-release` analyzes Conventional Commits to automatically generate version bumps and changelogs.
+* **GitOps Deployment**: An on-premise Watchtower instance securely polls GHCR, automatically pulling and reconciling the Nginx container state without exposing inbound firewall ports.
 
-## Project Structure
+## Frontend Optimization
 
-This is the canonical project structure. Start with task-relevant files below. Only follow imports or inspect other files when required, when a documented path is missing, or when the repository contradicts this guide.
+* **Vite & Rollup**: Configured with custom vendor chunking to isolate the heavy Three.js rendering engine, maximizing browser cache efficiency for recurring visitors.
+* **Developer Guardrails**: Enforced repository standards using local Husky hooks and Commitlint.
 
-- `src/main.tsx` - React entrypoint; imports `src/index.css` and mounts `src/App.tsx` into the `#root` element
-- `src/App.tsx` - Primary application component and the usual starting point for UI work
-- `src/index.css` - Global CSS entrypoint and Tailwind CSS v4 import
-- `index.html` - Vite HTML shell containing the `#root` element and loading `src/main.tsx`
-- `package.json` - Project dependencies and the Vite build, development, preview, and formatting scripts
-- `vite.config.ts` - Vite configuration with React, Tailwind CSS v4, and eb Make plugins plus the `@` alias for `src`
-- `.mise.toml` - Toolchain versions for Node.js and pnpm
+## Local Development
 
-## Dependencies
+```bash
+# Install dependencies
+pnpm install
 
-- Runtime: React 19 and React DOM 19
-- Styling: Tailwind CSS v4 with the `@tailwindcss/vite` plugin
-- Build tooling: Vite 8, TypeScript 5.7, and `@vitejs/plugin-react`
-- Formatting: oxfmt
-
-## Styling
-
-This project uses **Tailwind CSS v4** through the `@tailwindcss/vite` plugin configured in `vite.config.ts`. `src/index.css` imports Tailwind with `@import 'tailwindcss';`. Use Tailwind utility classes directly in JSX and put global CSS or Tailwind v4 theme customization in `src/index.css`. This scaffold does not need a Tailwind config file or PostCSS config.
-
-`src/main.tsx` imports `src/index.css`, so global font wiring belongs in `src/index.css`. Keep CSS `@import` statements first, then add any `@font-face` rules and font-family defaults there.
+# Start the development server
+pnpm run dev
