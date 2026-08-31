@@ -36,6 +36,7 @@ jobs:
       - name: Build Project
         run: pnpm run build # Generates /dist folder
 
+      # DHCR
       - name: Log in to Github container registry
         uses: docker/login-action@v3
         with:
