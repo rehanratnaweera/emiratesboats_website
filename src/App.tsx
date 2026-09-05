@@ -194,7 +194,12 @@ export default function App() {
           <div className="md:hidden flex flex-col gap-4 px-6 pb-6" style={{ background: "rgba(7,18,30,0.98)" }}>
             {["Our Fleet", "Construction", "Bespoke", "Contact"].map((l) => (
               <button key={l} className="text-left" style={{ fontFamily: "DM Mono, monospace", fontSize: "0.65rem", color: "#6a8098", letterSpacing: "0.14em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer" }}
-                onClick={() => { setMobileMenuOpen(false); if (l === "Our Fleet") scrollTo(fleetRef); }}>
+                onClick={() => { setMobileMenuOpen(false); 
+                  if (l === "Our Fleet") scrollTo(fleetRef); 
+                  if (l === "Construction") scrollTo(constructionRef); 
+                  if (l === "Bespoke") scrollTo(bespokeRef); 
+                  if (l === "Contact") scrollTo(contactRef);
+                }}>
                 {l}
               </button>
             ))}
