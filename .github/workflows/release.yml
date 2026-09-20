@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false
+          lfs: true # Fetch Git LFS files
 
       - name: Setup pnpm (v12)
         uses: pnpm/setup@v2 # Updated for pnpm 12 support
