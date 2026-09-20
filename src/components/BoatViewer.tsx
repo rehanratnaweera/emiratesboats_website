@@ -138,7 +138,7 @@ function buildCenterConsole(
     const g = new THREE.Group();
   void hullColor;
   void accentColor;
-  new GLTFLoader().load("src/components/models/cat80.glb", ({ scene: model }) => {
+  new GLTFLoader().load("/models/cat80.glb", ({ scene: model }) => {
     model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
@@ -157,7 +157,7 @@ function buildCatamaran(scene: THREE.Scene, hullColor: number, accentColor: numb
   const g = new THREE.Group();
   void hullColor;
   void accentColor;
-  new GLTFLoader().load("src/components/models/cat80.glb", ({ scene: model }) => {
+  new GLTFLoader().load("/models/cat80.glb", ({ scene: model }) => {
     model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;

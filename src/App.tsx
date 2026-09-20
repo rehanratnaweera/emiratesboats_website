@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import BoatViewer, { type BoatBuildType } from "./components/BoatViewer";
-import gameChangerVideo from "./videos/game_changer.mp4";
 
 interface BoatModel {
   id: string;
@@ -122,7 +121,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 h-25 flex items-center justify-between">
           {/* wordmark */}
           <div className="flex items-center gap-3">
-            <img width="100vw" height="100vh" src="src/images/logo.png" alt="Boat logo" className="object-cover" />
+            <img width="100vw" height="100vh" src="/images/logo.png" alt="Boat logo" className="object-cover" />
           </div>
 
           {/* desktop links */}
@@ -182,7 +181,7 @@ export default function App() {
       <section className="relative flex flex-col justify-end overflow-hidden" style={{ minHeight: "100svh" }}>
         <video
           className="absolute inset-0 h-full w-full object-cover"
-          src={gameChangerVideo}
+          src="/videos/game_changer.mp4"
           autoPlay
           muted
           loop
