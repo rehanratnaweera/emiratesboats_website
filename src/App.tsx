@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import BoatViewer, { type BoatBuildType } from "./components/BoatViewer";
+import gameChangerVideo from "./videos/game_changer.mp4";
 
 interface BoatModel {
   id: string;
@@ -118,40 +119,10 @@ export default function App() {
           backdropFilter: navScrolled ? "blur(14px)" : "none",
         }}
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-25 flex items-center justify-between">
           {/* wordmark */}
           <div className="flex items-center gap-3">
-            <svg width="32" height="24" viewBox="0 0 32 24" fill="none">
-              <path d="M2 18 Q9 4 16 10 Q23 4 30 18" stroke="#c4973a" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
-              <line x1="2" y1="20" x2="30" y2="20" stroke="#c4973a" strokeWidth="1.5"/>
-              <line x1="16" y1="10" x2="16" y2="2" stroke="#c4973a" strokeWidth="1.5"/>
-            </svg>
-            <div>
-              <span
-                style={{
-                  fontFamily: "Fraunces, Georgia, serif",
-                  fontWeight: 500,
-                  fontSize: "1.0rem",
-                  color: "#e8eef5",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                Emirates Boats
-              </span>
-              <span
-                style={{
-                  display: "block",
-                  fontFamily: "DM Mono, monospace",
-                  fontSize: "0.52rem",
-                  color: "#c4973a",
-                  letterSpacing: "0.22em",
-                  lineHeight: 1,
-                  textTransform: "uppercase",
-                }}
-              >
-                LLC · Dubai
-              </span>
-            </div>
+            <img width="100vw" height="100vh" src="src/images/logo.png" alt="Boat logo" className="object-cover" />
           </div>
 
           {/* desktop links */}
@@ -209,9 +180,15 @@ export default function App() {
 
       {/* ── HERO ────────────────────────────────────────── */}
       <section className="relative flex flex-col justify-end overflow-hidden" style={{ minHeight: "100svh" }}>
-        <div
-          className="absolute inset-0 bg-center bg-cover"
-          style={{ backgroundImage: "url(https://images.unsplash.com/photo-1545647274-96644da34363?w=1800&h=1100&fit=crop&auto=format)" }}
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src={gameChangerVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
         />
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(7,18,30,0.25) 0%, rgba(7,18,30,0.1) 30%, rgba(7,18,30,0.7) 68%, rgba(7,18,30,1.0) 100%)" }} />
         <div className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(7,18,30,0.55) 0%, transparent 55%)" }} />
