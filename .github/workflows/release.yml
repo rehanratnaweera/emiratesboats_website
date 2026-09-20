@@ -53,6 +53,11 @@ jobs:
 
       - name: Bundle Assets
         run: tar -czf build-output.tar.gz -C dist .
+      
+      - name: Debug Dirty Tree
+        run: |
+          git status
+          git diff
 
       - name: Run Semantic Release
         env:
