@@ -30,13 +30,13 @@ const BOATS: BoatModel[] = [
     length: "46 ft / 14.0 m",
     beam: "10.5 ft / 3.2 m",
     displacement: "9,200 lbs",
-    range: "280 nm",
-    power: "3 × Mercury V10 450R (450 hp ea.)",
+    range: "- nm",
+    power: "5 × Mercury V8 500R (500 hp ea.)",
     speed: "62 kn max / 38 kn cruise",
-    capacity: "10 persons",
-    construction: "E-glass / vinylester deep-V",
+    capacity: "12 persons",
+    construction: "Carbon Composite Eglass / vinylester deep-V",
     description:
-      "The EB-46 is our entry into serious offshore sport fishing. A sharp deep-V runs the full length of the hull, cutting through Gulf chop without sacrificing top speed. Triple 450R outboards deliver 1,350 combined horses. Forward fish box, two 70-gallon livewells, 12 flush rod holders, and an integrated T-top with full electronics arch come standard.",
+      "The EB-46 is our entry into serious offshore sport fishing. A sharp deep-V runs the full length of the hull, cutting through Gulf chop without sacrificing top speed. Five 500R outboards deliver 2,500 combined horses. Forward and back fish boxes, flush rod holders, and an integrated T-top with full electronics arch come standard.",
   },
   {
     id: "eb-63",
@@ -46,15 +46,15 @@ const BOATS: BoatModel[] = [
     hullColor: 0x1c2e3e,
     accentColor: 0xc4973a,
     length: "63 ft / 19.2 m",
-    beam: "13.8 ft / 4.2 m",
-    displacement: "24,600 lbs",
-    range: "420 nm",
-    power: "4 × Mercury Verado 600 (600 hp ea.)",
-    speed: "58 kn max / 36 kn cruise",
-    capacity: "16 persons",
+    beam: "13 ft / 4 m",
+    displacement: "16,500 lbs",
+    range: "- nm",
+    power: "6 × Mercury V8 500R (500 hp ea.)",
+    speed: "70 kn max / 55 kn cruise",
+    capacity: "15 persons",
     construction: "Carbon-reinforced E-glass / infused hull",
     description:
-      "The EB-63 is one of the largest center-console sport fishing platforms in the Gulf. Four Mercury Verado 600s push it to 58 knots on a stepped, vacuum-infused hull that saves 680 kg over a comparable wet-laminate build. Below-deck overnight berths for four, a full-head, a refrigerated fish hold, and outriggers rated for 130 kg blue marlin.",
+      "The EB-63 is one of the largest center-console sport fishing platforms in the world. Six Mercury 500R push it to 70 knots on a stepped, vacuum-infused Carbon and Eglass composite build. Below-deck overnight berth, a full-head, plenty of storage, world class electronics, navigation systems, and entertainment systems make this a serious offshore pleasure fishing machine for the Gulf of Oman and beyond.",
   },
   {
     id: "eb-cat-80",
@@ -67,12 +67,12 @@ const BOATS: BoatModel[] = [
     beam: "34 ft / 10.4 m",
     displacement: "38,000 lbs",
     range: "1,200 nm",
-    power: "2 × Volvo IPS 800 (600 hp ea.)",
-    speed: "28 kn max / 22 kn cruise",
-    capacity: "24 day / 10 overnight",
-    construction: "Full pre-preg carbon fiber / vacuum-bagged",
+    power: "2 × MAN V12 2000 (2000 hp ea.)",
+    speed: "44 kn max / 30 kn cruise",
+    capacity: "24 persons",
+    construction: "Full carbon fiber Composite / vacuum-bagged",
     description:
-      "Built entirely from pre-preg carbon fiber in a temperature-controlled autoclave, the EB Cat 80 weighs 40% less than a comparable GRP platform. The wide 10.4 m bridge deck eliminates slamming and provides a stable, hotel-quality interior spanning three cabins, a master suite, and a full galley. The flybridge carries a 3.5 m tender on integrated davits alongside a full wet bar and sun loungers for 10.",
+      "Built entirely from carbon fiber in a temperature-controlled autoclave, the EB Cat 80 weighs significantly less than a comparable GRP platform. ",
   },
 ];
 
@@ -136,7 +136,7 @@ export default function App() {
                   if (l === "Contact") scrollTo(contactRef);
                 }}
                 style={{ fontFamily: "DM Mono, monospace", fontSize: "0.62rem", color: "#6a8098", letterSpacing: "0.14em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#c4973a")}
+                onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#3abbc4")}
                 onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#6a8098")}
               >
                 {l}
@@ -146,16 +146,16 @@ export default function App() {
 
           <button
             className="hidden md:block px-5 py-2 transition-all duration-200"
-            style={{ border: "1px solid #c4973a", color: "#c4973a", fontFamily: "DM Mono, monospace", fontSize: "0.62rem", letterSpacing: "0.16em", textTransform: "uppercase", background: "none", cursor: "pointer" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#c4973a"; (e.currentTarget as HTMLElement).style.color = "#07121e"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#c4973a"; }}
+            style={{ border: "1px solid #3abbc4", color: "#3abbc4", fontFamily: "DM Mono, monospace", fontSize: "0.62rem", letterSpacing: "0.16em", textTransform: "uppercase", background: "none", cursor: "pointer" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#3abbc4"; (e.currentTarget as HTMLElement).style.color = "#07121e"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#3abbc4"; }}
           >
             Enquire
           </button>
 
           <button className="md:hidden flex flex-col gap-1.5" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {[5, 5, 3].map((w, i) => (
-              <span key={i} className="block h-px" style={{ width: `${w * 4}px`, background: "#c4973a" }} />
+              <span key={i} className="block h-px" style={{ width: `${w * 4}px`, background: "#3abbc4" }} />
             ))}
           </button>
         </div>
@@ -194,13 +194,13 @@ export default function App() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20 pt-28 w-full">
           <div className="max-w-lg">
-            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.62rem", color: "#c4973a", letterSpacing: "0.26em", textTransform: "uppercase", marginBottom: "20px" }}>
+            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.62rem", color: "#3abbc4", letterSpacing: "0.26em", textTransform: "uppercase", marginBottom: "20px" }}>
               Dubai · United Arab Emirates
             </p>
             <h1 style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "clamp(2.8rem, 6.5vw, 5rem)", fontWeight: 400, color: "#e8eef5", lineHeight: 1.02, marginBottom: "22px" }}>
               Purpose-built
               <br />
-              <em style={{ fontStyle: "italic", color: "#c4973a" }}>for the Gulf.</em>
+              <em style={{ fontStyle: "italic", color: "#3abbc4" }}>for the Gulf.</em>
             </h1>
             <p style={{ color: "#7a94ae", fontSize: "1rem", lineHeight: 1.72, maxWidth: "40ch", marginBottom: "36px" }}>
               Emirates Boats LLC designs and builds high-performance center-console sport fishers and offshore catamarans — engineered for Gulf conditions, finished to international standards.
@@ -208,15 +208,15 @@ export default function App() {
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={() => scrollTo(fleetRef)}
-                style={{ background: "#c4973a", color: "#07121e", fontFamily: "DM Mono, monospace", fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "14px 28px", border: "none", cursor: "pointer", fontWeight: 500, transition: "background 0.2s" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#d4aa5a")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#c4973a")}
+                style={{ background: "#3abbc4", color: "#07121e", fontFamily: "DM Mono, monospace", fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "14px 28px", border: "none", cursor: "pointer", fontWeight: 500, transition: "background 0.2s" }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#5a9dd4")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#3abbc4")}
               >
                 View the Fleet
               </button>
               <button
                 style={{ background: "transparent", color: "#cfd9e6", fontFamily: "DM Mono, monospace", fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "14px 28px", border: "1px solid rgba(207,217,230,0.28)", cursor: "pointer", transition: "border-color 0.2s, color 0.2s" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(196,151,58,0.6)"; (e.currentTarget as HTMLElement).style.color = "#c4973a"; }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(196,151,58,0.6)"; (e.currentTarget as HTMLElement).style.color = "#3abbc4"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(207,217,230,0.28)"; (e.currentTarget as HTMLElement).style.color = "#cfd9e6"; }}
               >
                 Our Process
@@ -235,7 +235,7 @@ export default function App() {
               ["Dubai", "Build Facility"],
             ].map(([val, lbl]) => (
               <div key={lbl}>
-                <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "1.4rem", color: "#c4973a", lineHeight: 1, marginBottom: "3px" }}>{val}</p>
+                <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "1.4rem", color: "#3abbc4", lineHeight: 1, marginBottom: "3px" }}>{val}</p>
                 <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#4a6070", letterSpacing: "0.14em", textTransform: "uppercase" }}>{lbl}</p>
               </div>
             ))}
@@ -248,13 +248,13 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
-              <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#c4973a", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "12px" }}>
+              <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3abbc4", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "12px" }}>
                 Current Lineup
               </p>
               <h2 style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "clamp(1.9rem, 3.5vw, 2.8rem)", fontWeight: 400, color: "#e8eef5", lineHeight: 1.1 }}>
                 Three models.
                 <br />
-                <em style={{ fontStyle: "italic", color: "#c4973a" }}>No compromises.</em>
+                <em style={{ fontStyle: "italic", color: "#3abbc4" }}>No compromises.</em>
               </h2>
             </div>
             <p style={{ color: "#6a8098", fontSize: "0.85rem", lineHeight: 1.7, maxWidth: "38ch" }}>
@@ -283,9 +283,9 @@ export default function App() {
                     onMouseLeave={(e) => { if (activeBoat.id !== boat.id) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                   >
                     {activeBoat.id === boat.id && (
-                      <span className="absolute left-0 top-0 bottom-0 w-0.5" style={{ background: "#c4973a" }} />
+                      <span className="absolute left-0 top-0 bottom-0 w-0.5" style={{ background: "#3abbc4" }} />
                     )}
-                    <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "1.1rem", color: activeBoat.id === boat.id ? "#e8cc8a" : "#b8c8d8", marginBottom: "5px", fontWeight: 400 }}>
+                    <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "1.1rem", color: activeBoat.id === boat.id ? "#5a9dd4" : "#b8c8d8", marginBottom: "5px", fontWeight: 400 }}>
                       {boat.name}
                     </p>
                     <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3a5060", letterSpacing: "0.12em", textTransform: "uppercase" }}>
@@ -305,7 +305,7 @@ export default function App() {
                     hullColor={activeBoat.hullColor}
                     accentColor={activeBoat.accentColor}
                   />
-                  <div style={{ position: "absolute", top: "16px", left: "16px", fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#c4973a", letterSpacing: "0.14em", background: "rgba(4,13,23,0.75)", padding: "6px 10px", border: "1px solid rgba(196,151,58,0.2)" }}>
+                  <div style={{ position: "absolute", top: "16px", left: "16px", fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#3abbc4", letterSpacing: "0.14em", background: "rgba(4,13,23,0.75)", padding: "6px 10px", border: "1px solid rgba(196,151,58,0.2)" }}>
                     {activeBoat.name} — INTERACTIVE 3D MODEL
                   </div>
                   <div style={{ position: "absolute", bottom: "14px", right: "14px", fontFamily: "DM Mono, monospace", fontSize: "0.55rem", color: "#3a5060", letterSpacing: "0.1em", background: "rgba(4,13,23,0.7)", padding: "5px 10px" }}>
@@ -331,9 +331,9 @@ export default function App() {
                     {activeBoat.description}
                   </p>
                   <button
-                    style={{ marginTop: "20px", border: "1px solid rgba(196,151,58,0.4)", color: "#c4973a", background: "transparent", fontFamily: "DM Mono, monospace", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "10px 22px", cursor: "pointer", transition: "all 0.2s" }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#c4973a"; (e.currentTarget as HTMLElement).style.color = "#07121e"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#c4973a"; }}
+                    style={{ marginTop: "20px", border: "1px solid rgba(196,151,58,0.4)", color: "#3abbc4", background: "transparent", fontFamily: "DM Mono, monospace", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "10px 22px", cursor: "pointer", transition: "all 0.2s" }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#3abbc4"; (e.currentTarget as HTMLElement).style.color = "#07121e"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#3abbc4"; }}
                   >
                     Request Specification Sheet
                   </button>
@@ -358,26 +358,26 @@ export default function App() {
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(4,13,23,0.5) 0%, transparent 65%)" }} />
             </div>
             <div>
-              <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#c4973a", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "16px" }}>
+              <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3abbc4", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "16px" }}>
                 How We Build
               </p>
               <h2 style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)", fontWeight: 400, color: "#e8eef5", lineHeight: 1.12, marginBottom: "20px" }}>
                 Engineered for
                 <br />
-                <em style={{ fontStyle: "italic", color: "#c4973a" }}>Gulf conditions</em>
+                <em style={{ fontStyle: "italic", color: "#3abbc4" }}>Gulf conditions</em>
               </h2>
               <p style={{ color: "#5a7080", lineHeight: 1.78, marginBottom: "16px", fontSize: "0.9rem" }}>
                 Every hull we build starts with a finite-element structural analysis for our specific sea state. The Gulf of Oman presents short, steep chop at 2–3 m that punishes inadequately reinforced transoms. Our center consoles use a 28° deep-V with longitudinal stringers bonded in carbon-loaded epoxy.
               </p>
               <p style={{ color: "#5a7080", lineHeight: 1.78, fontSize: "0.9rem" }}>
-                The EB Cat 80 is built entirely from pre-preg carbon fiber — laid by hand in our Dubai facility, cured under vacuum at 80°C, and inspected ultrasonically before the hulls are joined.
+                The EB Cat 80 is built entirely from carbon fiber — laid by hand in our Dubai facility, cured under vacuum, and inspected ultrasonically before the hulls are joined.
               </p>
             </div>
           </div>
 
           {/* process */}
           <div style={{ borderTop: "1px solid rgba(196,151,58,0.14)", paddingTop: "60px" }}>
-            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#c4973a", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "36px", textAlign: "center" }}>
+            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3abbc4", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "36px", textAlign: "center" }}>
               Build Stages
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -388,7 +388,7 @@ export default function App() {
                 { n: "04", t: "Sea Trial", b: "Full-speed runs to rated maximum, instrument calibration, and customer handover in Dubai Marina." },
               ].map(({ n, t, b }) => (
                 <div key={n} style={{ paddingLeft: "20px", borderLeft: "1px solid rgba(196,151,58,0.22)" }}>
-                  <span style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#c4973a", letterSpacing: "0.12em", display: "block", marginBottom: "10px" }}>{n}</span>
+                  <span style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3abbc4", letterSpacing: "0.12em", display: "block", marginBottom: "10px" }}>{n}</span>
                   <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "1rem", color: "#b8c8d8", marginBottom: "9px" }}>{t}</p>
                   <p style={{ color: "#3a5060", fontSize: "0.82rem", lineHeight: 1.68 }}>{b}</p>
                 </div>
@@ -425,21 +425,21 @@ export default function App() {
       {/* ── CTA ─────────────────────────────────────────── */}
       <section style={{ background: "#040d17", borderTop: "1px solid rgba(196,151,58,0.15)", borderBottom: "1px solid rgba(196,151,58,0.15)", padding: "88px 24px" }} ref={contactRef}>
         <div className="max-w-xl mx-auto text-center">
-          <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#c4973a", letterSpacing: "0.24em", textTransform: "uppercase", marginBottom: "20px" }}>
+          <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3abbc4", letterSpacing: "0.24em", textTransform: "uppercase", marginBottom: "20px" }}>
             Bespoke Programme
           </p>
           <h2 style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "clamp(1.9rem, 3.5vw, 2.8rem)", fontWeight: 400, color: "#e8eef5", lineHeight: 1.1, marginBottom: "20px" }}>
             Have a specific
             <br />
-            <em style={{ fontStyle: "italic", color: "#c4973a" }}>brief in mind?</em>
+            <em style={{ fontStyle: "italic", color: "#3abbc4" }}>brief in mind?</em>
           </h2>
           <p style={{ color: "#5a7080", lineHeight: 1.78, maxWidth: "44ch", margin: "0 auto 36px", fontSize: "0.9rem" }}>
             We take on bespoke commissions alongside our standard models. From an extended-range 55 ft center console to a custom 100 ft carbon cat — bring the spec, we'll build it.
           </p>
           <button
-            style={{ background: "#c4973a", color: "#07121e", fontFamily: "DM Mono, monospace", fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "15px 34px", border: "none", cursor: "pointer", fontWeight: 500, transition: "background 0.2s" }}
+            style={{ background: "#3abbc4", color: "#07121e", fontFamily: "DM Mono, monospace", fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "15px 34px", border: "none", cursor: "pointer", fontWeight: 500, transition: "background 0.2s" }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#d4aa5a")}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#c4973a")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#3abbc4")}
           >
             Contact the Build Team
           </button>
@@ -452,7 +452,7 @@ export default function App() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
             <div>
               <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "0.95rem", color: "#b8c8d8", marginBottom: "6px", letterSpacing: "0.05em" }}>Emirates Boats LLC</p>
-              <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.56rem", color: "#c4973a", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "14px" }}>Dubai, UAE</p>
+              <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.56rem", color: "#3abbc4", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "14px" }}>Dubai, UAE</p>
               <p style={{ color: "#283848", fontSize: "0.8rem", lineHeight: 1.7 }}>
                 Dubai Marina,<br />
                 Sheikh Zayed Road,<br />
@@ -465,7 +465,7 @@ export default function App() {
               { h: "Services", links: ["Bespoke Builds", "Refit & Service", "Sea Trials", "Parts & Accessories"] },
             ].map(({ h, links }) => (
               <div key={h}>
-                <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#c4973a", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "14px" }}>{h}</p>
+                <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#3abbc4", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "14px" }}>{h}</p>
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "9px" }}>
                   {links.map((l) => (
                     <li key={l}>
