@@ -258,7 +258,7 @@ export default function App() {
               </h2>
             </div>
             <p style={{ color: "#6a8098", fontSize: "0.85rem", lineHeight: 1.7, maxWidth: "38ch" }}>
-              Drag to orbit · scroll to zoom · each vessel is available for sea trial in Dubai Marina.
+              Drag to orbit · scroll to zoom.
             </p>
           </div>
 
@@ -454,9 +454,9 @@ export default function App() {
               <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "0.95rem", color: "#b8c8d8", marginBottom: "6px", letterSpacing: "0.05em" }}>Emirates Boats LLC</p>
               <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.56rem", color: "#3abbc4", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "14px" }}>Dubai, UAE</p>
               <p style={{ color: "#283848", fontSize: "0.8rem", lineHeight: 1.7 }}>
-                Dubai Marina,<br />
-                Sheikh Zayed Road,<br />
-                Dubai, UAE
+                Jebel Ali Industrial 1,<br />
+                P.O. Box 212300,<br />
+                +971 4 880 4777
               </p>
             </div>
             {[
