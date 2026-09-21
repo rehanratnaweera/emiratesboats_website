@@ -93,6 +93,7 @@ export default function App() {
   const [activeBoat, setActiveBoat] = useState<BoatModel>(BOATS[0]);
   const [navScrolled, setNavScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLightMode, setIsLightMode] = useState(false);
   const fleetRef = useRef<HTMLDivElement>(null);
   const constructionRef: React.RefObject<HTMLDivElement | null> = useRef(null);
   const bespokeRef: React.RefObject<HTMLDivElement | null> = useRef(null);
@@ -104,11 +105,20 @@ export default function App() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem("emirates-boats-theme");
+    if (savedTheme === "light") setIsLightMode(true);
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem("emirates-boats-theme", isLightMode ? "light" : "dark");
+  }, [isLightMode]);
+
   const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) =>
     ref.current?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <div style={{ background: "#07121e", color: "#cfd9e6", fontFamily: "Inter, system-ui, sans-serif", minHeight: "100vh" }}>
+    <div className={`site-shell ${isLightMode ? "theme-light" : "theme-dark"}`}>
 
       {/* ── NAV ─────────────────────────────────────────── */}
       <nav
@@ -136,9 +146,9 @@ export default function App() {
                   if (l === "Bespoke") scrollTo(bespokeRef);
                   if (l === "Contact") scrollTo(contactRef);
                 }}
-                style={{ fontFamily: "DM Mono, monospace", fontSize: "0.62rem", color: "#6a8098", letterSpacing: "0.14em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#3abbc4")}
-                onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#6a8098")}
+                style={{ fontFamily: "DM Mono, monospace", fontSize: "0.62rem", color: "#00d9ff", letterSpacing: "0.14em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer" }}
+                onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#278188")}
+                onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#00d9ff")}
               >
                 {l}
               </button>
@@ -152,6 +162,17 @@ export default function App() {
             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#3abbc4"; }}
           >
             Enquire
+          </button>
+
+          <button
+            className="theme-toggle"
+            type="button"
+            aria-label={`Switch to ${isLightMode ? "dark" : "light"} mode`}
+            aria-pressed={isLightMode}
+            onClick={() => setIsLightMode((current) => !current)}
+          >
+            <span aria-hidden="true">{isLightMode ? "☾" : "☼"}</span>
+            {isLightMode ? "Dark" : "Light"}
           </button>
 
           <button className="md:hidden flex flex-col gap-1.5" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -457,25 +478,25 @@ export default function App() {
             <div>
               <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "0.95rem", color: "#b8c8d8", marginBottom: "6px", letterSpacing: "0.05em" }}>Emirates Boats LLC</p>
               <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.56rem", color: "#3abbc4", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "14px" }}>Dubai, UAE</p>
-              <p style={{ color: "#283848", fontSize: "0.8rem", lineHeight: 1.7 }}>
+              <p style={{ color: "#3abbc4", fontSize: "0.8rem", lineHeight: 1.7 }}>
                 Jebel Ali Industrial 1,<br />
                 P.O. Box 212300,<br />
                 +971 4 880 4777
               </p>
             </div>
             {[
-              { h: "Fleet", links: ["EB-46 Center Console", "EB-63 Center Console", "EB Cat 80"] },
-              { h: "Company", links: ["About Us", "The Facility", "Careers", "News"] },
-              { h: "Services", links: ["Bespoke Builds", "Refit & Service", "Sea Trials", "Parts & Accessories"] },
-            ].map(({ h, links }) => (
+              { h: "Fleet", links: ["EB-46 Center Console", "EB-63 Center Console", "EB Cat 80"], href: ["#", "#", "#"] },
+              { h: "Company", links: ["About Us", "Instagram", "Facebook", "LinkedIn"], href: ["constructionRef", "https://www.instagram.com/emiratesboat", "https://www.facebook.com/emiratesboats", "https://www.linkedin.com/company/emirates-boats-llc"] },
+              { h: "Services", links: ["Bespoke Builds", "Refit & Service", "Sea Trials", "Parts & Accessories"], href: ["#", "#", "#", "#"] },
+            ].map(({ h, links, href }) => (
               <div key={h}>
                 <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#3abbc4", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "14px" }}>{h}</p>
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "9px" }}>
-                  {links.map((l) => (
+                  {links.map((l, i) => (
                     <li key={l}>
-                      <a href="#" style={{ color: "#283848", fontSize: "0.8rem", textDecoration: "none", transition: "color 0.15s" }}
+                      <a href={href[i]} style={{ color: "#3abbc4", fontSize: "0.8rem", textDecoration: "none", transition: "color 0.15s" }}
                         onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#7a94ae")}
-                        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#283848")}
+                        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#3abbc4")}
                       >{l}</a>
                     </li>
                   ))}
@@ -484,8 +505,8 @@ export default function App() {
             ))}
           </div>
           <div style={{ borderTop: "1px solid rgba(40,56,72,0.5)", paddingTop: "20px", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
-            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.55rem", color: "#ffffff", letterSpacing: "0.1em" }}>© 2026 Emirates Boats LLC. All rights reserved.</p>
-            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.80rem", color: "#fefeff", letterSpacing: "0.1em" }}>Designed and built with ❤️ by <a href="https://www.linkedin.com/in/rehanratnaweera" style={{ color: "#fefeff", textDecoration: "underline" }}>Rehan Rathnawera</a></p>
+            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.55rem", color: "#c0b9b9", letterSpacing: "0.1em" }}>© 2026 Emirates Boats LLC. All rights reserved.</p>
+            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.80rem", color: "#fefeff", letterSpacing: "0.1em" }}>Designed and built with ❤️ by <a href="https://www.linkedin.com/in/rehanratnaweera" style={{ color: "#fefeff", textDecoration: "underline" }}>Rehan Rathnaweera</a></p>
           </div>
         </div>
       </footer>

@@ -43,6 +43,118 @@ body {
   overflow-x: hidden;
 }
 
+:root {
+  --site-bg: #07121e;
+  --site-bg-deep: #040d17;
+  --site-bg-footer: #030a12;
+  --site-text: #cfd9e6;
+  --site-heading: #e8eef5;
+  --site-muted: #6a8098;
+  --site-subtle: #5a7080;
+  --site-line: rgba(196, 151, 58, 0.15);
+  --site-control-bg: rgba(4, 13, 23, 0.7);
+}
+
+.site-shell {
+  min-height: 100vh;
+  background: var(--site-bg);
+  color: var(--site-text);
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: background-color 250ms ease, color 250ms ease;
+}
+
+.theme-light {
+  --site-bg: #f4f7f8;
+  --site-bg-deep: #e7eef0;
+  --site-bg-footer: #dce6e9;
+  --site-text: #203440;
+  --site-heading: #10232e;
+  --site-muted: #476675;
+  --site-subtle: #55717d;
+  --site-line: rgba(196, 151, 58, 0.35);
+  --site-control-bg: rgba(255, 255, 255, 0.8);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(58, 187, 196, 0.55);
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: transparent;
+  color: #3abbc4;
+  cursor: pointer;
+  font: 500 0.58rem 'DM Mono', 'Courier New', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.theme-toggle span {
+  font-size: 0.9rem;
+  line-height: 0.8;
+}
+
+.theme-toggle:hover {
+  background: rgba(58, 187, 196, 0.12);
+}
+
+/* The page predates theme variables and uses inline color values. These selectors
+   map those shared surfaces and text tones while leaving teal and gold unchanged. */
+.theme-light [style*='#07121e'],
+.theme-light [style*='rgb(7, 18, 30)'] { background: var(--site-bg) !important; }
+.theme-light [style*='#040d17'],
+.theme-light [style*='rgb(4, 13, 23)'] { background: var(--site-bg-deep) !important; }
+.theme-light [style*='#030a12'],
+.theme-light [style*='rgb(3, 10, 18)'] { background: var(--site-bg-footer) !important; }
+.theme-light [style*='rgba(7,18,30'],
+.theme-light [style*='rgba(7, 18, 30'] { background: rgba(244, 247, 248, 0.94) !important; }
+.theme-light [style*='rgba(4,13,23'],
+.theme-light [style*='rgba(4, 13, 23'] { background: rgba(231, 238, 240, 0.94) !important; }
+.theme-light [style*='color: "#cfd9e6"'],
+.theme-light [style*='color: #cfd9e6'],
+.theme-light [style*='color: rgb(207, 217, 230)'] { color: var(--site-text) !important; }
+.theme-light [style*='color: "#e8eef5"'],
+.theme-light [style*='color: #e8eef5'],
+.theme-light [style*='color: rgb(232, 238, 245)'] { color: var(--site-heading) !important; }
+.theme-light [style*='color: "#6a8098"'],
+.theme-light [style*='color: #6a8098'],
+.theme-light [style*='color: rgb(106, 128, 152)'] { color: var(--site-muted) !important; }
+.theme-light [style*='color: "#5a7080"'],
+.theme-light [style*='color: #5a7080'],
+.theme-light [style*='color: rgb(90, 112, 128)'] { color: var(--site-subtle) !important; }
+.theme-light [style*='color: "#b8c8d8"'],
+.theme-light [style*='color: #b8c8d8'] { color: #294754 !important; }
+.theme-light [style*='color: "#3a5060"'],
+.theme-light [style*='color: #3a5060'] { color: #62808a !important; }
+.theme-light [style*='color: "#283848"'],
+.theme-light [style*='color: #283848'] { color: #5a747e !important; }
+
+.theme-light .contact-form,
+.theme-light .contact-success {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 18px 50px rgba(46, 74, 84, 0.12);
+}
+
+.theme-light .contact-field input,
+.theme-light .contact-field textarea {
+  background: var(--site-control-bg);
+  border-color: rgba(32, 52, 64, 0.2);
+  color: var(--site-heading);
+}
+
+.theme-light .contact-field input:focus,
+.theme-light .contact-field textarea:focus {
+  background: #fff;
+}
+
+@media (max-width: 767px) {
+  .theme-toggle {
+    margin-right: 10px;
+  }
+}
+
 .contact-form {
   margin: 42px auto 0;
   padding: 28px;
