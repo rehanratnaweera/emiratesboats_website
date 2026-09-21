@@ -335,6 +335,7 @@ export default function App() {
                     style={{ marginTop: "20px", border: "1px solid rgba(196,151,58,0.4)", color: "#3abbc4", background: "transparent", fontFamily: "DM Mono, monospace", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "10px 22px", cursor: "pointer", transition: "all 0.2s" }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#3abbc4"; (e.currentTarget as HTMLElement).style.color = "#07121e"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#3abbc4"; }}
+                    onClick={() => scrollTo(contactRef)}
                   >
                     Request Specification Sheet
                   </button>
@@ -441,6 +442,7 @@ export default function App() {
             style={{ background: "#3abbc4", color: "#07121e", fontFamily: "DM Mono, monospace", fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "15px 34px", border: "none", cursor: "pointer", fontWeight: 500, transition: "background 0.2s" }}
             onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#d4aa5a")}
             onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#3abbc4")}
+            onClick={() => scrollTo(contactRef)}
           >
             Contact the Build Team
           </button>
