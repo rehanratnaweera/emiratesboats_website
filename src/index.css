@@ -42,3 +42,208 @@ body {
   margin: 0;
   overflow-x: hidden;
 }
+
+.contact-form {
+  margin: 42px auto 0;
+  padding: 28px;
+  max-width: 680px;
+  text-align: left;
+  background: rgba(7, 18, 30, 0.72);
+  border: 1px solid rgba(58, 187, 196, 0.24);
+  border-top: 2px solid #3abbc4;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.2);
+}
+
+.contact-form-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(207, 217, 230, 0.1);
+}
+
+.contact-form-kicker,
+.contact-form-note,
+.contact-field label,
+.contact-form-footer p {
+  font-family: 'DM Mono', 'Courier New', monospace;
+}
+
+.contact-form-kicker {
+  color: #e8eef5;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.contact-form-note {
+  color: #5a7080;
+  font-size: 0.58rem;
+  letter-spacing: 0.05em;
+}
+
+.contact-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.contact-field label {
+  color: #7a94ae;
+  font-size: 0.58rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.contact-field input,
+.contact-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(207, 217, 230, 0.16);
+  border-radius: 2px;
+  background: rgba(4, 13, 23, 0.7);
+  color: #e8eef5;
+  font: 400 0.85rem/1.5 'Inter', system-ui, sans-serif;
+  padding: 13px 14px;
+  outline: none;
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.contact-field textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+
+.contact-field input::placeholder,
+.contact-field textarea::placeholder {
+  color: #405467;
+}
+
+.contact-field input:focus,
+.contact-field textarea:focus {
+  border-color: #3abbc4;
+  background: rgba(4, 13, 23, 0.95);
+  box-shadow: 0 0 0 3px rgba(58, 187, 196, 0.1);
+}
+
+.contact-field span[role='alert'] {
+  color: #e8a28e;
+  font-size: 0.7rem;
+}
+
+.contact-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 4px;
+}
+
+.contact-form-footer p {
+  margin: 0;
+  color: #50677a;
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+}
+
+.contact-form-footer p span {
+  color: #c4973a;
+  padding: 0 5px;
+}
+
+.contact-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  flex-shrink: 0;
+  border: 1px solid #3abbc4;
+  border-radius: 0;
+  background: #3abbc4;
+  color: #07121e;
+  cursor: pointer;
+  font: 500 0.62rem 'DM Mono', 'Courier New', monospace;
+  letter-spacing: 0.13em;
+  padding: 14px 17px;
+  text-transform: uppercase;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.contact-submit span {
+  font-size: 1rem;
+  line-height: 0.7;
+}
+
+.contact-submit:hover:not(:disabled) {
+  border-color: #d4aa5a;
+  background: #d4aa5a;
+}
+
+.contact-submit:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.contact-success {
+  margin: 42px auto 0;
+  padding: 38px 28px;
+  max-width: 680px;
+  text-align: center;
+  background: rgba(7, 18, 30, 0.72);
+  border: 1px solid rgba(58, 187, 196, 0.24);
+  border-top: 2px solid #3abbc4;
+}
+
+.contact-success-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid #3abbc4;
+  border-radius: 50%;
+  color: #3abbc4;
+  font-size: 1rem;
+}
+
+.contact-success-title {
+  margin: 18px 0 6px;
+  color: #e8eef5;
+  font: 400 1.45rem 'Fraunces', Georgia, serif;
+}
+
+.contact-success-copy {
+  margin: 0;
+  color: #7a94ae;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .contact-form {
+    padding: 22px 18px;
+  }
+
+  .contact-form-heading,
+  .contact-form-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .contact-form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .contact-submit {
+    justify-content: space-between;
+    width: 100%;
+  }
+}

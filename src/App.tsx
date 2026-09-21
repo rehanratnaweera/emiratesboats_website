@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import BoatViewer, { type BoatBuildType } from "./components/BoatViewer";
+import ContactBox from "./components/contactbox";
 
 interface BoatModel {
   id: string;
@@ -443,6 +444,7 @@ export default function App() {
           >
             Contact the Build Team
           </button>
+          <ContactBox />
         </div>
       </section>
 
