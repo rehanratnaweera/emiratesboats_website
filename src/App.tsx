@@ -484,8 +484,8 @@ export default function App() {
             ))}
           </div>
           <div style={{ borderTop: "1px solid rgba(40,56,72,0.5)", paddingTop: "20px", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
-            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.55rem", color: "#1e2e3e", letterSpacing: "0.1em" }}>© 2024 Emirates Boats LLC. All rights reserved.</p>
-            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.55rem", color: "#1e2e3e", letterSpacing: "0.1em" }}>PRIVACY · TERMS · COOKIES</p>
+            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.55rem", color: "#ffffff", letterSpacing: "0.1em" }}>© 2026 Emirates Boats LLC. All rights reserved.</p>
+            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.80rem", color: "#fefeff", letterSpacing: "0.1em" }}>Designed and built with ❤️ by <a href="https://www.linkedin.com/in/rehanratnaweera" style={{ color: "#fefeff", textDecoration: "underline" }}>Rehan Rathnawera</a></p>
           </div>
         </div>
       </footer>
