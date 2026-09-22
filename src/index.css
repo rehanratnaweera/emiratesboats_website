@@ -63,96 +63,26 @@ body {
   transition: background-color 250ms ease, color 250ms ease;
 }
 
-.theme-light {
-  --site-bg: #f4f7f8;
-  --site-bg-deep: #e7eef0;
-  --site-bg-footer: #dce6e9;
-  --site-text: #203440;
-  --site-heading: #10232e;
-  --site-muted: #476675;
-  --site-subtle: #55717d;
-  --site-line: rgba(196, 151, 58, 0.35);
-  --site-control-bg: rgba(255, 255, 255, 0.8);
+.hero-section {
+  isolation: isolate;
+  background: #07121e;
 }
 
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid rgba(58, 187, 196, 0.55);
-  border-radius: 999px;
-  padding: 7px 11px;
-  background: transparent;
-  color: #3abbc4;
-  cursor: pointer;
-  font: 500 0.58rem 'DM Mono', 'Courier New', monospace;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  white-space: nowrap;
+.hero-video {
+  z-index: 0;
+  display: block;
+  opacity: 1;
+  visibility: visible;
 }
 
-.theme-toggle span {
-  font-size: 0.9rem;
-  line-height: 0.8;
+.hero-overlay {
+  z-index: 1;
+  pointer-events: none;
 }
 
-.theme-toggle:hover {
-  background: rgba(58, 187, 196, 0.12);
-}
-
-/* The page predates theme variables and uses inline color values. These selectors
-   map those shared surfaces and text tones while leaving teal and gold unchanged. */
-.theme-light [style*='#07121e'],
-.theme-light [style*='rgb(7, 18, 30)'] { background: var(--site-bg) !important; }
-.theme-light [style*='#040d17'],
-.theme-light [style*='rgb(4, 13, 23)'] { background: var(--site-bg-deep) !important; }
-.theme-light [style*='#030a12'],
-.theme-light [style*='rgb(3, 10, 18)'] { background: var(--site-bg-footer) !important; }
-.theme-light [style*='rgba(7,18,30'],
-.theme-light [style*='rgba(7, 18, 30'] { background: rgba(244, 247, 248, 0.94) !important; }
-.theme-light [style*='rgba(4,13,23'],
-.theme-light [style*='rgba(4, 13, 23'] { background: rgba(231, 238, 240, 0.94) !important; }
-.theme-light [style*='color: "#cfd9e6"'],
-.theme-light [style*='color: #cfd9e6'],
-.theme-light [style*='color: rgb(207, 217, 230)'] { color: var(--site-text) !important; }
-.theme-light [style*='color: "#e8eef5"'],
-.theme-light [style*='color: #e8eef5'],
-.theme-light [style*='color: rgb(232, 238, 245)'] { color: var(--site-heading) !important; }
-.theme-light [style*='color: "#6a8098"'],
-.theme-light [style*='color: #6a8098'],
-.theme-light [style*='color: rgb(106, 128, 152)'] { color: var(--site-muted) !important; }
-.theme-light [style*='color: "#5a7080"'],
-.theme-light [style*='color: #5a7080'],
-.theme-light [style*='color: rgb(90, 112, 128)'] { color: var(--site-subtle) !important; }
-.theme-light [style*='color: "#b8c8d8"'],
-.theme-light [style*='color: #b8c8d8'] { color: #294754 !important; }
-.theme-light [style*='color: "#3a5060"'],
-.theme-light [style*='color: #3a5060'] { color: #62808a !important; }
-.theme-light [style*='color: "#283848"'],
-.theme-light [style*='color: #283848'] { color: #5a747e !important; }
-
-.theme-light .contact-form,
-.theme-light .contact-success {
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 18px 50px rgba(46, 74, 84, 0.12);
-}
-
-.theme-light .contact-field input,
-.theme-light .contact-field textarea {
-  background: var(--site-control-bg);
-  border-color: rgba(32, 52, 64, 0.2);
-  color: var(--site-heading);
-}
-
-.theme-light .contact-field input:focus,
-.theme-light .contact-field textarea:focus {
-  background: #fff;
-}
-
-@media (max-width: 767px) {
-  .theme-toggle {
-    margin-right: 10px;
-  }
+.hero-section,
+.hero-section * {
+  color-scheme: dark;
 }
 
 .contact-form {
@@ -358,4 +288,271 @@ body {
     justify-content: space-between;
     width: 100%;
   }
+}
+
+.boat-details {
+  min-width: 0;
+  padding: clamp(24px, 4vw, 48px);
+  background: #040d17;
+}
+
+.boat-details-header,
+.boat-details-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.boat-details-header {
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+
+.boat-details-header h3 {
+  margin: 4px 0 0;
+  color: #e8eef5;
+  font: 400 clamp(1.8rem, 4vw, 2.8rem)/1.05 'Fraunces', Georgia, serif;
+}
+
+.boat-details-kicker,
+.boat-details-section-heading p,
+.boat-details-section-heading span,
+.boat-gallery-index,
+.boat-gallery-expand,
+.boat-lightbox-toolbar,
+.boat-gallery-arrow,
+.boat-lightbox-arrow {
+  font-family: 'DM Mono', 'Courier New', monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.boat-details-kicker {
+  margin: 0;
+  color: #3abbc4;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+}
+
+.boat-back-button,
+.boat-download-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(58, 187, 196, 0.45);
+  background: transparent;
+  color: #3abbc4;
+  cursor: pointer;
+  font: 500 0.6rem 'DM Mono', 'Courier New', monospace;
+  letter-spacing: 0.12em;
+  padding: 11px 14px;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.boat-back-button:hover,
+.boat-download-button:hover {
+  border-color: #3abbc4;
+  background: #3abbc4;
+  color: #07121e;
+}
+
+.boat-details-gallery {
+  min-width: 0;
+  margin-bottom: 34px;
+}
+
+.boat-gallery-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  min-height: 260px;
+  max-height: min(68vh, 680px);
+  overflow: hidden;
+  background: #07121e;
+  border: 1px solid rgba(196, 151, 58, 0.2);
+}
+
+.boat-gallery-stage::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4, 13, 23, 0.08), rgba(4, 13, 23, 0.48));
+  content: '';
+  pointer-events: none;
+}
+
+.boat-gallery-stage > img {
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down;
+  object-position: center;
+  padding: clamp(18px, 4vw, 44px);
+  box-sizing: border-box;
+}
+
+.boat-gallery-index {
+  position: absolute;
+  z-index: 1;
+  top: 17px;
+  left: 19px;
+  color: #d4aa5a;
+  font-size: 0.56rem;
+}
+
+.boat-gallery-arrow,
+.boat-lightbox-arrow {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(207, 217, 230, 0.26);
+  background: rgba(4, 13, 23, 0.72);
+  color: #e8eef5;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.boat-gallery-arrow:hover,
+.boat-lightbox-arrow:hover {
+  border-color: #3abbc4;
+  background: #3abbc4;
+  color: #07121e;
+}
+
+.boat-gallery-arrow-prev { left: 18px; top: 50%; transform: translateY(-50%); }
+.boat-gallery-arrow-next { right: 18px; top: 50%; transform: translateY(-50%); }
+
+.boat-gallery-expand {
+  position: absolute;
+  z-index: 2;
+  right: 18px;
+  bottom: 17px;
+  border: 1px solid rgba(207, 217, 230, 0.26);
+  background: rgba(4, 13, 23, 0.72);
+  color: #e8eef5;
+  cursor: pointer;
+  font-size: 0.55rem;
+  padding: 9px 11px;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.boat-gallery-expand:hover {
+  border-color: #d4aa5a;
+  background: rgba(196, 151, 58, 0.16);
+  color: #d4aa5a;
+}
+
+.boat-gallery-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 120px));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.boat-gallery-thumbnail {
+  aspect-ratio: 16 / 10;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(207, 217, 230, 0.14);
+  background: #07121e;
+  cursor: pointer;
+  opacity: 0.54;
+  transition: border-color 180ms ease, opacity 180ms ease;
+}
+
+.boat-gallery-thumbnail.is-active,
+.boat-gallery-thumbnail:hover {
+  border-color: #3abbc4;
+  opacity: 1;
+}
+
+.boat-gallery-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down;
+}
+
+.boat-details-content {
+  align-items: flex-start;
+}
+
+.boat-details-specs { flex: 1 1 58%; }
+.boat-details-copy { flex: 1 1 34%; max-width: 34ch; }
+
+.boat-details-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(207, 217, 230, 0.1);
+  padding-bottom: 11px;
+}
+
+.boat-details-section-heading p,
+.boat-details-section-heading span {
+  margin: 0;
+  color: #3abbc4;
+  font-size: 0.56rem;
+}
+
+.boat-details-section-heading span { color: #3a5060; }
+
+.boat-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+}
+
+.boat-spec-grid div { min-width: 0; }
+.boat-spec-grid p { margin: 0 0 6px; color: #5a7080; font: 0.56rem 'DM Mono', 'Courier New', monospace; letter-spacing: 0.12em; text-transform: uppercase; }
+.boat-spec-grid strong { display: block; color: #b8c8d8; font-size: 0.78rem; font-weight: 400; line-height: 1.45; }
+.boat-details-copy > p:last-of-type { margin: 10px 0 22px; color: #7a94ae; font-size: 0.84rem; line-height: 1.75; }
+
+.boat-gallery-lightbox {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(58px, 8vh, 90px) clamp(16px, 5vw, 72px);
+  box-sizing: border-box;
+  background: rgba(3, 10, 18, 0.96);
+}
+
+.boat-lightbox-toolbar {
+  position: absolute;
+  z-index: 2;
+  top: 22px;
+  right: clamp(16px, 5vw, 72px);
+  left: clamp(16px, 5vw, 72px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #d4aa5a;
+  font-size: 0.58rem;
+}
+
+.boat-lightbox-toolbar p { margin: 0; }
+.boat-lightbox-toolbar button { border: 0; background: transparent; color: #e8eef5; cursor: pointer; font: inherit; }
+.boat-lightbox-toolbar button:hover { color: #3abbc4; }
+.boat-lightbox-image-wrap { display: grid; place-items: center; width: 100%; height: 100%; min-height: 0; }
+.boat-lightbox-image-wrap img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: scale-down; }
+.boat-lightbox-prev { left: clamp(12px, 3vw, 42px); top: 50%; transform: translateY(-50%); }
+.boat-lightbox-next { right: clamp(12px, 3vw, 42px); top: 50%; transform: translateY(-50%); }
+
+@media (max-width: 700px) {
+  .boat-details-header,
+  .boat-details-content { flex-direction: column; }
+  .boat-details-header { gap: 18px; }
+  .boat-back-button { align-self: flex-start; }
+  .boat-details-copy { max-width: none; }
+  .boat-gallery-stage { aspect-ratio: 4 / 3; min-height: 220px; }
+  .boat-gallery-stage > img { padding: 26px 12px; }
+  .boat-gallery-arrow { width: 36px; height: 36px; }
 }

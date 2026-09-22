@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,
       minify: !emitSourcemaps,
-      chunkSizeWarningLimit: 600,
+      chunkSizeWarningLimit: 650,
       rollupOptions: {
         output: {
           manualChunks: (moduleId: string) =>

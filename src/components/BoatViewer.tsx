@@ -7,6 +7,7 @@ export type BoatBuildType = "centerConsole46" | "centerConsole63" | "catamaran80
 
 interface BoatViewerProps {
   buildType: BoatBuildType;
+  modelUrl: string;
   hullColor: number;
   accentColor: number;
 }
@@ -131,6 +132,7 @@ function addSportHull(
 // ── center console geometry (shared, parameterized for 46 vs 63) ──────────────
 function buildCenterConsole(
   scene: THREE.Scene,
+  modelUrl: string,
   hullColor: number,
   accentColor: number,
   scale: number  // 1.0 = 46ft, 1.37 = 63ft
@@ -138,7 +140,7 @@ function buildCenterConsole(
     const g = new THREE.Group();
   void hullColor;
   void accentColor;
-  new GLTFLoader().load("/models/cat80.glb", ({ scene: model }) => {
+  new GLTFLoader().load(modelUrl, ({ scene: model }) => {
     model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
@@ -153,11 +155,11 @@ function buildCenterConsole(
 }
 
 // ── catamaran ─────────────────────────────────────────────────────────────────
-function buildCatamaran(scene: THREE.Scene, hullColor: number, accentColor: number) {
+function buildCatamaran(scene: THREE.Scene, modelUrl: string, hullColor: number, accentColor: number) {
   const g = new THREE.Group();
   void hullColor;
   void accentColor;
-  new GLTFLoader().load("/models/cat80.glb", ({ scene: model }) => {
+  new GLTFLoader().load(modelUrl, ({ scene: model }) => {
     model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
@@ -172,7 +174,7 @@ function buildCatamaran(scene: THREE.Scene, hullColor: number, accentColor: numb
 }
 
 // ── main export ───────────────────────────────────────────────────────────────
-export default function BoatViewer({ buildType, hullColor, accentColor }: BoatViewerProps) {
+export default function BoatViewer({ buildType, modelUrl, hullColor, accentColor }: BoatViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -248,11 +250,11 @@ export default function BoatViewer({ buildType, hullColor, accentColor }: BoatVi
 
     // Build boat
     if (buildType === "centerConsole46") {
-      buildCenterConsole(scene, hullColor, accentColor, 1.0);
+      buildCenterConsole(scene, modelUrl, hullColor, accentColor, 1.0);
     } else if (buildType === "centerConsole63") {
-      buildCenterConsole(scene, hullColor, accentColor, 1.38);
+      buildCenterConsole(scene, modelUrl, hullColor, accentColor, 1.38);
     } else {
-      buildCatamaran(scene, hullColor, accentColor);
+      buildCatamaran(scene, modelUrl, hullColor, accentColor);
     }
 
     const ro = new ResizeObserver(() => {
@@ -279,7 +281,7 @@ export default function BoatViewer({ buildType, hullColor, accentColor }: BoatVi
       if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
       scene.clear();
     };
-  }, [buildType, hullColor, accentColor]);
+  }, [buildType, modelUrl, hullColor, accentColor]);
 
   return <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />;
 }

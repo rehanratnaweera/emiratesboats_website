@@ -1,12 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import BoatViewer, { type BoatBuildType } from "./components/BoatViewer";
+import BoatDetails from "./components/BoatDetails";
 import ContactBox from "./components/contactbox";
+
+interface BoatGalleryImage {
+  url: string;
+  alt: string;
+}
 
 interface BoatModel {
   id: string;
   name: string;
   tagline: string;
   buildType: BoatBuildType;
+  modelUrl: string;
+  datasheetUrl: string;
+  gallery: BoatGalleryImage[];
   hullColor: number;
   accentColor: number;
   length: string;
@@ -26,6 +35,13 @@ const BOATS: BoatModel[] = [
     name: "EB-46",
     tagline: "46 ft · Center Console",
     buildType: "centerConsole46",
+    modelUrl: "/models/cat80.glb",
+    datasheetUrl: "/eb-46.pdf",
+    gallery: [
+      { url: "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=1200&h=800&fit=crop&auto=format", alt: "EB-46 on open water" },
+      { url: "https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=900&h=800&fit=crop&auto=format", alt: "Center console boat at sea" },
+      { url: "https://images.unsplash.com/photo-1540946485063-a40da27545f8?w=900&h=800&fit=crop&auto=format", alt: "Boat wake in the Gulf" },
+    ],
     hullColor: 0xfafafa,
     accentColor: 0xc4973a,
     length: "46 ft / 14.0 m",
@@ -44,6 +60,13 @@ const BOATS: BoatModel[] = [
     name: "EB-63",
     tagline: "63 ft · Center Console",
     buildType: "centerConsole63",
+    modelUrl: "/models/cat80.glb",
+    datasheetUrl: "/eb-63.pdf",
+    gallery: [
+      { url: "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=1200&h=800&fit=crop&auto=format", alt: "EB-63 offshore" },
+      { url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=900&h=800&fit=crop&auto=format", alt: "Large sport boat underway" },
+      { url: "https://images.unsplash.com/photo-1530053969600-caed2596d242?w=900&h=800&fit=crop&auto=format", alt: "Boat viewed from the water" },
+    ],
     hullColor: 0x1c2e3e,
     accentColor: 0xc4973a,
     length: "63 ft / 19.2 m",
@@ -62,6 +85,13 @@ const BOATS: BoatModel[] = [
     name: "EB Cat 80",
     tagline: "80 ft · Carbon Fiber Catamaran",
     buildType: "catamaran80",
+    modelUrl: "/models/cat80.glb",
+    datasheetUrl: "/eb-cat-80.pdf",
+    gallery: [
+      { url: "https://images.unsplash.com/photo-1674419404553-3f7a575cc145?w=1200&h=800&fit=crop&auto=format", alt: "EB Cat 80 catamaran" },
+      { url: "https://images.unsplash.com/photo-1562281302-809108fd533c?w=900&h=800&fit=crop&auto=format", alt: "Luxury catamaran at anchor" },
+      { url: "https://images.unsplash.com/photo-1544550285-f813152fb2fd?w=900&h=800&fit=crop&auto=format", alt: "Catamaran on blue water" },
+    ],
     hullColor: 0x0d1215,
     accentColor: 0xc4973a,
     length: "80 ft / 24.4 m",
@@ -91,9 +121,9 @@ const SPEC_LABELS: Partial<Record<keyof BoatModel, string>> = {
 
 export default function App() {
   const [activeBoat, setActiveBoat] = useState<BoatModel>(BOATS[0]);
+  const [showBoatDetails, setShowBoatDetails] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isLightMode, setIsLightMode] = useState(false);
   const fleetRef = useRef<HTMLDivElement>(null);
   const constructionRef: React.RefObject<HTMLDivElement | null> = useRef(null);
   const bespokeRef: React.RefObject<HTMLDivElement | null> = useRef(null);
@@ -105,20 +135,11 @@ export default function App() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  useEffect(() => {
-    const savedTheme = window.localStorage.getItem("emirates-boats-theme");
-    if (savedTheme === "light") setIsLightMode(true);
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem("emirates-boats-theme", isLightMode ? "light" : "dark");
-  }, [isLightMode]);
-
   const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) =>
     ref.current?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <div className={`site-shell ${isLightMode ? "theme-light" : "theme-dark"}`}>
+    <div className="site-shell">
 
       {/* ── NAV ─────────────────────────────────────────── */}
       <nav
@@ -164,17 +185,6 @@ export default function App() {
             Enquire
           </button>
 
-          <button
-            className="theme-toggle"
-            type="button"
-            aria-label={`Switch to ${isLightMode ? "dark" : "light"} mode`}
-            aria-pressed={isLightMode}
-            onClick={() => setIsLightMode((current) => !current)}
-          >
-            <span aria-hidden="true">{isLightMode ? "☾" : "☼"}</span>
-            {isLightMode ? "Dark" : "Light"}
-          </button>
-
           <button className="md:hidden flex flex-col gap-1.5" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {[5, 5, 3].map((w, i) => (
               <span key={i} className="block h-px" style={{ width: `${w * 4}px`, background: "#3abbc4" }} />
@@ -200,9 +210,9 @@ export default function App() {
       </nav>
 
       {/* ── HERO ────────────────────────────────────────── */}
-      <section className="relative flex flex-col justify-end overflow-hidden" style={{ minHeight: "100svh" }}>
+      <section className="hero-section relative flex flex-col justify-end overflow-hidden" style={{ minHeight: "100svh" }}>
         <video
-          className="absolute inset-0 h-full w-full object-cover"
+          className="hero-video absolute inset-0 h-full w-full object-cover"
           src="/videos/game_changer.mp4"
           autoPlay
           muted
@@ -211,8 +221,8 @@ export default function App() {
           preload="auto"
           aria-hidden="true"
         />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(7,18,30,0.25) 0%, rgba(7,18,30,0.1) 30%, rgba(7,18,30,0.7) 68%, rgba(7,18,30,1.0) 100%)" }} />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(7,18,30,0.55) 0%, transparent 55%)" }} />
+        <div className="hero-overlay hero-overlay-bottom absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(7,18,30,0.25) 0%, rgba(7,18,30,0.1) 30%, rgba(7,18,30,0.7) 68%, rgba(7,18,30,1.0) 100%)" }} />
+        <div className="hero-overlay hero-overlay-side absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(7,18,30,0.55) 0%, transparent 55%)" }} />
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20 pt-28 w-full">
           <div className="max-w-lg">
@@ -291,7 +301,9 @@ export default function App() {
                 {BOATS.map((boat, i) => (
                   <button
                     key={boat.id}
-                    onClick={() => setActiveBoat(boat)}
+                    onClick={() => {
+                      setActiveBoat(boat);
+                    }}
                     className="w-full text-left relative transition-colors duration-150"
                     style={{
                       padding: "22px 24px",
@@ -317,13 +329,15 @@ export default function App() {
                 ))}
               </div>
 
-              {/* 3D pane */}
+              {/* model and details pane */}
               <div className="flex flex-col">
-                {/* canvas */}
-                <div style={{ background: "#040d17", position: "relative", minHeight: "420px", flex: "1 1 auto" }}>
+                {showBoatDetails ? <BoatDetails boat={activeBoat} onBack={() => setShowBoatDetails(false)} /> : <>
+                  {/* canvas */}
+                  <div style={{ background: "#040d17", position: "relative", minHeight: "420px", flex: "1 1 auto" }}>
                   <BoatViewer
                     key={activeBoat.id}
                     buildType={activeBoat.buildType}
+                    modelUrl={activeBoat.modelUrl}
                     hullColor={activeBoat.hullColor}
                     accentColor={activeBoat.accentColor}
                   />
@@ -333,7 +347,7 @@ export default function App() {
                   <div style={{ position: "absolute", bottom: "14px", right: "14px", fontFamily: "DM Mono, monospace", fontSize: "0.55rem", color: "#3a5060", letterSpacing: "0.1em", background: "rgba(4,13,23,0.7)", padding: "5px 10px" }}>
                     DRAG · ZOOM · ORBIT
                   </div>
-                </div>
+                  </div>
 
                 {/* specs */}
                 <div style={{ borderTop: "1px solid rgba(196,151,58,0.15)", background: "#0a1825", padding: "28px 32px" }}>
@@ -356,11 +370,12 @@ export default function App() {
                     style={{ marginTop: "20px", border: "1px solid rgba(196,151,58,0.4)", color: "#3abbc4", background: "transparent", fontFamily: "DM Mono, monospace", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "10px 22px", cursor: "pointer", transition: "all 0.2s" }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#3abbc4"; (e.currentTarget as HTMLElement).style.color = "#07121e"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#3abbc4"; }}
-                    onClick={() => scrollTo(contactRef)}
+                    onClick={() => setShowBoatDetails(true)}
                   >
-                    Request Specification Sheet
+                    View Gallery & Full Specs
                   </button>
-                </div>
+                  </div>
+                </>}
               </div>
             </div>
           </div>
