@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import BoatViewer, { type BoatBuildType } from "./components/BoatViewer";
+import BoatViewer from "./components/BoatViewer";
 import BoatDetails from "./components/BoatDetails";
 import ContactBox from "./components/contactbox";
 
@@ -12,12 +12,9 @@ interface BoatModel {
   id: string;
   name: string;
   tagline: string;
-  buildType: BoatBuildType;
   modelUrl: string;
   datasheetUrl: string;
   gallery: BoatGalleryImage[];
-  hullColor: number;
-  accentColor: number;
   length: string;
   beam: string;
   displacement: string;
@@ -34,7 +31,6 @@ const BOATS: BoatModel[] = [
     id: "eb-46",
     name: "EB-46",
     tagline: "46 ft · Center Console",
-    buildType: "centerConsole46",
     modelUrl: "/models/cat80.glb",
     datasheetUrl: "/eb-46.pdf",
     gallery: [
@@ -42,8 +38,6 @@ const BOATS: BoatModel[] = [
       { url: "https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=900&h=800&fit=crop&auto=format", alt: "Center console boat at sea" },
       { url: "https://images.unsplash.com/photo-1540946485063-a40da27545f8?w=900&h=800&fit=crop&auto=format", alt: "Boat wake in the Gulf" },
     ],
-    hullColor: 0xfafafa,
-    accentColor: 0xc4973a,
     length: "46 ft / 14.0 m",
     beam: "10.5 ft / 3.2 m",
     displacement: "9,200 lbs",
@@ -59,7 +53,6 @@ const BOATS: BoatModel[] = [
     id: "eb-63",
     name: "EB-63",
     tagline: "63 ft · Center Console",
-    buildType: "centerConsole63",
     modelUrl: "/models/cat80.glb",
     datasheetUrl: "/eb-63.pdf",
     gallery: [
@@ -67,8 +60,6 @@ const BOATS: BoatModel[] = [
       { url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=900&h=800&fit=crop&auto=format", alt: "Large sport boat underway" },
       { url: "https://images.unsplash.com/photo-1530053969600-caed2596d242?w=900&h=800&fit=crop&auto=format", alt: "Boat viewed from the water" },
     ],
-    hullColor: 0x1c2e3e,
-    accentColor: 0xc4973a,
     length: "63 ft / 19.2 m",
     beam: "13 ft / 4 m",
     displacement: "16,500 lbs",
@@ -84,7 +75,6 @@ const BOATS: BoatModel[] = [
     id: "eb-cat-80",
     name: "EB Cat 80",
     tagline: "80 ft · Carbon Fiber Catamaran",
-    buildType: "catamaran80",
     modelUrl: "/models/cat80.glb",
     datasheetUrl: "/eb-cat-80.pdf",
     gallery: [
@@ -92,8 +82,6 @@ const BOATS: BoatModel[] = [
       { url: "https://images.unsplash.com/photo-1562281302-809108fd533c?w=900&h=800&fit=crop&auto=format", alt: "Luxury catamaran at anchor" },
       { url: "https://images.unsplash.com/photo-1544550285-f813152fb2fd?w=900&h=800&fit=crop&auto=format", alt: "Catamaran on blue water" },
     ],
-    hullColor: 0x0d1215,
-    accentColor: 0xc4973a,
     length: "80 ft / 24.4 m",
     beam: "34 ft / 10.4 m",
     displacement: "38,000 lbs",
@@ -336,10 +324,7 @@ export default function App() {
                   <div style={{ background: "#040d17", position: "relative", minHeight: "420px", flex: "1 1 auto" }}>
                   <BoatViewer
                     key={activeBoat.id}
-                    buildType={activeBoat.buildType}
                     modelUrl={activeBoat.modelUrl}
-                    hullColor={activeBoat.hullColor}
-                    accentColor={activeBoat.accentColor}
                   />
                   <div style={{ position: "absolute", top: "16px", left: "16px", fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#3abbc4", letterSpacing: "0.14em", background: "rgba(4,13,23,0.75)", padding: "6px 10px", border: "1px solid rgba(196,151,58,0.2)" }}>
                     {activeBoat.name} — INTERACTIVE 3D MODEL
