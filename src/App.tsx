@@ -32,7 +32,7 @@ const BOATS: BoatModel[] = [
     name: "EB-46",
     tagline: "46 ft · Center Console",
     modelUrl: "/models/cat80.glb",
-    datasheetUrl: "/eb-46.pdf",
+    datasheetUrl: "/datasheets/eb-46.pdf",
     gallery: [
       { url: "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=1200&h=800&fit=crop&auto=format", alt: "EB-46 on open water" },
       { url: "https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=900&h=800&fit=crop&auto=format", alt: "Center console boat at sea" },
@@ -54,7 +54,7 @@ const BOATS: BoatModel[] = [
     name: "EB-63",
     tagline: "63 ft · Center Console",
     modelUrl: "/models/cat80.glb",
-    datasheetUrl: "/eb-63.pdf",
+    datasheetUrl: "/datasheets/eb-63.pdf",
     gallery: [
       { url: "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=1200&h=800&fit=crop&auto=format", alt: "EB-63 offshore" },
       { url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=900&h=800&fit=crop&auto=format", alt: "Large sport boat underway" },
@@ -76,7 +76,7 @@ const BOATS: BoatModel[] = [
     name: "EB Cat 80",
     tagline: "80 ft · Carbon Fiber Catamaran",
     modelUrl: "/models/cat80.glb",
-    datasheetUrl: "/eb-cat-80.pdf",
+    datasheetUrl: "/datasheets/eb-cat-80.pdf",
     gallery: [
       { url: "https://images.unsplash.com/photo-1674419404553-3f7a575cc145?w=1200&h=800&fit=crop&auto=format", alt: "EB Cat 80 catamaran" },
       { url: "https://images.unsplash.com/photo-1562281302-809108fd533c?w=900&h=800&fit=crop&auto=format", alt: "Luxury catamaran at anchor" },
