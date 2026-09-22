@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import BoatViewer from "./components/BoatViewer";
+import BoatViewer, { type BoatMaterialColors } from "./components/BoatViewer";
 import BoatDetails from "./components/BoatDetails";
 import ContactBox from "./components/contactbox";
 
@@ -15,6 +15,8 @@ interface BoatModel {
   modelUrl: string;
   datasheetUrl: string;
   gallery: BoatGalleryImage[];
+  materialColors: BoatMaterialColors;
+  zoomFactor: number;
   length: string;
   beam: string;
   displacement: string;
@@ -33,6 +35,21 @@ const BOATS: BoatModel[] = [
     tagline: "46 ft · Center Console",
     modelUrl: "/models/cat80.glb",
     datasheetUrl: "/datasheets/eb-46.pdf",
+    materialColors: {
+      cabin: 0xf5f5f2,
+      cabin_glass: 0x172533,
+      carbon: 0xffffff,
+      deck: 0xaeb8bf,
+      flir: 0x172533,
+      hull: 0x20252a,
+      navequip: 0x172533,
+      radar: 0x1e2a3a,
+      rubrails: 0x1e2a3a,
+      satdome: 0x1e2a3a,
+      stainless_steel: 0x9fa7ad,
+      upholstery: 0xf5f5f2,
+    },
+    zoomFactor: 1,
     gallery: [
       { url: "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=1200&h=800&fit=crop&auto=format", alt: "EB-46 on open water" },
       { url: "https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=900&h=800&fit=crop&auto=format", alt: "Center console boat at sea" },
@@ -55,6 +72,21 @@ const BOATS: BoatModel[] = [
     tagline: "63 ft · Center Console",
     modelUrl: "/models/cat80.glb",
     datasheetUrl: "/datasheets/eb-63.pdf",
+    materialColors: {
+      hull: 0x1c2e3e,
+      deck: 0x293d4d,
+      cabin: 0xdfe6e9,
+      cabin_glass: 0x172533,
+      carbon: 0x1b2025,
+      flir: 0x13212e,
+      navequip: 0x13212e,
+      radar: 0x1e2a3a,
+      rubrails: 0x1e2a3a,
+      satdome: 0x1e2a3a,
+      stainless_steel: 0xb8c1c5,
+      upholstery: 0xf5f5f2,
+    },
+    zoomFactor: 0.9,
     gallery: [
       { url: "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=1200&h=800&fit=crop&auto=format", alt: "EB-63 offshore" },
       { url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=900&h=800&fit=crop&auto=format", alt: "Large sport boat underway" },
@@ -77,6 +109,21 @@ const BOATS: BoatModel[] = [
     tagline: "80 ft · Carbon Fiber Catamaran",
     modelUrl: "/models/cat80.glb",
     datasheetUrl: "/datasheets/eb-cat-80.pdf",
+    materialColors: {
+      hull: 0x14191d,
+      deck: 0x252c31,
+      cabin: 0x9caeb5,
+      cabin_glass: 0x111b25,
+      carbon: 0x080b0d,
+      flir: 0x111b25,
+      navequip: 0x111b25,
+      radar: 0x1e2a3a,
+      rubrails: 0x1e2a3a,
+      satdome: 0x1e2a3a,
+      stainless_steel: 0xb9c4c8,
+      upholstery: 0x9caeb5,
+    },
+    zoomFactor: 0.78,
     gallery: [
       { url: "https://images.unsplash.com/photo-1674419404553-3f7a575cc145?w=1200&h=800&fit=crop&auto=format", alt: "EB Cat 80 catamaran" },
       { url: "https://images.unsplash.com/photo-1562281302-809108fd533c?w=900&h=800&fit=crop&auto=format", alt: "Luxury catamaran at anchor" },
@@ -325,6 +372,8 @@ export default function App() {
                   <BoatViewer
                     key={activeBoat.id}
                     modelUrl={activeBoat.modelUrl}
+                    materialColors={activeBoat.materialColors}
+                    zoomFactor={activeBoat.zoomFactor}
                   />
                   <div style={{ position: "absolute", top: "16px", left: "16px", fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#3abbc4", letterSpacing: "0.14em", background: "rgba(4,13,23,0.75)", padding: "6px 10px", border: "1px solid rgba(196,151,58,0.2)" }}>
                     {activeBoat.name} — INTERACTIVE 3D MODEL

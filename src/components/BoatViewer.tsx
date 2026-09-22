@@ -3,17 +3,60 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-interface BoatViewerProps {
-  modelUrl: string;
+export interface BoatMaterialColors {
+  cabin: number;
+  cabin_glass: number;
+  carbon: number;
+  deck: number;
+  flir: number;
+  hull: number;
+  navequip: number;
+  radar: number;
+  rubrails: number;
+  satdome: number;
+  stainless_steel: number;
+  upholstery: number;
 }
 
-function loadBoatModel(scene: THREE.Scene, modelUrl: string) {
+interface BoatViewerProps {
+  modelUrl: string;
+  materialColors: BoatMaterialColors;
+  zoomFactor: number;
+}
+
+const MATERIAL_KEYS: Array<keyof BoatMaterialColors> = [
+  "hull",
+  "deck",
+  "cabin",
+  "cabin_glass",
+  "stainless_steel",
+  "navequip",
+  "carbon",
+  "flir",
+  "radar",
+  "rubrails",
+  "satdome",
+  "upholstery",
+];
+
+function getMaterialKey(name: string): keyof BoatMaterialColors | undefined {
+  const normalized = name.toLowerCase().replace(/[\s_-]+/g, "");
+  return MATERIAL_KEYS.find((key) => normalized.includes(key.replace(/[\s_-]+/g, "")));
+}
+
+function loadBoatModel(scene: THREE.Scene, modelUrl: string, materialColors: BoatMaterialColors) {
   const g = new THREE.Group();
   new GLTFLoader().load(modelUrl, ({ scene: model }) => {
     model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
         child.receiveShadow = true;
+        const meshes = Array.isArray(child.material) ? child.material : [child.material];
+        meshes.forEach((material) => {
+          if (!(material instanceof THREE.MeshStandardMaterial) && !(material instanceof THREE.MeshPhysicalMaterial)) return;
+          const materialKey = getMaterialKey(`${child.name} ${material.name}`);
+          if (materialKey) material.color.setHex(materialColors[materialKey]);
+        });
       }
     });
 
@@ -36,7 +79,7 @@ function loadBoatModel(scene: THREE.Scene, modelUrl: string) {
 }
 
 // ── main export ───────────────────────────────────────────────────────────────
-export default function BoatViewer({ modelUrl }: BoatViewerProps) {
+export default function BoatViewer({ modelUrl, materialColors, zoomFactor }: BoatViewerProps) {
   const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,13 +100,13 @@ export default function BoatViewer({ modelUrl }: BoatViewerProps) {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x9299a1);
     const camera = new THREE.PerspectiveCamera(36, w / h, 0.1, 100);
-    camera.position.set(5.5, 3.2, 5.5);
+    camera.position.set(5.5 * zoomFactor, 3.2 * zoomFactor, 5.5 * zoomFactor);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.07;
-    controls.minDistance = 3;
-    controls.maxDistance = 16;
+    controls.minDistance = 3 * zoomFactor;
+    controls.maxDistance = 16 * zoomFactor;
     controls.maxPolarAngle = Math.PI * 0.76;
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.45;
@@ -99,7 +142,7 @@ export default function BoatViewer({ modelUrl }: BoatViewerProps) {
     rightLight.position.set(8, 4, -1);
     scene.add(rightLight);
 
-    loadBoatModel(scene, modelUrl);
+    loadBoatModel(scene, modelUrl, materialColors);
 
     const ro = new ResizeObserver(() => {
       const nw = el.clientWidth, nh = el.clientHeight;
@@ -125,7 +168,7 @@ export default function BoatViewer({ modelUrl }: BoatViewerProps) {
       if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
       scene.clear();
     };
-  }, [modelUrl]);
+  }, [modelUrl, materialColors, zoomFactor]);
 
   return <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />;
 }
