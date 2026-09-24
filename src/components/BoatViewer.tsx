@@ -3,20 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
-export interface BoatMaterialColors {
-  cabin: number;
-  cabin_glass: number;
-  carbon: number;
-  deck: number;
-  flir: number;
-  hull: number;
-  navequip: number;
-  radar: number;
-  rubrails: number;
-  satdome: number;
-  stainless_steel: number;
-  upholstery: number;
-}
+export type BoatMaterialColors = Record<string, number>;
 
 interface BoatViewerProps {
   modelUrl: string;
@@ -24,28 +11,24 @@ interface BoatViewerProps {
   zoomFactor: number;
 }
 
-const MATERIAL_KEYS: Array<keyof BoatMaterialColors> = [
-  "hull",
-  "deck",
-  "cabin",
-  "cabin_glass",
-  "stainless_steel",
-  "navequip",
-  "carbon",
-  "flir",
-  "radar",
-  "rubrails",
-  "satdome",
-  "upholstery",
-];
+function normalizeMaterialKey(value: string) {
+  return value.toLowerCase().replace(/[\s_-]+/g, "");
+}
 
-function getMaterialKey(name: string): keyof BoatMaterialColors | undefined {
+function getMaterialKey(name: string, materialColors: BoatMaterialColors): string | undefined {
   const normalized = name.toLowerCase().replace(/[\s_-]+/g, "");
-  return MATERIAL_KEYS.find((key) => normalized.includes(key.replace(/[\s_-]+/g, "")));
+  return Object.keys(materialColors)
+    .sort((left, right) => normalizeMaterialKey(right).length - normalizeMaterialKey(left).length)
+    .find((key) => normalized.includes(normalizeMaterialKey(key)));
 }
 
 function loadBoatModel(scene: THREE.Scene, modelUrl: string, materialColors: BoatMaterialColors) {
   const g = new THREE.Group();
+  if (!modelUrl) {
+    scene.add(g);
+    return g;
+  }
+
   new GLTFLoader().load(modelUrl, ({ scene: model }) => {
     model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
@@ -54,7 +37,7 @@ function loadBoatModel(scene: THREE.Scene, modelUrl: string, materialColors: Boa
         const meshes = Array.isArray(child.material) ? child.material : [child.material];
         meshes.forEach((material) => {
           if (!(material instanceof THREE.MeshStandardMaterial) && !(material instanceof THREE.MeshPhysicalMaterial)) return;
-          const materialKey = getMaterialKey(`${child.name} ${material.name}`);
+          const materialKey = getMaterialKey(`${child.name} ${material.name}`, materialColors);
           if (materialKey) material.color.setHex(materialColors[materialKey]);
         });
       }
@@ -92,7 +75,7 @@ export default function BoatViewer({ modelUrl, materialColors, zoomFactor }: Boa
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
     el.appendChild(renderer.domElement);

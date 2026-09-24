@@ -63,6 +63,18 @@ body {
   transition: background-color 250ms ease, color 250ms ease;
 }
 
+.cms-status {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #7a94ae;
+  font: 0.75rem/1.7 'DM Mono', 'Courier New', monospace;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
 .hero-section {
   isolation: isolate;
   background: #07121e;
@@ -291,9 +303,23 @@ body {
 }
 
 .boat-details {
+  width: 100%;
+  box-sizing: border-box;
   min-width: 0;
   padding: clamp(24px, 4vw, 48px);
   background: #040d17;
+}
+
+.fleet-layout,
+.fleet-pane {
+  min-width: 0;
+}
+
+.boat-model-canvas {
+  width: 100%;
+  height: min(58vw, 560px);
+  min-height: 300px;
+  max-height: 62vh;
 }
 
 .boat-details-header,
@@ -367,9 +393,10 @@ body {
   position: relative;
   display: grid;
   place-items: center;
+  width: 100%;
   aspect-ratio: 16 / 9;
-  min-height: 260px;
-  max-height: min(68vh, 680px);
+  min-height: 0;
+  max-height: 68vh;
   overflow: hidden;
   background: #07121e;
   border: 1px solid rgba(196, 151, 58, 0.2);
@@ -386,7 +413,7 @@ body {
 .boat-gallery-stage > img {
   width: 100%;
   height: 100%;
-  object-fit: scale-down;
+  object-fit: contain;
   object-position: center;
   padding: clamp(18px, 4vw, 44px);
   box-sizing: border-box;
@@ -448,13 +475,20 @@ body {
 }
 
 .boat-gallery-thumbnails {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 120px));
+  display: flex;
+  flex-wrap: nowrap;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
   gap: 8px;
   margin-top: 10px;
+  padding-bottom: 5px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
 }
 
 .boat-gallery-thumbnail {
+  flex: 0 0 clamp(96px, 13vw, 150px);
   aspect-ratio: 16 / 10;
   padding: 0;
   overflow: hidden;
@@ -462,6 +496,7 @@ body {
   background: #07121e;
   cursor: pointer;
   opacity: 0.54;
+  scroll-snap-align: center;
   transition: border-color 180ms ease, opacity 180ms ease;
 }
 
@@ -474,7 +509,7 @@ body {
 .boat-gallery-thumbnail img {
   width: 100%;
   height: 100%;
-  object-fit: scale-down;
+  object-fit: contain;
 }
 
 .boat-details-content {
@@ -542,7 +577,7 @@ body {
 .boat-lightbox-toolbar button { border: 0; background: transparent; color: #e8eef5; cursor: pointer; font: inherit; }
 .boat-lightbox-toolbar button:hover { color: #3abbc4; }
 .boat-lightbox-image-wrap { display: grid; place-items: center; width: 100%; height: 100%; min-height: 0; }
-.boat-lightbox-image-wrap img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: scale-down; }
+.boat-lightbox-image-wrap img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
 .boat-lightbox-prev { left: clamp(12px, 3vw, 42px); top: 50%; transform: translateY(-50%); }
 .boat-lightbox-next { right: clamp(12px, 3vw, 42px); top: 50%; transform: translateY(-50%); }
 
@@ -552,7 +587,8 @@ body {
   .boat-details-header { gap: 18px; }
   .boat-back-button { align-self: flex-start; }
   .boat-details-copy { max-width: none; }
-  .boat-gallery-stage { aspect-ratio: 4 / 3; min-height: 220px; }
+  .boat-model-canvas { height: min(72vw, 480px); min-height: 240px; }
+  .boat-gallery-stage { aspect-ratio: 4 / 3; }
   .boat-gallery-stage > img { padding: 26px 12px; }
   .boat-gallery-arrow { width: 36px; height: 36px; }
 }

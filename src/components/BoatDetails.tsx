@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface BoatDetailsModel {
   id: string;
@@ -41,14 +41,26 @@ const SPEC_FIELDS: Array<{ key: BoatSpecKey; label: string }> = [
 ];
 
 export default function BoatDetails({ boat, onBack }: BoatDetailsProps) {
-  const images = boat.gallery;
+  const images = boat.gallery.length > 0
+    ? boat.gallery
+    : [{ url: "/images/logo.png", alt: `${boat.name} image unavailable` }];
   const [activeImage, setActiveImage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
     setActiveImage(0);
     setIsLightboxOpen(false);
+    thumbnailRefs.current = [];
   }, [boat.id]);
+
+  useEffect(() => {
+    thumbnailRefs.current[activeImage]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [activeImage]);
 
   useEffect(() => {
     if (!isLightboxOpen) return;
@@ -101,6 +113,7 @@ export default function BoatDetails({ boat, onBack }: BoatDetailsProps) {
           {images.map((image, index) => (
             <button
               key={image.url}
+              ref={(element) => { thumbnailRefs.current[index] = element; }}
               className={`boat-gallery-thumbnail ${index === activeImage ? "is-active" : ""}`}
               type="button"
               onClick={() => setActiveImage(index)}

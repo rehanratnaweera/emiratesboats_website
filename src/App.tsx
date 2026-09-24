@@ -1,146 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import BoatViewer, { type BoatMaterialColors } from "./components/BoatViewer";
+import BoatViewer from "./components/BoatViewer";
 import BoatDetails from "./components/BoatDetails";
 import ContactBox from "./components/contactbox";
-
-interface BoatGalleryImage {
-  url: string;
-  alt: string;
-}
-
-interface BoatModel {
-  id: string;
-  name: string;
-  tagline: string;
-  modelUrl: string;
-  datasheetUrl: string;
-  gallery: BoatGalleryImage[];
-  materialColors: BoatMaterialColors;
-  zoomFactor: number;
-  length: string;
-  beam: string;
-  displacement: string;
-  range: string;
-  power: string;
-  speed: string;
-  capacity: string;
-  construction: string;
-  description: string;
-}
-
-const BOATS: BoatModel[] = [
-  {
-    id: "eb-46",
-    name: "EB-46",
-    tagline: "46 ft · Center Console",
-    modelUrl: "/models/cat80.glb",
-    datasheetUrl: "/datasheets/eb-46.pdf",
-    materialColors: {
-      cabin: 0xf5f5f2,
-      cabin_glass: 0x172533,
-      carbon: 0xffffff,
-      deck: 0xaeb8bf,
-      flir: 0x172533,
-      hull: 0x20252a,
-      navequip: 0x172533,
-      radar: 0x1e2a3a,
-      rubrails: 0x1e2a3a,
-      satdome: 0x1e2a3a,
-      stainless_steel: 0x9fa7ad,
-      upholstery: 0xf5f5f2,
-    },
-    zoomFactor: 1,
-    gallery: [
-      { url: "https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=1200&h=800&fit=crop&auto=format", alt: "EB-46 on open water" },
-      { url: "https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=900&h=800&fit=crop&auto=format", alt: "Center console boat at sea" },
-      { url: "https://images.unsplash.com/photo-1540946485063-a40da27545f8?w=900&h=800&fit=crop&auto=format", alt: "Boat wake in the Gulf" },
-    ],
-    length: "46 ft / 14.0 m",
-    beam: "10.5 ft / 3.2 m",
-    displacement: "9,200 lbs",
-    range: "- nm",
-    power: "5 × Mercury V8 500R (500 hp ea.)",
-    speed: "62 kn max / 38 kn cruise",
-    capacity: "12 persons",
-    construction: "Carbon Composite Eglass / vinylester deep-V",
-    description:
-      "The EB-46 is our entry into serious offshore sport fishing. A sharp deep-V runs the full length of the hull, cutting through Gulf chop without sacrificing top speed. Five 500R outboards deliver 2,500 combined horses. Forward and back fish boxes, flush rod holders, and an integrated T-top with full electronics arch come standard.",
-  },
-  {
-    id: "eb-63",
-    name: "EB-63",
-    tagline: "63 ft · Center Console",
-    modelUrl: "/models/cat80.glb",
-    datasheetUrl: "/datasheets/eb-63.pdf",
-    materialColors: {
-      hull: 0x1c2e3e,
-      deck: 0x293d4d,
-      cabin: 0xdfe6e9,
-      cabin_glass: 0x172533,
-      carbon: 0x1b2025,
-      flir: 0x13212e,
-      navequip: 0x13212e,
-      radar: 0x1e2a3a,
-      rubrails: 0x1e2a3a,
-      satdome: 0x1e2a3a,
-      stainless_steel: 0xb8c1c5,
-      upholstery: 0xf5f5f2,
-    },
-    zoomFactor: 0.9,
-    gallery: [
-      { url: "https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=1200&h=800&fit=crop&auto=format", alt: "EB-63 offshore" },
-      { url: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=900&h=800&fit=crop&auto=format", alt: "Large sport boat underway" },
-      { url: "https://images.unsplash.com/photo-1530053969600-caed2596d242?w=900&h=800&fit=crop&auto=format", alt: "Boat viewed from the water" },
-    ],
-    length: "63 ft / 19.2 m",
-    beam: "13 ft / 4 m",
-    displacement: "16,500 lbs",
-    range: "- nm",
-    power: "6 × Mercury V8 500R (500 hp ea.)",
-    speed: "70 kn max / 55 kn cruise",
-    capacity: "15 persons",
-    construction: "Carbon-reinforced E-glass / infused hull",
-    description:
-      "The EB-63 is one of the largest center-console sport fishing platforms in the world. Six Mercury 500R push it to 70 knots on a stepped, vacuum-infused Carbon and Eglass composite build. Below-deck overnight berth, a full-head, plenty of storage, world class electronics, navigation systems, and entertainment systems make this a serious offshore pleasure fishing machine for the Gulf of Oman and beyond.",
-  },
-  {
-    id: "eb-cat-80",
-    name: "EB Cat 80",
-    tagline: "80 ft · Carbon Fiber Catamaran",
-    modelUrl: "/models/cat80.glb",
-    datasheetUrl: "/datasheets/eb-cat-80.pdf",
-    materialColors: {
-      hull: 0x14191d,
-      deck: 0x252c31,
-      cabin: 0x9caeb5,
-      cabin_glass: 0x111b25,
-      carbon: 0x080b0d,
-      flir: 0x111b25,
-      navequip: 0x111b25,
-      radar: 0x1e2a3a,
-      rubrails: 0x1e2a3a,
-      satdome: 0x1e2a3a,
-      stainless_steel: 0xb9c4c8,
-      upholstery: 0x9caeb5,
-    },
-    zoomFactor: 0.78,
-    gallery: [
-      { url: "https://images.unsplash.com/photo-1674419404553-3f7a575cc145?w=1200&h=800&fit=crop&auto=format", alt: "EB Cat 80 catamaran" },
-      { url: "https://images.unsplash.com/photo-1562281302-809108fd533c?w=900&h=800&fit=crop&auto=format", alt: "Luxury catamaran at anchor" },
-      { url: "https://images.unsplash.com/photo-1544550285-f813152fb2fd?w=900&h=800&fit=crop&auto=format", alt: "Catamaran on blue water" },
-    ],
-    length: "80 ft / 24.4 m",
-    beam: "34 ft / 10.4 m",
-    displacement: "38,000 lbs",
-    range: "1,200 nm",
-    power: "2 × MAN V12 2000 (2000 hp ea.)",
-    speed: "44 kn max / 30 kn cruise",
-    capacity: "24 persons",
-    construction: "Full carbon fiber Composite / vacuum-bagged",
-    description:
-      "Built entirely from carbon fiber in a temperature-controlled autoclave, the EB Cat 80 weighs significantly less than a comparable GRP platform. ",
-  },
-];
+import { fetchBoats, type BoatModel } from "./cmsfetch";
 
 const SPEC_KEYS: Array<keyof BoatModel> = ["length", "beam", "displacement", "range", "power", "speed", "capacity", "construction"];
 const SPEC_LABELS: Partial<Record<keyof BoatModel, string>> = {
@@ -155,7 +17,9 @@ const SPEC_LABELS: Partial<Record<keyof BoatModel, string>> = {
 };
 
 export default function App() {
-  const [activeBoat, setActiveBoat] = useState<BoatModel>(BOATS[0]);
+  const [boats, setBoats] = useState<BoatModel[]>([]);
+  const [activeBoat, setActiveBoat] = useState<BoatModel | null>(null);
+  const [boatsError, setBoatsError] = useState<string | null>(null);
   const [showBoatDetails, setShowBoatDetails] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -170,8 +34,26 @@ export default function App() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchBoats(controller.signal)
+      .then((loadedBoats) => {
+        setBoats(loadedBoats);
+        setActiveBoat(loadedBoats[0] ?? null);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setBoatsError(error instanceof Error ? error.message : "Unable to load boats from the CMS.");
+      });
+
+    return () => controller.abort();
+  }, []);
+
   const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) =>
     ref.current?.scrollIntoView({ behavior: "smooth" });
+
+  if (boatsError) return <div className="site-shell cms-status">Unable to load the fleet. {boatsError}</div>;
+  if (!activeBoat) return <div className="site-shell cms-status">Loading the Emirates Boats fleet...</div>;
 
   return (
     <div className="site-shell">
@@ -188,7 +70,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 h-25 flex items-center justify-between">
           {/* wordmark */}
           <div className="flex items-center gap-3">
-            <img width="100vw" height="100vh" src="/images/logo.png" alt="Boat logo" className="object-cover" />
+            <img width="100vw" height="100vh" src="https://cms.emirateboats.com/assets/b693203a-b37c-47ce-be08-2d9dfc9428ec" alt="Emirates Boats Logo" className="object-cover" />
           </div>
 
           {/* desktop links */}
@@ -216,6 +98,7 @@ export default function App() {
             style={{ border: "1px solid #3abbc4", color: "#3abbc4", fontFamily: "DM Mono, monospace", fontSize: "0.62rem", letterSpacing: "0.16em", textTransform: "uppercase", background: "none", cursor: "pointer" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#3abbc4"; (e.currentTarget as HTMLElement).style.color = "#07121e"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#3abbc4"; }}
+            onClick={() => scrollTo(contactRef)}
           >
             Enquire
           </button>
@@ -248,7 +131,7 @@ export default function App() {
       <section className="hero-section relative flex flex-col justify-end overflow-hidden" style={{ minHeight: "100svh" }}>
         <video
           className="hero-video absolute inset-0 h-full w-full object-cover"
-          src="/videos/game_changer.mp4"
+          src="https://cms.emirateboats.com/assets/044420c8-8e1e-4c11-8c2d-4de5cc24fb13"
           autoPlay
           muted
           loop
@@ -296,7 +179,7 @@ export default function App() {
         <div className="relative z-10 w-full" style={{ borderTop: "1px solid rgba(196,151,58,0.2)", background: "rgba(7,18,30,0.85)", backdropFilter: "blur(10px)" }}>
           <div className="max-w-7xl mx-auto px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              ["3", "Models Available"],
+              [String(boats.length), "Models Available"],
               ["46–80 ft", "Range"],
               ["Full Carbon", "Cat Construction"],
               ["Dubai", "Build Facility"],
@@ -330,10 +213,10 @@ export default function App() {
           </div>
 
           <div style={{ border: "1px solid rgba(196,151,58,0.2)" }}>
-            <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr]">
+            <div className="fleet-layout grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
               {/* selector */}
               <div style={{ borderRight: "1px solid rgba(196,151,58,0.15)" }}>
-                {BOATS.map((boat, i) => (
+                {boats.map((boat, i) => (
                   <button
                     key={boat.id}
                     onClick={() => {
@@ -343,7 +226,7 @@ export default function App() {
                     style={{
                       padding: "22px 24px",
                       background: activeBoat.id === boat.id ? "rgba(196,151,58,0.07)" : "transparent",
-                      borderBottom: i < BOATS.length - 1 ? "1px solid rgba(196,151,58,0.12)" : "none",
+                      borderBottom: i < boats.length - 1 ? "1px solid rgba(196,151,58,0.12)" : "none",
                       cursor: "pointer",
                       border: "none",
                       display: "block",
@@ -365,10 +248,10 @@ export default function App() {
               </div>
 
               {/* model and details pane */}
-              <div className="flex flex-col">
+              <div className="fleet-pane flex flex-col">
                 {showBoatDetails ? <BoatDetails boat={activeBoat} onBack={() => setShowBoatDetails(false)} /> : <>
                   {/* canvas */}
-                  <div style={{ background: "#040d17", position: "relative", minHeight: "420px", flex: "1 1 auto" }}>
+                  <div className="boat-model-canvas" style={{ background: "#040d17", position: "relative", flex: "1 1 auto" }}>
                   <BoatViewer
                     key={activeBoat.id}
                     modelUrl={activeBoat.modelUrl}
