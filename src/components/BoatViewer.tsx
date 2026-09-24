@@ -22,7 +22,7 @@ function getMaterialKey(name: string, materialColors: BoatMaterialColors): strin
     .find((key) => normalized.includes(normalizeMaterialKey(key)));
 }
 
-function loadBoatModel(scene: THREE.Scene, modelUrl: string, materialColors: BoatMaterialColors) {
+function loadBoatModel(scene: THREE.Scene, modelUrl: string, materialColors: BoatMaterialColors, onLoaded: (model: THREE.Object3D) => void) {
   const g = new THREE.Group();
   if (!modelUrl) {
     scene.add(g);
@@ -57,6 +57,9 @@ function loadBoatModel(scene: THREE.Scene, modelUrl: string, materialColors: Boa
     model.scale.setScalar(scale);
     model.position.y += (size.y * scale) / 2 + 0.03;
     g.add(model);
+    onLoaded(g);
+  }, undefined, (error) => {
+    console.error(`Unable to load boat model: ${modelUrl}`, error);
   });
   g.rotation.y = Math.PI * 0.14;
   scene.add(g);
@@ -73,6 +76,7 @@ export default function BoatViewer({ modelUrl, materialColors, zoomFactor }: Boa
     const w = el.clientWidth;
     const h = el.clientHeight;
 
+    const safeZoomFactor = Number.isFinite(zoomFactor) && zoomFactor > 0 ? zoomFactor : 1;
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -85,13 +89,13 @@ export default function BoatViewer({ modelUrl, materialColors, zoomFactor }: Boa
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x9299a1);
     const camera = new THREE.PerspectiveCamera(36, w / h, 0.1, 100);
-    camera.position.set(5.5 * zoomFactor, 3.2 * zoomFactor, 5.5 * zoomFactor);
+    camera.position.set(5.5 * safeZoomFactor, 3.2 * safeZoomFactor, 5.5 * safeZoomFactor);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.07;
-    controls.minDistance = 3 * zoomFactor;
-    controls.maxDistance = 16 * zoomFactor;
+    controls.minDistance = 3 * safeZoomFactor;
+    controls.maxDistance = 16 * safeZoomFactor;
     controls.maxPolarAngle = Math.PI * 0.76;
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.45;
@@ -127,7 +131,17 @@ export default function BoatViewer({ modelUrl, materialColors, zoomFactor }: Boa
     rightLight.position.set(8, 4, -1);
     scene.add(rightLight);
 
-    loadBoatModel(scene, modelUrl, materialColors);
+    loadBoatModel(scene, modelUrl, materialColors, (model) => {
+      const bounds = new THREE.Box3().setFromObject(model);
+      const center = bounds.getCenter(new THREE.Vector3());
+      const size = bounds.getSize(new THREE.Vector3());
+      const radius = Math.max(size.length() / 2, 0.1);
+      camera.near = Math.max(radius / 100, 0.01);
+      camera.far = Math.max(radius * 100, 100);
+      camera.updateProjectionMatrix();
+      controls.target.copy(center);
+      controls.update();
+    });
 
     const ro = new ResizeObserver(() => {
       const nw = el.clientWidth, nh = el.clientHeight;
