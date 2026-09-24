@@ -308,7 +308,6 @@ export default function App() {
                 src="https://images.unsplash.com/photo-1625183656263-171183307b15?w=900&h=600&fit=crop&auto=format"
                 alt="High-speed center console boat underway"
                 className="w-full h-full object-cover"
-                style={{ filter: "brightness(0.8) saturate(0.95)" }}
               />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(4,13,23,0.5) 0%, transparent 65%)" }} />
             </div>
@@ -367,7 +366,6 @@ export default function App() {
                   src={url}
                   alt={alt}
                   className="w-full h-full object-cover"
-                  style={{ filter: "brightness(0.72) saturate(0.85)", transition: "transform 0.6s ease" }}
                   onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.transform = "scale(1.05)")}
                   onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.transform = "scale(1)")}
                 />

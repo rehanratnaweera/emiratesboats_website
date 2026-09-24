@@ -405,7 +405,6 @@ body {
 .boat-gallery-stage::after {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(4, 13, 23, 0.08), rgba(4, 13, 23, 0.48));
   content: '';
   pointer-events: none;
 }

@@ -34,8 +34,10 @@ function loadBoatModel(scene: THREE.Scene, modelUrl: string, materialColors: Boa
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
         child.receiveShadow = true;
-        const meshes = Array.isArray(child.material) ? child.material : [child.material];
-        meshes.forEach((material) => {
+        const sourceMaterials = Array.isArray(child.material) ? child.material : [child.material];
+        const materials = sourceMaterials.map((material) => material.clone());
+        child.material = Array.isArray(child.material) ? materials : materials[0];
+        materials.forEach((material) => {
           if (!(material instanceof THREE.MeshStandardMaterial) && !(material instanceof THREE.MeshPhysicalMaterial)) return;
           const materialKey = getMaterialKey(`${child.name} ${material.name}`, materialColors);
           if (materialKey) material.color.setHex(materialColors[materialKey]);
