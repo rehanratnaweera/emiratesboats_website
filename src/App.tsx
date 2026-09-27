@@ -16,9 +16,29 @@ const SPEC_LABELS: Partial<Record<keyof BoatModel, string>> = {
   construction: "Construction",
 };
 
+const FALLBACK_BOAT: BoatModel = {
+  id: "fallback-eb-63",
+  name: "EB-63",
+  tagline: "63 ft · Center Console",
+  modelUrl: "",
+  datasheetUrl: "",
+  gallery: [],
+  materialColors: {},
+  zoomFactor: 1,
+  length: "63 ft / 19.2 m",
+  beam: "13 ft / 4 m",
+  displacement: "15 tons",
+  range: "1,200 nm",
+  power: "6 x Mercury 500R",
+  speed: "82 mph MAX / 60 mph Cruise",
+  capacity: "16 persons",
+  construction: "Carbon fiber E-Glass Composite",
+  description: "A high-performance offshore center console designed for long-range Gulf conditions, with a stepped composite hull, overnight accommodation, and premium navigation systems.",
+};
+
 export default function App() {
-  const [boats, setBoats] = useState<BoatModel[]>([]);
-  const [activeBoat, setActiveBoat] = useState<BoatModel | null>(null);
+  const [boats, setBoats] = useState<BoatModel[]>([FALLBACK_BOAT]);
+  const [activeBoat, setActiveBoat] = useState<BoatModel | null>(FALLBACK_BOAT);
   const [boatsError, setBoatsError] = useState<string | null>(null);
   const [showBoatDetails, setShowBoatDetails] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
@@ -27,6 +47,7 @@ export default function App() {
   const constructionRef: React.RefObject<HTMLDivElement | null> = useRef(null);
   const bespokeRef: React.RefObject<HTMLDivElement | null> = useRef(null);
   const contactRef: React.RefObject<HTMLDivElement | null> = useRef(null);
+  const heroRef: React.RefObject<HTMLDivElement | null> = useRef(null);
 
   useEffect(() => {
     const fn = () => setNavScrolled(window.scrollY > 60);
@@ -38,12 +59,17 @@ export default function App() {
     const controller = new AbortController();
     fetchBoats(controller.signal)
       .then((loadedBoats) => {
+        if (loadedBoats.length === 0) {
+          setBoatsError("No published fleet entries are available. Showing the local EB-63 preview.");
+          return;
+        }
         setBoats(loadedBoats);
         setActiveBoat(loadedBoats[0] ?? null);
+        setShowBoatDetails(Boolean(loadedBoats[0] && !loadedBoats[0].modelUrl && loadedBoats[0].gallery.length > 0));
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
-        setBoatsError(error instanceof Error ? error.message : "Unable to load boats from the CMS.");
+        setBoatsError("The live fleet is unavailable. Showing the local EB-63 preview.");
       });
 
     return () => controller.abort();
@@ -52,12 +78,17 @@ export default function App() {
   const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) =>
     ref.current?.scrollIntoView({ behavior: "smooth" });
 
+  const selectBoat = (boat: BoatModel) => {
+    setActiveBoat(boat);
+    setShowBoatDetails(!boat.modelUrl && boat.gallery.length > 0);
+  };
+
   const navigation = (
       <nav className={`site-nav fixed top-0 left-0 right-0 z-50${navScrolled ? " is-scrolled" : ""}`}>
         <div className="site-nav-inner max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* wordmark */}
           <div className="site-wordmark flex items-center gap-3">
-            <img src="https://cms.emirateboats.com/assets/b693203a-b37c-47ce-be08-2d9dfc9428ec" alt="Emirates Boats Logo" />
+            <img src="https://cms.emirateboats.com/assets/b693203a-b37c-47ce-be08-2d9dfc9428ec" alt="Emirates Boats Logo" onClick={() => scrollTo(heroRef)} />
           </div>
 
           {/* desktop links */}
@@ -110,7 +141,6 @@ export default function App() {
       </nav>
   );
 
-  if (boatsError) return <div className="site-shell">{navigation}<div className="cms-status">Unable to load the fleet. {boatsError}</div></div>;
   if (!activeBoat) return <div className="site-shell">{navigation}<div className="cms-status">Loading the Emirates Boats fleet...</div></div>;
 
   return (
@@ -118,7 +148,7 @@ export default function App() {
       {navigation}
 
       {/* ── HERO ────────────────────────────────────────── */}
-      <section className="hero-section relative flex flex-col justify-end overflow-hidden" style={{ minHeight: "100svh" }}>
+      <section ref={heroRef} className="hero-section relative flex flex-col justify-end overflow-hidden" style={{ minHeight: "100svh" }}>
         <video
           className="hero-video absolute inset-0 h-full w-full object-cover"
           src="https://cms.emirateboats.com/assets/044420c8-8e1e-4c11-8c2d-4de5cc24fb13"
@@ -177,6 +207,7 @@ export default function App() {
       {/* ── FLEET / 3D VIEWER ───────────────────────────── */}
       <section className="fleet-section" id="fleet" ref={fleetRef}>
         <div className="max-w-7xl mx-auto px-6">
+          {boatsError && <p className="fleet-fallback-notice" role="status">{boatsError}</p>}
           <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
               <p className="section-kicker">
@@ -200,9 +231,7 @@ export default function App() {
                 {boats.map((boat) => (
                   <button
                     key={boat.id}
-                    onClick={() => {
-                      setActiveBoat(boat);
-                    }}
+                    onClick={() => selectBoat(boat)}
                     className={`boat-option w-full text-left relative transition-colors duration-150${activeBoat.id === boat.id ? " is-active" : ""}`}
                   >
                     {activeBoat.id === boat.id && (
@@ -229,8 +258,9 @@ export default function App() {
                     materialColors={activeBoat.materialColors}
                     zoomFactor={activeBoat.zoomFactor}
                   />
+                  {!activeBoat.modelUrl && <div className="model-unavailable" role="status" aria-live="polite">3D preview is currently unavailable for this model.</div>}
                   <div className="model-badge">
-                    {activeBoat.name} — INTERACTIVE 3D MODEL
+                    {activeBoat.name} — {activeBoat.modelUrl ? "INTERACTIVE 3D MODEL" : "3D MODEL UNAVAILABLE"}
                   </div>
                   <div className="model-hint">
                     DRAG · ZOOM · ORBIT

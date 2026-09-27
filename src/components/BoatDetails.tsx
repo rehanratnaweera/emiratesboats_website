@@ -110,7 +110,7 @@ export default function BoatDetails({ boat, onBack }: BoatDetailsProps) {
               </button>
             </>
           ) : (
-            <p className="boat-gallery-empty">Gallery images are not available for this model yet.</p>
+            <p className="boat-gallery-empty" role="status" aria-live="polite">Gallery images are currently unavailable for this model.</p>
           )}
         </div>
         {images.length > 1 && <div className="boat-gallery-thumbnails">
@@ -148,9 +148,13 @@ export default function BoatDetails({ boat, onBack }: BoatDetailsProps) {
         <div className="boat-details-copy">
           <p className="boat-details-kicker">The brief</p>
           <p>{boat.description}</p>
-          <a className="boat-download-button" href={boat.datasheetUrl} download>
-            Download datasheet <span aria-hidden="true">↓</span>
-          </a>
+          {boat.datasheetUrl ? (
+            <a className="boat-download-button" href={boat.datasheetUrl} download>
+              Download datasheet <span aria-hidden="true">↓</span>
+            </a>
+          ) : (
+            <p className="boat-asset-unavailable" role="status">Datasheet currently unavailable.</p>
+          )}
         </div>
       </div>
 

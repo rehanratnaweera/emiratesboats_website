@@ -108,7 +108,7 @@ Each boat record can provide:
 
 The mapper accepts several field aliases and both Directus asset IDs and full URLs. Material colours may be supplied as a keyed object or as an array of mesh/material entries. This keeps the presentation layer independent of minor CMS naming differences.
 
-The CMS must allow browser requests from the deployed site and expose the related asset fields requested by `fetchBoats`. If Directus is unavailable or returns an invalid payload, the application displays an error status.
+The CMS must allow browser requests from the deployed site and expose the related asset fields requested by `fetchBoats`. The fleet query filters Directus records to `status=published`. If the CMS request fails or no published boats are returned, the site remains usable with a clearly labeled local EB-63 preview.
 
 ## Production delivery
 

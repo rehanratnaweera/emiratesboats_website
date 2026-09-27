@@ -544,6 +544,13 @@ body {
   text-align: center;
 }
 
+.boat-asset-unavailable {
+  margin: 0;
+  color: #9eadaf;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
 .boat-gallery-index {
   position: absolute;
   z-index: 1;
@@ -924,6 +931,27 @@ body { background: #07131a; }
 
 .model-badge { top: 16px; left: 16px; padding: 8px 11px; }
 .model-hint { right: 14px; bottom: 14px; padding: 7px 10px; color: #a7b8b9; }
+.model-unavailable {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(220, 234, 235, 0.64);
+  font: 500 0.7rem/1.4 'DM Mono', 'Courier New', monospace;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.fleet-fallback-notice {
+  margin: 0 0 20px;
+  border: 1px solid rgba(197, 173, 123, 0.24);
+  border-radius: 7px;
+  padding: 11px 14px;
+  background: rgba(197, 173, 123, 0.06);
+  color: #cabb9b;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
 
 .specs-panel {
   padding: 26px 30px;

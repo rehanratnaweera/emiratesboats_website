@@ -137,6 +137,7 @@ export async function fetchBoats(signal?: AbortSignal): Promise<BoatModel[]> {
     limit: "100",
     fields: "*,model_file.*,datasheet_file.*,gallery.*,gallery.directus_files_id.*,material_colors.*",
   });
+  query.set("filter[status][_eq]", "published");
   const response = await fetch(`${DIRECTUS_URL}/items/boats?${query}`, { signal });
   if (!response.ok) throw new Error(`Directus request failed (${response.status})`);
 
