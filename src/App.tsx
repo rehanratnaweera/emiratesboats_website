@@ -52,13 +52,7 @@ export default function App() {
   const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) =>
     ref.current?.scrollIntoView({ behavior: "smooth" });
 
-  if (boatsError) return <div className="site-shell cms-status">Unable to load the fleet. {boatsError}</div>;
-  if (!activeBoat) return <div className="site-shell cms-status">Loading the Emirates Boats fleet...</div>;
-
-  return (
-    <div className="site-shell">
-
-      {/* ── NAV ─────────────────────────────────────────── */}
+  const navigation = (
       <nav className={`site-nav fixed top-0 left-0 right-0 z-50${navScrolled ? " is-scrolled" : ""}`}>
         <div className="site-nav-inner max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* wordmark */}
@@ -114,6 +108,14 @@ export default function App() {
           </div>
         )}
       </nav>
+  );
+
+  if (boatsError) return <div className="site-shell">{navigation}<div className="cms-status">Unable to load the fleet. {boatsError}</div></div>;
+  if (!activeBoat) return <div className="site-shell">{navigation}<div className="cms-status">Loading the Emirates Boats fleet...</div></div>;
+
+  return (
+    <div className="site-shell">
+      {navigation}
 
       {/* ── HERO ────────────────────────────────────────── */}
       <section className="hero-section relative flex flex-col justify-end overflow-hidden" style={{ minHeight: "100svh" }}>
