@@ -173,7 +173,7 @@ export default function App() {
       </section>
 
       {/* ── FLEET / 3D VIEWER ───────────────────────────── */}
-      <section className="fleet-section" ref={fleetRef}>
+      <section className="fleet-section" id="fleet" ref={fleetRef}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
@@ -267,7 +267,7 @@ export default function App() {
       </section>
 
       {/* ── CONSTRUCTION ────────────────────────────────── */}
-      <section className="construction-section" ref={constructionRef}>
+      <section className="construction-section" id="construction" ref={constructionRef}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
             <div className="construction-image">
@@ -341,7 +341,7 @@ export default function App() {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────── */}
-      <section className="bespoke-section" ref={contactRef}>
+      <section className="bespoke-section" id="contact" ref={contactRef}>
         <div className="max-w-xl mx-auto text-center">
           <p className="section-kicker">
             Bespoke Programme
@@ -375,9 +375,9 @@ export default function App() {
               </p>
             </div>
             {[
-              { h: "Fleet", links: ["EB-46 Center Console", "EB-63 Center Console", "EB Cat 80"], href: ["#", "#", "#"] },
-              { h: "Company", links: ["About Us", "Instagram", "Facebook", "LinkedIn"], href: ["constructionRef", "https://www.instagram.com/emiratesboat", "https://www.facebook.com/emiratesboats", "https://www.linkedin.com/company/emirates-boats-llc"] },
-              { h: "Services", links: ["Bespoke Builds", "Refit & Service", "Sea Trials", "Parts & Accessories"], href: ["#", "#", "#", "#"] },
+              { h: "Fleet", links: ["EB-46 Center Console", "EB-63 Center Console", "EB Cat 80"], href: ["#fleet", "#fleet", "#fleet"] },
+              { h: "Company", links: ["About Us", "Instagram", "Facebook", "LinkedIn"], href: ["#construction", "https://www.instagram.com/emiratesboat", "https://www.facebook.com/emiratesboats", "https://www.linkedin.com/company/emirates-boats-llc"] },
+              { h: "Services", links: ["Bespoke Builds", "Refit & Service", "Sea Trials", "Parts & Accessories"], href: ["#contact", "#contact", "#contact", "#contact"] },
             ].map(({ h, links, href }) => (
               <div key={h}>
                 <p className="footer-heading">{h}</p>

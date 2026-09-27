@@ -86,7 +86,7 @@ pnpm run preview     # Serve the production bundle locally
 pnpm run format      # Format supported source files with oxfmt
 ```
 
-There is currently no test or lint script in `package.json`; the production build is the primary automated application check.
+There is currently no test or lint script in `package.json`; the pre-commit hook runs the production build as the available application check.
 
 ## CMS integration
 

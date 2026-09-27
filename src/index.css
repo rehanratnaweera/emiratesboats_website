@@ -3,23 +3,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap');
 @import 'tailwindcss';
 
-@theme {
-  --color-navy-950: #050d18;
-  --color-navy-900: #0b1929;
-  --color-navy-800: #122438;
-  --color-navy-700: #1b3350;
-  --color-navy-600: #254668;
-  --color-navy-500: #2e5a82;
-  --color-brass-300: #e8cc8a;
-  --color-brass-400: #d4aa5a;
-  --color-brass-500: #c4973a;
-  --color-brass-600: #a67c2a;
-  --color-slate-light: #d0d8e4;
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-mono: 'DM Mono', 'Courier New', monospace;
-}
-
 * {
   scrollbar-width: thin;
   scrollbar-color: transparent transparent;
@@ -44,15 +27,10 @@ body {
 }
 
 :root {
-  --site-bg: #07121e;
-  --site-bg-deep: #040d17;
-  --site-bg-footer: #030a12;
-  --site-text: #cfd9e6;
-  --site-heading: #e8eef5;
-  --site-muted: #6a8098;
-  --site-subtle: #5a7080;
-  --site-line: rgba(196, 151, 58, 0.15);
-  --site-control-bg: rgba(4, 13, 23, 0.7);
+  --site-bg: #07131a;
+  --site-text: #d1d9dd;
+  --luxury-aqua: #9edbd8;
+  --luxury-metal: #c5ad7b;
 }
 
 .site-shell {
@@ -555,6 +533,16 @@ body {
   box-sizing: border-box;
 }
 
+.boat-gallery-empty {
+  max-width: 32ch;
+  margin: 0;
+  padding: 24px;
+  color: #aab8ba;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
 .boat-gallery-index {
   position: absolute;
   z-index: 1;
@@ -730,19 +718,6 @@ body {
 }
 
 html { scroll-behavior: smooth; }
-
-:root {
-  --site-bg: #07131a;
-  --site-bg-deep: #040b11;
-  --site-bg-footer: #03080d;
-  --site-text: #d1d9dd;
-  --site-heading: #f1f4f2;
-  --site-muted: #a0afb5;
-  --site-subtle: #82939a;
-  --site-line: rgba(211, 228, 230, 0.12);
-  --luxury-aqua: #9edbd8;
-  --luxury-metal: #c5ad7b;
-}
 
 html,
 body { background: #07131a; }

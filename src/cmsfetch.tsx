@@ -28,7 +28,6 @@ export interface BoatModel {
 const DIRECTUS_URL = "https://cms.emirateboats.com";
 const ASSET_ROOT = `${DIRECTUS_URL}/assets/`;
 
-type DirectusAsset = string | { id?: string; filename_download?: string; title?: string; description?: string; url?: string };
 type DirectusRecord = Record<string, unknown>;
 
 function firstValue(record: DirectusRecord, ...keys: string[]) {

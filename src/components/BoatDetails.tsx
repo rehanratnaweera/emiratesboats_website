@@ -41,9 +41,7 @@ const SPEC_FIELDS: Array<{ key: BoatSpecKey; label: string }> = [
 ];
 
 export default function BoatDetails({ boat, onBack }: BoatDetailsProps) {
-  const images = boat.gallery.length > 0
-    ? boat.gallery
-    : [{ url: "/images/logo.png", alt: `${boat.name} image unavailable` }];
+  const images = boat.gallery;
   const [activeImage, setActiveImage] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const thumbnailRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -97,19 +95,25 @@ export default function BoatDetails({ boat, onBack }: BoatDetailsProps) {
 
       <div className="boat-details-gallery" aria-label={`${boat.name} image gallery`}>
         <div className="boat-gallery-stage">
-          <img src={images[activeImage].url} alt={images[activeImage].alt} />
-          <div className="boat-gallery-index">{String(activeImage + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}</div>
-          <button className="boat-gallery-arrow boat-gallery-arrow-prev" type="button" onClick={() => goToImage(-1)} aria-label="Previous image">
-            <span aria-hidden="true">←</span>
-          </button>
-          <button className="boat-gallery-arrow boat-gallery-arrow-next" type="button" onClick={() => goToImage(1)} aria-label="Next image">
-            <span aria-hidden="true">→</span>
-          </button>
-          <button className="boat-gallery-expand" type="button" onClick={() => setIsLightboxOpen(true)} aria-label="Enlarge current image">
-            <span aria-hidden="true">⛶</span> Expand image
-          </button>
+          {images.length > 0 ? (
+            <>
+              <img src={images[activeImage].url} alt={images[activeImage].alt} />
+              <div className="boat-gallery-index">{String(activeImage + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}</div>
+              <button className="boat-gallery-arrow boat-gallery-arrow-prev" type="button" onClick={() => goToImage(-1)} aria-label="Previous image">
+                <span aria-hidden="true">←</span>
+              </button>
+              <button className="boat-gallery-arrow boat-gallery-arrow-next" type="button" onClick={() => goToImage(1)} aria-label="Next image">
+                <span aria-hidden="true">→</span>
+              </button>
+              <button className="boat-gallery-expand" type="button" onClick={() => setIsLightboxOpen(true)} aria-label="Enlarge current image">
+                <span aria-hidden="true">⛶</span> Expand image
+              </button>
+            </>
+          ) : (
+            <p className="boat-gallery-empty">Gallery images are not available for this model yet.</p>
+          )}
         </div>
-        <div className="boat-gallery-thumbnails">
+        {images.length > 1 && <div className="boat-gallery-thumbnails">
           {images.map((image, index) => (
             <button
               key={image.url}
@@ -123,7 +127,7 @@ export default function BoatDetails({ boat, onBack }: BoatDetailsProps) {
               <img src={image.url} alt="" />
             </button>
           ))}
-        </div>
+        </div>}
       </div>
 
       <div className="boat-details-content">
