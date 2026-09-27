@@ -115,6 +115,9 @@ importers:
       '@types/three':
         specifier: ^0.185.4
         version: 0.185.4
+      draco:
+        specifier: ^0.0.1
+        version: 0.0.1
       react:
         specifier: ^19.2.8
         version: 19.2.8
@@ -986,6 +989,9 @@ packages:
   dot-prop@5.3.0:
     resolution: {integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==}
     engines: {node: '>=8'}
+
+  draco@0.0.1:
+    resolution: {integrity: sha512-ENEXFTo+LHJJbCE/Odw038YDPTpbt0nGjP3u38vVRYhEhCJhm/VWO7U5Ctcm5lv42uLkEI0UoE6xX2jdqfAitg==}
 
   duplexer2@0.1.4:
     resolution: {integrity: sha512-asLFVfWWtJ90ZyOUHMqk7/S2w2guQKxUI2itj3d92ADHhxUSbCMGi1f1cBcJ7xM1To+pE/Khbwo1yuNbMEPKeA==}
@@ -3117,6 +3123,8 @@ snapshots:
   dot-prop@5.3.0:
     dependencies:
       is-obj: 2.0.0
+
+  draco@0.0.1: {}
 
   duplexer2@0.1.4:
     dependencies:

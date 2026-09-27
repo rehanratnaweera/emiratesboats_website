@@ -2,8 +2,14 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/examples/jsm/Addons.js";
 
 export type BoatMaterialColors = Record<string, number>;
+
+  const dracoLoader = new DRACOLoader();
+  dracoLoader.setDecoderPath("/draco/");
+  const gltfLoader = new GLTFLoader();
+  gltfLoader.setDRACOLoader(dracoLoader);
 
 interface BoatViewerProps {
   modelUrl: string;
@@ -29,7 +35,7 @@ function loadBoatModel(scene: THREE.Scene, modelUrl: string, materialColors: Boa
     return g;
   }
 
-  new GLTFLoader().load(modelUrl, ({ scene: model }) => {
+  gltfLoader.load(modelUrl, ({ scene: model }) => {
     model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
