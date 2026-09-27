@@ -42,6 +42,7 @@ body {
 }
 
 .site-nav {
+  z-index: 50;
   padding: 14px clamp(14px, 3vw, 42px);
   box-sizing: border-box;
   transition: padding 220ms ease;
