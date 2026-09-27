@@ -67,7 +67,7 @@ export default function App() {
           </div>
 
           {/* desktop links */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="site-nav-links hidden md:flex items-center gap-2">
             {["Our Fleet", "Construction", "Bespoke", "Contact"].map((l) => (
               <button
                 key={l}
@@ -99,9 +99,9 @@ export default function App() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="site-mobile-menu md:hidden flex flex-col gap-4 px-6 pb-6">
+          <div className="site-mobile-menu md:hidden flex flex-col gap-2 px-6 pb-6">
             {["Our Fleet", "Construction", "Bespoke", "Contact"].map((l) => (
-              <button key={l} className="site-nav-link text-left"
+              <button key={l} className="site-nav-link site-nav-mobile-link text-left"
                 onClick={() => { setMobileMenuOpen(false); 
                   if (l === "Our Fleet") scrollTo(fleetRef); 
                   if (l === "Construction") scrollTo(constructionRef); 
