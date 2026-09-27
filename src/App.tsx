@@ -59,18 +59,11 @@ export default function App() {
     <div className="site-shell">
 
       {/* ── NAV ─────────────────────────────────────────── */}
-      <nav
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-400"
-        style={{
-          background: navScrolled ? "rgba(7,18,30,0.96)" : "transparent",
-          borderBottom: navScrolled ? "1px solid rgba(196,151,58,0.2)" : "none",
-          backdropFilter: navScrolled ? "blur(14px)" : "none",
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-6 h-25 flex items-center justify-between">
+      <nav className={`site-nav fixed top-0 left-0 right-0 z-50${navScrolled ? " is-scrolled" : ""}`}>
+        <div className="site-nav-inner max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* wordmark */}
-          <div className="flex items-center gap-3">
-            <img width="100vw" height="100vh" src="https://cms.emirateboats.com/assets/b693203a-b37c-47ce-be08-2d9dfc9428ec" alt="Emirates Boats Logo" className="object-cover" />
+          <div className="site-wordmark flex items-center gap-3">
+            <img src="https://cms.emirateboats.com/assets/b693203a-b37c-47ce-be08-2d9dfc9428ec" alt="Emirates Boats Logo" />
           </div>
 
           {/* desktop links */}
@@ -84,9 +77,7 @@ export default function App() {
                   if (l === "Bespoke") scrollTo(bespokeRef);
                   if (l === "Contact") scrollTo(contactRef);
                 }}
-                style={{ fontFamily: "DM Mono, monospace", fontSize: "0.62rem", color: "#00d9ff", letterSpacing: "0.14em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer" }}
-                onMouseEnter={(e) => ((e.target as HTMLElement).style.color = "#278188")}
-                onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#00d9ff")}
+                className="site-nav-link"
               >
                 {l}
               </button>
@@ -94,16 +85,13 @@ export default function App() {
           </div>
 
           <button
-            className="hidden md:block px-5 py-2 transition-all duration-200"
-            style={{ border: "1px solid #3abbc4", color: "#3abbc4", fontFamily: "DM Mono, monospace", fontSize: "0.62rem", letterSpacing: "0.16em", textTransform: "uppercase", background: "none", cursor: "pointer" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#3abbc4"; (e.currentTarget as HTMLElement).style.color = "#07121e"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#3abbc4"; }}
+            className="site-nav-cta hidden md:block"
             onClick={() => scrollTo(contactRef)}
           >
             Enquire
           </button>
 
-          <button className="md:hidden flex flex-col gap-1.5" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          <button className="site-menu-toggle md:hidden flex flex-col gap-1.5" aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {[5, 5, 3].map((w, i) => (
               <span key={i} className="block h-px" style={{ width: `${w * 4}px`, background: "#3abbc4" }} />
             ))}
@@ -111,9 +99,9 @@ export default function App() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden flex flex-col gap-4 px-6 pb-6" style={{ background: "rgba(7,18,30,0.98)" }}>
+          <div className="site-mobile-menu md:hidden flex flex-col gap-4 px-6 pb-6">
             {["Our Fleet", "Construction", "Bespoke", "Contact"].map((l) => (
-              <button key={l} className="text-left" style={{ fontFamily: "DM Mono, monospace", fontSize: "0.65rem", color: "#6a8098", letterSpacing: "0.14em", textTransform: "uppercase", background: "none", border: "none", cursor: "pointer" }}
+              <button key={l} className="site-nav-link text-left"
                 onClick={() => { setMobileMenuOpen(false); 
                   if (l === "Our Fleet") scrollTo(fleetRef); 
                   if (l === "Construction") scrollTo(constructionRef); 
@@ -144,31 +132,22 @@ export default function App() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20 pt-28 w-full">
           <div className="max-w-lg">
-            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.62rem", color: "#3abbc4", letterSpacing: "0.26em", textTransform: "uppercase", marginBottom: "20px" }}>
+            <p className="hero-kicker">
               Dubai · United Arab Emirates
             </p>
-            <h1 style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "clamp(2.8rem, 6.5vw, 5rem)", fontWeight: 400, color: "#e8eef5", lineHeight: 1.02, marginBottom: "22px" }}>
+            <h1 className="hero-title">
               Purpose-built
               <br />
-              <em style={{ fontStyle: "italic", color: "#3abbc4" }}>for the Gulf.</em>
+              <em>for the Gulf.</em>
             </h1>
-            <p style={{ color: "#7a94ae", fontSize: "1rem", lineHeight: 1.72, maxWidth: "40ch", marginBottom: "36px" }}>
+            <p className="hero-copy">
               Emirates Boats LLC designs and builds high-performance center-console sport fishers and offshore catamarans — engineered for Gulf conditions, finished to international standards.
             </p>
             <div className="flex flex-wrap gap-4">
-              <button
-                onClick={() => scrollTo(fleetRef)}
-                style={{ background: "#3abbc4", color: "#07121e", fontFamily: "DM Mono, monospace", fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "14px 28px", border: "none", cursor: "pointer", fontWeight: 500, transition: "background 0.2s" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#5a9dd4")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#3abbc4")}
-              >
+              <button className="primary-action" onClick={() => scrollTo(fleetRef)}>
                 View the Fleet
               </button>
-              <button
-                style={{ background: "transparent", color: "#cfd9e6", fontFamily: "DM Mono, monospace", fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "14px 28px", border: "1px solid rgba(207,217,230,0.28)", cursor: "pointer", transition: "border-color 0.2s, color 0.2s" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(196,151,58,0.6)"; (e.currentTarget as HTMLElement).style.color = "#3abbc4"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(207,217,230,0.28)"; (e.currentTarget as HTMLElement).style.color = "#cfd9e6"; }}
-              >
+              <button className="secondary-action" onClick={() => scrollTo(constructionRef)}>
                 Our Process
               </button>
             </div>
@@ -176,8 +155,8 @@ export default function App() {
         </div>
 
         {/* stats bar */}
-        <div className="relative z-10 w-full" style={{ borderTop: "1px solid rgba(196,151,58,0.2)", background: "rgba(7,18,30,0.85)", backdropFilter: "blur(10px)" }}>
-          <div className="max-w-7xl mx-auto px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="hero-stats relative z-10 w-full">
+          <div className="hero-stats-grid max-w-7xl mx-auto px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               [String(boats.length), "Models Available"],
               ["46–80 ft", "Range"],
@@ -185,8 +164,8 @@ export default function App() {
               ["Dubai", "Build Facility"],
             ].map(([val, lbl]) => (
               <div key={lbl}>
-                <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "1.4rem", color: "#3abbc4", lineHeight: 1, marginBottom: "3px" }}>{val}</p>
-                <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#4a6070", letterSpacing: "0.14em", textTransform: "uppercase" }}>{lbl}</p>
+                <p className="stat-value">{val}</p>
+                <p className="stat-label">{lbl}</p>
               </div>
             ))}
           </div>
@@ -194,53 +173,43 @@ export default function App() {
       </section>
 
       {/* ── FLEET / 3D VIEWER ───────────────────────────── */}
-      <section ref={fleetRef} style={{ background: "#07121e", padding: "80px 0 96px" }}>
+      <section className="fleet-section" ref={fleetRef}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
             <div>
-              <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3abbc4", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "12px" }}>
+              <p className="section-kicker">
                 Current Lineup
               </p>
-              <h2 style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "clamp(1.9rem, 3.5vw, 2.8rem)", fontWeight: 400, color: "#e8eef5", lineHeight: 1.1 }}>
+              <h2 className="section-title">
                 Three models.
                 <br />
-                <em style={{ fontStyle: "italic", color: "#3abbc4" }}>No compromises.</em>
+                <em>No compromises.</em>
               </h2>
             </div>
-            <p style={{ color: "#6a8098", fontSize: "0.85rem", lineHeight: 1.7, maxWidth: "38ch" }}>
+            <p className="section-note">
               Drag to orbit · scroll to zoom.
             </p>
           </div>
 
-          <div style={{ border: "1px solid rgba(196,151,58,0.2)" }}>
+          <div className="fleet-frame">
             <div className="fleet-layout grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
               {/* selector */}
-              <div style={{ borderRight: "1px solid rgba(196,151,58,0.15)" }}>
-                {boats.map((boat, i) => (
+              <div className="boat-selector">
+                {boats.map((boat) => (
                   <button
                     key={boat.id}
                     onClick={() => {
                       setActiveBoat(boat);
                     }}
-                    className="w-full text-left relative transition-colors duration-150"
-                    style={{
-                      padding: "22px 24px",
-                      background: activeBoat.id === boat.id ? "rgba(196,151,58,0.07)" : "transparent",
-                      borderBottom: i < boats.length - 1 ? "1px solid rgba(196,151,58,0.12)" : "none",
-                      cursor: "pointer",
-                      border: "none",
-                      display: "block",
-                    }}
-                    onMouseEnter={(e) => { if (activeBoat.id !== boat.id) (e.currentTarget as HTMLElement).style.background = "rgba(196,151,58,0.03)"; }}
-                    onMouseLeave={(e) => { if (activeBoat.id !== boat.id) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                    className={`boat-option w-full text-left relative transition-colors duration-150${activeBoat.id === boat.id ? " is-active" : ""}`}
                   >
                     {activeBoat.id === boat.id && (
-                      <span className="absolute left-0 top-0 bottom-0 w-0.5" style={{ background: "#3abbc4" }} />
+                      <span className="boat-option-indicator absolute left-0 top-0 bottom-0 w-0.5" />
                     )}
-                    <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "1.1rem", color: activeBoat.id === boat.id ? "#5a9dd4" : "#b8c8d8", marginBottom: "5px", fontWeight: 400 }}>
+                    <p className="boat-option-name">
                       {boat.name}
                     </p>
-                    <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3a5060", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                    <p className="boat-option-tagline">
                       {boat.tagline}
                     </p>
                   </button>
@@ -251,42 +220,40 @@ export default function App() {
               <div className="fleet-pane flex flex-col">
                 {showBoatDetails ? <BoatDetails boat={activeBoat} onBack={() => setShowBoatDetails(false)} /> : <>
                   {/* canvas */}
-                  <div className="boat-model-canvas" style={{ background: "#040d17", position: "relative", flex: "1 1 auto" }}>
+                  <div className="boat-model-canvas model-viewer-surface" style={{ position: "relative", flex: "1 1 auto" }}>
                   <BoatViewer
                     key={activeBoat.id}
                     modelUrl={activeBoat.modelUrl}
                     materialColors={activeBoat.materialColors}
                     zoomFactor={activeBoat.zoomFactor}
                   />
-                  <div style={{ position: "absolute", top: "16px", left: "16px", fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#3abbc4", letterSpacing: "0.14em", background: "rgba(4,13,23,0.75)", padding: "6px 10px", border: "1px solid rgba(196,151,58,0.2)" }}>
+                  <div className="model-badge">
                     {activeBoat.name} — INTERACTIVE 3D MODEL
                   </div>
-                  <div style={{ position: "absolute", bottom: "14px", right: "14px", fontFamily: "DM Mono, monospace", fontSize: "0.55rem", color: "#3a5060", letterSpacing: "0.1em", background: "rgba(4,13,23,0.7)", padding: "5px 10px" }}>
+                  <div className="model-hint">
                     DRAG · ZOOM · ORBIT
                   </div>
                   </div>
 
                 {/* specs */}
-                <div style={{ borderTop: "1px solid rgba(196,151,58,0.15)", background: "#0a1825", padding: "28px 32px" }}>
+                <div className="specs-panel">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-5 mb-6">
                     {SPEC_KEYS.map((k) => (
                       <div key={k}>
-                        <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.54rem", color: "#3a5060", letterSpacing: "0.16em", textTransform: "uppercase", marginBottom: "4px" }}>
+                        <p className="spec-label">
                           {SPEC_LABELS[k]}
                         </p>
-                        <p style={{ color: "#b8c8d8", fontSize: "0.8rem", lineHeight: 1.4 }}>
+                        <p className="spec-value">
                           {activeBoat[k] as string}
                         </p>
                       </div>
                     ))}
                   </div>
-                  <p style={{ color: "#5a7080", fontSize: "0.83rem", lineHeight: 1.7, maxWidth: "72ch" }}>
+                  <p className="boat-description">
                     {activeBoat.description}
                   </p>
                   <button
-                    style={{ marginTop: "20px", border: "1px solid rgba(196,151,58,0.4)", color: "#3abbc4", background: "transparent", fontFamily: "DM Mono, monospace", fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "10px 22px", cursor: "pointer", transition: "all 0.2s" }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "#3abbc4"; (e.currentTarget as HTMLElement).style.color = "#07121e"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "#3abbc4"; }}
+                    className="details-action"
                     onClick={() => setShowBoatDetails(true)}
                   >
                     View Gallery & Full Specs
@@ -300,10 +267,10 @@ export default function App() {
       </section>
 
       {/* ── CONSTRUCTION ────────────────────────────────── */}
-      <section  style={{ background: "#040d17", padding: "88px 0" }} ref={constructionRef}>
+      <section className="construction-section" ref={constructionRef}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
-            <div style={{ position: "relative", aspectRatio: "16/10", background: "#07121e", overflow: "hidden" }}>
+            <div className="construction-image">
               <img
                 src="https://images.unsplash.com/photo-1625183656263-171183307b15?w=900&h=600&fit=crop&auto=format"
                 alt="High-speed center console boat underway"
@@ -312,26 +279,26 @@ export default function App() {
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(4,13,23,0.5) 0%, transparent 65%)" }} />
             </div>
             <div>
-              <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3abbc4", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "16px" }}>
+              <p className="section-kicker">
                 How We Build
               </p>
-              <h2 style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "clamp(1.8rem, 3vw, 2.5rem)", fontWeight: 400, color: "#e8eef5", lineHeight: 1.12, marginBottom: "20px" }}>
+              <h2 className="section-title">
                 Engineered for
                 <br />
-                <em style={{ fontStyle: "italic", color: "#3abbc4" }}>Gulf conditions</em>
+                <em>Gulf conditions</em>
               </h2>
-              <p style={{ color: "#5a7080", lineHeight: 1.78, marginBottom: "16px", fontSize: "0.9rem" }}>
+              <p className="construction-copy">
                 Every hull we build starts with a finite-element structural analysis for our specific sea state. The Gulf of Oman presents short, steep chop at 2–3 m that punishes inadequately reinforced transoms. Our center consoles use a 28° deep-V with longitudinal stringers bonded in carbon-loaded epoxy.
               </p>
-              <p style={{ color: "#5a7080", lineHeight: 1.78, fontSize: "0.9rem" }}>
+              <p className="construction-copy">
                 The EB Cat 80 is built entirely from carbon fiber — laid by hand in our Dubai facility, cured under vacuum, and inspected ultrasonically before the hulls are joined.
               </p>
             </div>
           </div>
 
           {/* process */}
-          <div style={{ borderTop: "1px solid rgba(196,151,58,0.14)", paddingTop: "60px" }}>
-            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3abbc4", letterSpacing: "0.22em", textTransform: "uppercase", marginBottom: "36px", textAlign: "center" }}>
+          <div className="build-stages">
+            <p className="section-kicker build-stages-heading">
               Build Stages
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -341,10 +308,10 @@ export default function App() {
                 { n: "03", t: "Systems Fit-Out", b: "Electronics, rigging, fuel, and propulsion installed and independently certified before launch." },
                 { n: "04", t: "Sea Trial", b: "Full-speed runs to rated maximum, instrument calibration, and customer handover in Dubai Marina." },
               ].map(({ n, t, b }) => (
-                <div key={n} style={{ paddingLeft: "20px", borderLeft: "1px solid rgba(196,151,58,0.22)" }}>
-                  <span style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3abbc4", letterSpacing: "0.12em", display: "block", marginBottom: "10px" }}>{n}</span>
-                  <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "1rem", color: "#b8c8d8", marginBottom: "9px" }}>{t}</p>
-                  <p style={{ color: "#3a5060", fontSize: "0.82rem", lineHeight: 1.68 }}>{b}</p>
+                <div key={n} className="build-stage">
+                  <span className="build-stage-number">{n}</span>
+                  <p className="build-stage-title">{t}</p>
+                  <p className="build-stage-copy">{b}</p>
                 </div>
               ))}
             </div>
@@ -353,21 +320,19 @@ export default function App() {
       </section>
 
       {/* ── GALLERY ─────────────────────────────────────── */}
-      <section  style={{ background: "#07121e", padding: "0 0 80px" }} ref={bespokeRef}> 
+      <section className="gallery-section" ref={bespokeRef}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-3 gap-1.5" style={{ height: "240px" }}>
+          <div className="gallery-grid grid grid-cols-3 gap-1.5">
             {[
               { url: "https://images.unsplash.com/photo-1552160757-52790c6f4faf?w=700&h=500&fit=crop&auto=format", alt: "Sport boat at speed" },
               { url: "https://images.unsplash.com/photo-1621459287809-d7b86ccf69f8?w=700&h=500&fit=crop&auto=format", alt: "Catamaran under sail" },
               { url: "https://images.unsplash.com/photo-1686048075764-996b3c825d7b?w=700&h=500&fit=crop&auto=format", alt: "Dubai marina" },
             ].map(({ url, alt }) => (
-              <div key={url} style={{ overflow: "hidden", background: "#040d17", position: "relative" }}>
+              <div key={url} className="gallery-tile">
                 <img
                   src={url}
                   alt={alt}
                   className="w-full h-full object-cover"
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.transform = "scale(1.05)")}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.transform = "scale(1)")}
                 />
               </div>
             ))}
@@ -376,25 +341,20 @@ export default function App() {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────── */}
-      <section style={{ background: "#040d17", borderTop: "1px solid rgba(196,151,58,0.15)", borderBottom: "1px solid rgba(196,151,58,0.15)", padding: "88px 24px" }} ref={contactRef}>
+      <section className="bespoke-section" ref={contactRef}>
         <div className="max-w-xl mx-auto text-center">
-          <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.6rem", color: "#3abbc4", letterSpacing: "0.24em", textTransform: "uppercase", marginBottom: "20px" }}>
+          <p className="section-kicker">
             Bespoke Programme
           </p>
-          <h2 style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "clamp(1.9rem, 3.5vw, 2.8rem)", fontWeight: 400, color: "#e8eef5", lineHeight: 1.1, marginBottom: "20px" }}>
+          <h2 className="section-title">
             Have a specific
             <br />
-            <em style={{ fontStyle: "italic", color: "#3abbc4" }}>brief in mind?</em>
+            <em>brief in mind?</em>
           </h2>
-          <p style={{ color: "#5a7080", lineHeight: 1.78, maxWidth: "44ch", margin: "0 auto 36px", fontSize: "0.9rem" }}>
+          <p className="bespoke-copy">
             We take on bespoke commissions alongside our standard models. From an extended-range 55 ft center console to a custom 100 ft carbon cat — bring the spec, we'll build it.
           </p>
-          <button
-            style={{ background: "#3abbc4", color: "#07121e", fontFamily: "DM Mono, monospace", fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", padding: "15px 34px", border: "none", cursor: "pointer", fontWeight: 500, transition: "background 0.2s" }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#d4aa5a")}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#3abbc4")}
-            onClick={() => scrollTo(contactRef)}
-          >
+          <button className="primary-action" onClick={() => scrollTo(contactRef)}>
             Contact the Build Team
           </button>
           <ContactBox />
@@ -402,13 +362,13 @@ export default function App() {
       </section>
 
       {/* ── FOOTER ──────────────────────────────────────── */}
-      <footer style={{ background: "#030a12", padding: "52px 24px 28px" }}>
+      <footer className="site-footer">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
             <div>
-              <p style={{ fontFamily: "Fraunces, Georgia, serif", fontSize: "0.95rem", color: "#b8c8d8", marginBottom: "6px", letterSpacing: "0.05em" }}>Emirates Boats LLC</p>
-              <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.56rem", color: "#3abbc4", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "14px" }}>Dubai, UAE</p>
-              <p style={{ color: "#3abbc4", fontSize: "0.8rem", lineHeight: 1.7 }}>
+              <p className="footer-brand">Emirates Boats LLC</p>
+              <p className="footer-location">Dubai, UAE</p>
+              <p className="footer-address">
                 Jebel Ali Industrial 1,<br />
                 P.O. Box 212300,<br />
                 +971 4 880 4777
@@ -420,13 +380,11 @@ export default function App() {
               { h: "Services", links: ["Bespoke Builds", "Refit & Service", "Sea Trials", "Parts & Accessories"], href: ["#", "#", "#", "#"] },
             ].map(({ h, links, href }) => (
               <div key={h}>
-                <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.58rem", color: "#3abbc4", letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: "14px" }}>{h}</p>
+                <p className="footer-heading">{h}</p>
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "9px" }}>
                   {links.map((l, i) => (
                     <li key={l}>
-                      <a href={href[i]} style={{ color: "#3abbc4", fontSize: "0.8rem", textDecoration: "none", transition: "color 0.15s" }}
-                        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#7a94ae")}
-                        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "#3abbc4")}
+                      <a className="footer-link" href={href[i]}
                       >{l}</a>
                     </li>
                   ))}
@@ -434,9 +392,9 @@ export default function App() {
               </div>
             ))}
           </div>
-          <div style={{ borderTop: "1px solid rgba(40,56,72,0.5)", paddingTop: "20px", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
-            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.55rem", color: "#c0b9b9", letterSpacing: "0.1em" }}>© 2026 Emirates Boats LLC. All rights reserved.</p>
-            <p style={{ fontFamily: "DM Mono, monospace", fontSize: "0.80rem", color: "#fefeff", letterSpacing: "0.1em" }}>Designed and built with ❤️ by <a href="https://www.linkedin.com/in/rehanratnaweera" style={{ color: "#fefeff", textDecoration: "underline" }}>Rehan Rathnaweera</a></p>
+          <div className="footer-bottom">
+            <p>© 2026 Emirates Boats LLC. All rights reserved.</p>
+            <p>Designed and built with ❤️ by <a href="https://www.linkedin.com/in/rehanratnaweera">Rehan Rathnaweera</a></p>
           </div>
         </div>
       </footer>
