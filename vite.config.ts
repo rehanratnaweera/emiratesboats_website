@@ -52,6 +52,7 @@ export default defineConfig(({ mode }) => {
 type ebSiteConfiguration = {
   title?: string
   description?: string
+  siteUrl?: string
   language?: string
   robots?: {
     index?: boolean
@@ -90,6 +91,7 @@ function ebSiteConfiguration(config: ebSiteConfiguration): Plugin {
 
   const title = config.title ?? "Emirates boats LLC"
   const description = config.description ?? 'Welcome to Emirates boats LLC'
+  const siteUrl = config.siteUrl?.replace(/\/+$/, '')
   const favicon = config.icons?.icon ?? 'favicon.ico'
   const socialImage = config.openGraph?.image ?? ''
   const language = sanitizeHtmlValue(config.language) || 'en'
@@ -134,6 +136,13 @@ function ebSiteConfiguration(config: ebSiteConfiguration): Plugin {
         if (description) {
           tags.push({ tag: 'meta', attrs: { name: 'description', content: description }, injectTo: 'head' })
         }
+        if (siteUrl) {
+          tags.push(
+            { tag: 'link', attrs: { rel: 'canonical', href: `${siteUrl}/` }, injectTo: 'head' },
+            { tag: 'meta', attrs: { property: 'og:url', content: `${siteUrl}/` }, injectTo: 'head' },
+            { tag: 'meta', attrs: { property: 'og:site_name', content: title }, injectTo: 'head' },
+          )
+        }
         if (config.robots?.index === false) {
           tags.push({ tag: 'meta', attrs: { name: 'robots', content: 'noindex, nofollow' }, injectTo: 'head' })
         }
@@ -141,15 +150,24 @@ function ebSiteConfiguration(config: ebSiteConfiguration): Plugin {
           tags.push({ tag: 'link', attrs: { rel: 'icon', href: favicon }, injectTo: 'head' })
         }
         if (title) {
-          tags.push({ tag: 'meta', attrs: { property: 'og:title', content: title }, injectTo: 'head' })
+          tags.push(
+            { tag: 'meta', attrs: { property: 'og:title', content: title }, injectTo: 'head' },
+            { tag: 'meta', attrs: { name: 'twitter:title', content: title }, injectTo: 'head' },
+          )
         }
         if (description) {
-          tags.push({ tag: 'meta', attrs: { property: 'og:description', content: description }, injectTo: 'head' })
+          tags.push(
+            { tag: 'meta', attrs: { property: 'og:description', content: description }, injectTo: 'head' },
+            { tag: 'meta', attrs: { name: 'twitter:description', content: description }, injectTo: 'head' },
+          )
         }
+        tags.push(
+          { tag: 'meta', attrs: { property: 'og:type', content: 'website' }, injectTo: 'head' },
+          { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' }, injectTo: 'head' },
+        )
         if (socialImage) {
           tags.push(
             { tag: 'meta', attrs: { property: 'og:image', content: socialImage }, injectTo: 'head' },
-            { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' }, injectTo: 'head' },
             { tag: 'meta', attrs: { name: 'twitter:image', content: socialImage }, injectTo: 'head' },
           )
         }

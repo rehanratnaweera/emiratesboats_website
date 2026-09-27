@@ -1,7 +1,12 @@
 {
-  "description": "Explore detailed 3D boat models to help customers visualize and choose the perfect design from a professional boat builder's collection.",
+  "title": "Emirates Boats | Dubai-Built Center Console Boats & Catamarans",
+  "description": "Emirates Boats LLC builds high-performance center console sport fishers and carbon-fiber offshore catamarans in Dubai, engineered for Gulf sea conditions.",
+  "siteUrl": "https://emirateboats.com",
   "robots": {
-    "index": false
+    "index": true
+  },
+  "openGraph": {
+    "image": "https://images.unsplash.com/photo-1552160757-52790c6f4faf?w=1200&h=630&fit=crop&auto=format"
   },
   "accessibility": {
     "addBypassLinks": false,
