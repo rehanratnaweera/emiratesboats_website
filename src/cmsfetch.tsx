@@ -1,4 +1,25 @@
-import type { BoatMaterialColors } from "./components/BoatViewer";
+import type { BoatMaterialColors, BoatModelEffect } from "./components/BoatViewer";
+
+export interface BoatConfigurationOption {
+  id: string;
+  key: string;
+  label: string;
+  description: string;
+  swatchColor: string;
+  isDefault: boolean;
+  isActive: boolean;
+  sort: number;
+  effects: BoatModelEffect[];
+}
+
+export interface BoatConfigurationGroup {
+  id: string;
+  key: string;
+  label: string;
+  selectionMode: "single" | "multiple";
+  sort: number;
+  options: BoatConfigurationOption[];
+}
 
 export interface BoatGalleryImage {
   url: string;
@@ -13,6 +34,7 @@ export interface BoatModel {
   datasheetUrl: string;
   gallery: BoatGalleryImage[];
   materialColors: BoatMaterialColors;
+  configurationGroups: BoatConfigurationGroup[];
   zoomFactor: number;
   length: string;
   beam: string;
@@ -70,6 +92,59 @@ function colorValue(value: unknown) {
   return Number.parseInt(normalized, 16);
 }
 
+function colorHex(value: unknown) {
+  if (typeof value !== "string") return "";
+  const normalized = value.trim().replace(/^#/, "");
+  return /^[\da-f]{6}$/i.test(normalized) ? `#${normalized.toLowerCase()}` : "";
+}
+
+function records(value: unknown): DirectusRecord[] {
+  const items = Array.isArray(value) ? value : value && typeof value === "object" ? [value] : [];
+  return items.filter((item): item is DirectusRecord => Boolean(item) && typeof item === "object");
+}
+
+function configurationGroups(value: unknown): BoatConfigurationGroup[] {
+  return records(value)
+    .map((group): BoatConfigurationGroup => ({
+      id: text(group, "id"),
+      key: text(group, "key"),
+      label: text(group, "label"),
+      selectionMode: text(group, "selection_mode") === "multiple" ? "multiple" : "single",
+      sort: numberValue(group, 0, "sort"),
+      options: records(group.options)
+        .map((option): BoatConfigurationOption => ({
+          id: text(option, "id"),
+          key: text(option, "key"),
+          label: text(option, "label"),
+          description: text(option, "description"),
+          swatchColor: colorHex(option.swatch_color),
+          isDefault: option.is_default === true,
+          isActive: option.is_active !== false,
+          sort: numberValue(option, 0, "sort"),
+          effects: records(option.effects)
+            .map((effect): BoatModelEffect | null => {
+              const effectType = text(effect, "effect_type");
+              if (effectType !== "color" && effectType !== "visibility" && effectType !== "asset_variant") return null;
+              return {
+                id: text(effect, "id"),
+                type: effectType,
+                targetName: text(effect, "target_name"),
+                color: colorValue(effect.color),
+                visible: typeof effect.visible === "boolean" ? effect.visible : undefined,
+                assetUrl: assetUrl(effect.asset_file),
+                assetMode: text(effect, "asset_mode") === "replace" ? "replace" : "overlay",
+                sort: numberValue(effect, 0, "sort"),
+              };
+            })
+            .filter((effect): effect is BoatModelEffect => effect !== null)
+            .sort((left, right) => left.sort - right.sort),
+        }))
+        .filter((option) => option.isActive)
+        .sort((left, right) => left.sort - right.sort),
+    }))
+    .sort((left, right) => left.sort - right.sort);
+}
+
 function materialColors(record: DirectusRecord): BoatMaterialColors {
   const source = firstValue(record, "materialColors", "material_colors", "materials");
   if (Array.isArray(source)) {
@@ -119,6 +194,7 @@ function mapBoat(record: DirectusRecord): BoatModel {
     datasheetUrl: assetUrl(firstValue(record, "datasheet_file", "datasheetUrl", "datasheet_url", "datasheet", "specsheet")),
     gallery: rawGallery,
     materialColors: materialColors(record),
+    configurationGroups: configurationGroups(record.configuration_groups),
     zoomFactor: numberValue(record, 1, "zoomFactor", "zoom_factor", "zoom"),
     length: text(record, "length", "loa"),
     beam: text(record, "beam"),
@@ -135,7 +211,7 @@ function mapBoat(record: DirectusRecord): BoatModel {
 export async function fetchBoats(signal?: AbortSignal): Promise<BoatModel[]> {
   const query = new URLSearchParams({
     limit: "100",
-    fields: "*,model_file.*,datasheet_file.*,gallery.*,gallery.directus_files_id.*,material_colors.*",
+    fields: "*,model_file.*,datasheet_file.*,gallery.*,gallery.directus_files_id.*,material_colors.*,configuration_groups.*,configuration_groups.options.*,configuration_groups.options.effects.*,configuration_groups.options.effects.asset_file.*",
   });
   query.set("filter[status][_eq]", "published");
   const response = await fetch(`${DIRECTUS_URL}/items/boats?${query}`, { signal });

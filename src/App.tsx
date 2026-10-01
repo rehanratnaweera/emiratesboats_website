@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import BoatViewer from "./components/BoatViewer";
 import BoatDetails from "./components/BoatDetails";
 import ContactBox from "./components/contactbox";
-import { fetchBoats, type BoatModel } from "./cmsfetch";
+import { fetchBoats, type BoatConfigurationGroup, type BoatModel } from "./cmsfetch";
 
 const SPEC_KEYS: Array<keyof BoatModel> = ["length", "beam", "displacement", "range", "power", "speed", "capacity", "construction"];
 const SPEC_LABELS: Partial<Record<keyof BoatModel, string>> = {
@@ -24,6 +24,7 @@ const FALLBACK_BOAT: BoatModel = {
   datasheetUrl: "",
   gallery: [],
   materialColors: {},
+  configurationGroups: [],
   zoomFactor: 1,
   length: "63 ft / 19.2 m",
   beam: "13 ft / 4 m",
@@ -36,6 +37,24 @@ const FALLBACK_BOAT: BoatModel = {
   description: "A high-performance offshore center console designed for long-range Gulf conditions, with a stepped composite hull, overnight accommodation, and premium navigation systems.",
 };
 
+function LoadingStatus({ progress, visible }: { progress: number; visible: boolean }) {
+  const value = Math.max(0, Math.min(100, progress));
+
+  if (!visible) return null;
+
+  return (
+    <div className={`config-loading${value >= 100 ? " is-complete" : ""}`} aria-live="polite" aria-label={`Loading 3D assets: ${Math.round(value)} percent`}>
+      <p>Loading 3D assets<span>{Math.round(value)}%</span></p>
+      <div className="config-loading-track"><span style={{ width: `${value}%` }} /></div>
+    </div>
+  );
+}
+
+function defaultOptionIds(group: BoatConfigurationGroup) {
+  const defaults = group.options.filter((option) => option.isDefault).map((option) => option.id);
+  return group.selectionMode === "single" ? defaults.slice(0, 1) : defaults;
+}
+
 export default function App() {
   const [boats, setBoats] = useState<BoatModel[]>([FALLBACK_BOAT]);
   const [activeBoat, setActiveBoat] = useState<BoatModel | null>(FALLBACK_BOAT);
@@ -43,6 +62,10 @@ export default function App() {
   const [showBoatDetails, setShowBoatDetails] = useState(false);
   const [navScrolled, setNavScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
+  const [modelProgress, setModelProgress] = useState(0);
+  const [modelLoading, setModelLoading] = useState(false);
+  const loadingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fleetRef = useRef<HTMLDivElement>(null);
   const constructionRef: React.RefObject<HTMLDivElement | null> = useRef(null);
   const bespokeRef: React.RefObject<HTMLDivElement | null> = useRef(null);
@@ -55,6 +78,36 @@ export default function App() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  useEffect(() => () => {
+    if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
+  }, []);
+
+  useEffect(() => {
+    if (!activeBoat) return;
+    setSelectedOptions(Object.fromEntries(activeBoat.configurationGroups.map((group) => [
+      group.id,
+      defaultOptionIds(group),
+    ])));
+  }, [activeBoat?.id, activeBoat?.configurationGroups]);
+
+  useEffect(() => {
+    if (showBoatDetails) fleetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [showBoatDetails]);
+
+  const handleModelProgress = useCallback((progress: number) => {
+    setModelProgress(progress);
+    setModelLoading(true);
+    if (progress >= 100) {
+      if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
+      loadingTimerRef.current = setTimeout(() => setModelLoading(false), 650);
+    }
+  }, []);
+
+  const handleModelLoadError = useCallback(() => {
+    if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
+    setModelLoading(false);
+  }, []);
+
   useEffect(() => {
     const controller = new AbortController();
     fetchBoats(controller.signal)
@@ -65,7 +118,7 @@ export default function App() {
         }
         setBoats(loadedBoats);
         setActiveBoat(loadedBoats[0] ?? null);
-        setShowBoatDetails(Boolean(loadedBoats[0] && !loadedBoats[0].modelUrl && loadedBoats[0].gallery.length > 0));
+        setShowBoatDetails(false);
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === "AbortError") return;
@@ -79,8 +132,28 @@ export default function App() {
     ref.current?.scrollIntoView({ behavior: "smooth" });
 
   const selectBoat = (boat: BoatModel) => {
+    if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
+    setModelLoading(false);
     setActiveBoat(boat);
-    setShowBoatDetails(!boat.modelUrl && boat.gallery.length > 0);
+    setShowBoatDetails(false);
+  };
+
+  const selectedConfigurationOptions = useMemo(() => activeBoat?.configurationGroups.flatMap((group) => {
+    const selectedIds = selectedOptions[group.id] ?? defaultOptionIds(group);
+    return group.options.filter((option) => selectedIds.includes(option.id));
+  }) ?? [], [activeBoat?.configurationGroups, selectedOptions]);
+  const selectedEffects = useMemo(() => selectedConfigurationOptions.flatMap((option) => option.effects), [selectedConfigurationOptions]);
+
+  const toggleConfigurationOption = (groupId: string, optionId: string, selectionMode: "single" | "multiple") => {
+    setSelectedOptions((current) => {
+      const selected = current[groupId] ?? [];
+      const next = selectionMode === "single"
+        ? [optionId]
+        : selected.includes(optionId)
+          ? selected.filter((id) => id !== optionId)
+          : [...selected, optionId];
+      return { ...current, [groupId]: next };
+    });
   };
 
   const navigation = (
@@ -118,7 +191,7 @@ export default function App() {
 
           <button className="site-menu-toggle md:hidden flex flex-col gap-1.5" aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {[5, 5, 3].map((w, i) => (
-              <span key={i} className="block h-px" style={{ width: `${w * 4}px`, background: "#3abbc4" }} />
+              <span key={i} className="block h-px" style={{ width: `${w * 4}px`, background: "#8fc8ed" }} />
             ))}
           </button>
         </div>
@@ -205,97 +278,122 @@ export default function App() {
       </section>
 
       {/* ── FLEET / 3D VIEWER ───────────────────────────── */}
-      <section className="fleet-section" id="fleet" ref={fleetRef}>
-        <div className="max-w-7xl mx-auto px-6">
-          {boatsError && <p className="fleet-fallback-notice" role="status">{boatsError}</p>}
-          <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div>
-              <p className="section-kicker">
-                Current Lineup
-              </p>
-              <h2 className="section-title">
-                Three models.
-                <br />
-                <em>No compromises.</em>
-              </h2>
+      <section className="fleet-section configurator-section" id="fleet" ref={fleetRef}>
+        {boatsError && <p className="fleet-fallback-notice configurator-notice" role="status">{boatsError}</p>}
+        {showBoatDetails ? (
+          <div className="configurator-details">
+            <div className="configurator-details-models pointer-events-auto">
+              {boats.map((boat) => (
+                <button key={boat.id} type="button" className={activeBoat.id === boat.id ? "is-active" : ""} onClick={() => selectBoat(boat)}>
+                  <span>{boat.name}</span><small>{boat.tagline}</small>
+                </button>
+              ))}
             </div>
-            <p className="section-note">
-              Drag to orbit · scroll to zoom.
-            </p>
+            <BoatDetails boat={activeBoat} onBack={() => setShowBoatDetails(false)} />
           </div>
-
-          <div className="fleet-frame">
-            <div className="fleet-layout grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
-              {/* selector */}
-              <div className="boat-selector">
-                {boats.map((boat) => (
-                  <button
-                    key={boat.id}
-                    onClick={() => selectBoat(boat)}
-                    className={`boat-option w-full text-left relative transition-colors duration-150${activeBoat.id === boat.id ? " is-active" : ""}`}
-                  >
-                    {activeBoat.id === boat.id && (
-                      <span className="boat-option-indicator absolute left-0 top-0 bottom-0 w-0.5" />
-                    )}
-                    <p className="boat-option-name">
-                      {boat.name}
-                    </p>
-                    <p className="boat-option-tagline">
-                      {boat.tagline}
-                    </p>
-                  </button>
-                ))}
-              </div>
-
-              {/* model and details pane */}
-              <div className="fleet-pane flex flex-col">
-                {showBoatDetails ? <BoatDetails boat={activeBoat} onBack={() => setShowBoatDetails(false)} /> : <>
-                  {/* canvas */}
-                  <div className="boat-model-canvas model-viewer-surface" style={{ position: "relative", flex: "1 1 auto" }}>
-                  <BoatViewer
-                    key={activeBoat.id}
-                    modelUrl={activeBoat.modelUrl}
-                    materialColors={activeBoat.materialColors}
-                    zoomFactor={activeBoat.zoomFactor}
-                  />
-                  {!activeBoat.modelUrl && <div className="model-unavailable" role="status" aria-live="polite">3D preview is currently unavailable for this model.</div>}
-                  <div className="model-badge">
-                    {activeBoat.name} — {activeBoat.modelUrl ? "INTERACTIVE 3D MODEL" : "3D MODEL UNAVAILABLE"}
-                  </div>
-                  <div className="model-hint">
-                    DRAG · ZOOM · ORBIT
-                  </div>
-                  </div>
-
-                {/* specs */}
-                <div className="specs-panel">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-5 mb-6">
-                    {SPEC_KEYS.map((k) => (
-                      <div key={k}>
-                        <p className="spec-label">
-                          {SPEC_LABELS[k]}
-                        </p>
-                        <p className="spec-value">
-                          {activeBoat[k] as string}
-                        </p>
-                      </div>
+        ) : (
+          <div className="configurator-stage">
+            <BoatViewer
+              key={activeBoat.id}
+              modelUrl={activeBoat.modelUrl}
+              materialColors={activeBoat.materialColors}
+              zoomFactor={activeBoat.zoomFactor}
+              effects={selectedEffects}
+              onLoadProgress={handleModelProgress}
+              onLoadError={handleModelLoadError}
+            />
+            {!activeBoat.modelUrl && activeBoat.gallery[0] && <div className="configurator-fallback-image" style={{ backgroundImage: `linear-gradient(90deg, rgba(5, 12, 14, 0.34), rgba(5, 12, 14, 0.56)), linear-gradient(0deg, rgba(5, 12, 14, 0.68), transparent 55%), url("${activeBoat.gallery[0].url}")` }} aria-hidden="true" />}
+            {!activeBoat.modelUrl && <div className="model-unavailable" role="status" aria-live="polite">3D preview is currently unavailable for this model.</div>}
+            <div className="configurator-overlay pointer-events-none">
+              <header className="configurator-topbar pointer-events-auto">
+                <div className="configurator-brand-block">
+                  <p className="configurator-brand">Emirates <span>Boats</span></p>
+                  <p className="configurator-eyebrow">Bespoke configuration · Dubai, UAE</p>
+                  <div className="configurator-models" aria-label="Choose a boat model">
+                    {boats.map((boat) => (
+                      <button key={boat.id} type="button" className={activeBoat.id === boat.id ? "is-active" : ""} aria-pressed={activeBoat.id === boat.id} onClick={() => selectBoat(boat)}>
+                        {boat.name}
+                      </button>
                     ))}
                   </div>
-                  <p className="boat-description">
-                    {activeBoat.description}
-                  </p>
-                  <button
-                    className="details-action"
-                    onClick={() => setShowBoatDetails(true)}
-                  >
-                    View Gallery & Full Specs
-                  </button>
-                  </div>
-                </>}
+                </div>
+                {activeBoat.configurationGroups.length > 0 && <div className="configurator-summary" aria-live="polite" aria-label="Current customization selections">
+                  <p>Your configuration</p>
+                  {activeBoat.configurationGroups.map((group) => {
+                    const selectedIds = selectedOptions[group.id] ?? defaultOptionIds(group);
+                    const chosen = group.options.filter((option) => selectedIds.includes(option.id)).map((option) => option.label);
+                    return <div key={group.id}><span>{group.label}</span><strong>{chosen.join(", ") || "Not selected"}</strong></div>;
+                  })}
+                </div>}
+              </header>
+
+              <div className="configurator-identity">
+                <p className="configurator-eyebrow">The {activeBoat.name}</p>
+                <h2>{activeBoat.tagline || "Built for the open water"}</h2>
+                <div className="configurator-quick-specs">
+                  <span>{activeBoat.length || "Length on request"}</span>
+                  <span>{activeBoat.power || "Power on request"}</span>
+                  <span>{activeBoat.speed || "Performance on request"}</span>
+                </div>
+                <button type="button" className="configurator-details-link pointer-events-auto" onClick={() => setShowBoatDetails(true)}>
+                  Explore specifications <span aria-hidden="true">↗</span>
+                </button>
               </div>
+
+              <aside className="configurator-panel pointer-events-auto" aria-label="Boat configuration options">
+                <div className="configurator-panel-heading">
+                  <div><p className="configurator-eyebrow">Build your {activeBoat.name}</p><h3>Configure</h3></div>
+                  <span className="configurator-step">{String(activeBoat.configurationGroups.length).padStart(2, "0")} groups</span>
+                </div>
+
+                {activeBoat.configurationGroups.length === 0 ? (
+                  <p className="configurator-empty" role="status">No configuration options are published for this model.</p>
+                ) : activeBoat.configurationGroups.map((group) => {
+                  const selectedIds = selectedOptions[group.id] ?? defaultOptionIds(group);
+                  const selectedLabels = group.options.filter((option) => selectedIds.includes(option.id)).map((option) => option.label);
+                  const swatchGroup = group.options.length > 0 && group.options.every((option) => option.swatchColor);
+                  return (
+                    <section className="configurator-group" key={group.id} aria-labelledby={`config-group-${group.id}`}>
+                      <div className="configurator-group-heading">
+                        <h4 id={`config-group-${group.id}`}>{group.label}</h4>
+                        <span>{selectedLabels.join(", ")}</span>
+                      </div>
+                      {swatchGroup ? (
+                        <div className="configurator-swatches">
+                          {group.options.map((option) => {
+                            const isSelected = selectedIds.includes(option.id);
+                            return <button key={option.id} type="button" title={option.label} className={isSelected ? "is-selected" : ""} aria-label={option.label} aria-pressed={isSelected} onClick={() => toggleConfigurationOption(group.id, option.id, group.selectionMode)}><span style={{ backgroundColor: option.swatchColor }} /></button>;
+                          })}
+                        </div>
+                      ) : (
+                        <div className="configurator-option-list">
+                          {group.options.map((option) => {
+                            const isSelected = selectedIds.includes(option.id);
+                            return <button key={option.id} type="button" className={`configurator-option${isSelected ? " is-selected" : ""}`} aria-pressed={isSelected} onClick={() => toggleConfigurationOption(group.id, option.id, group.selectionMode)}>
+                              <span className="configurator-radio" aria-hidden="true" />
+                              <span className="configurator-option-copy"><strong>{option.label}</strong>{option.description && <small>{option.description}</small>}</span>
+                            </button>;
+                          })}
+                        </div>
+                      )}
+                    </section>
+                  );
+                })}
+
+                <div className="configurator-panel-footer">
+                  <button type="button" onClick={() => scrollTo(contactRef)}>Enquire about this build <span aria-hidden="true">↗</span></button>
+                </div>
+              </aside>
+
+              <footer className="configurator-controls" aria-label="3D viewer controls">
+                <span><i className="orbit-mark" aria-hidden="true" /> Drag to orbit</span>
+                <span>Scroll to zoom</span>
+                <span>Click and drag to inspect</span>
+              </footer>
             </div>
+            <LoadingStatus progress={modelProgress} visible={modelLoading} />
           </div>
-        </div>
+        )}
       </section>
 
       {/* ── CONSTRUCTION ────────────────────────────────── */}
