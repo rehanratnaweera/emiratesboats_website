@@ -12,3 +12,5 @@ logs/
 .claude-replay.*
 .tmp-*
 build-output.tar.gz
+*.md
+!readme.md
