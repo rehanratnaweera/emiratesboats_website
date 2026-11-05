@@ -4,8 +4,21 @@ import BoatDetails from "./components/BoatDetails";
 import ContactBox from "./components/contactbox";
 import HeroVideo from "./components/HeroVideo";
 import PerformanceBand from "./components/PerformanceBand";
+import SiteNav from "./components/SiteNav";
+import { useScrollReveal } from "./useScrollReveal";
 import { fetchBoats, SITE_MEDIA, type BoatConfigurationGroup, type BoatModel } from "./cmsfetch";
 import { fleetLinkLabel } from "./fleetFacts";
+
+/** Stagger offset for elements marked with data-reveal. */
+function revealDelay(ms: number) {
+  return { "--reveal-delay": `${ms}ms` } as React.CSSProperties;
+}
+
+const NAV_SECTIONS = [
+  { id: "fleet", label: "Fleet" },
+  { id: "construction", label: "Construction" },
+  { id: "bespoke", label: "Bespoke" },
+];
 
 const SPEC_KEYS: Array<keyof BoatModel> = ["length", "beam", "displacement", "range", "power", "speed", "capacity", "construction"];
 const SPEC_LABELS: Partial<Record<keyof BoatModel, string>> = {
@@ -63,8 +76,6 @@ export default function App() {
   const [activeBoat, setActiveBoat] = useState<BoatModel | null>(FALLBACK_BOAT);
   const [boatsError, setBoatsError] = useState<string | null>(null);
   const [showBoatDetails, setShowBoatDetails] = useState(false);
-  const [navScrolled, setNavScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
   const [modelProgress, setModelProgress] = useState(0);
   const [modelLoading, setModelLoading] = useState(false);
@@ -76,11 +87,7 @@ export default function App() {
   const heroRef: React.RefObject<HTMLDivElement | null> = useRef(null);
   const performanceRef: React.RefObject<HTMLDivElement | null> = useRef(null);
 
-  useEffect(() => {
-    const fn = () => setNavScrolled(window.scrollY > 60);
-    window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
+  useScrollReveal();
 
   useEffect(() => () => {
     if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
@@ -160,63 +167,7 @@ export default function App() {
     });
   };
 
-  const navigation = (
-      <nav className={`site-nav fixed top-0 left-0 right-0 z-50${navScrolled ? " is-scrolled" : ""}`}>
-        <div className="site-nav-inner max-w-7xl mx-auto px-6 flex items-center justify-between">
-          {/* wordmark */}
-          <div className="site-wordmark flex items-center gap-3">
-            <img src={SITE_MEDIA.logo} alt="Emirates Boats Logo" onClick={() => scrollTo(heroRef)} />
-          </div>
-
-          {/* desktop links */}
-          <div className="site-nav-links hidden md:flex items-center gap-2">
-            {["Our Fleet", "Construction", "Bespoke", "Contact"].map((l) => (
-              <button
-                key={l}
-                onClick={() => {
-                  if (l === "Our Fleet") scrollTo(fleetRef);
-                  if (l === "Construction") scrollTo(constructionRef);
-                  if (l === "Bespoke") scrollTo(bespokeRef);
-                  if (l === "Contact") scrollTo(contactRef);
-                }}
-                className="site-nav-link"
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-
-          <button
-            className="site-nav-cta hidden md:block"
-            onClick={() => scrollTo(contactRef)}
-          >
-            Enquire
-          </button>
-
-          <button className="site-menu-toggle md:hidden flex flex-col gap-1.5" aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={mobileMenuOpen} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {[5, 5, 3].map((w, i) => (
-              <span key={i} className="block h-px" style={{ width: `${w * 4}px`, background: "#8fc8ed" }} />
-            ))}
-          </button>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="site-mobile-menu md:hidden flex flex-col gap-2 px-6 pb-6">
-            {["Our Fleet", "Construction", "Bespoke", "Contact"].map((l) => (
-              <button key={l} className="site-nav-link site-nav-mobile-link text-left"
-                onClick={() => { setMobileMenuOpen(false); 
-                  if (l === "Our Fleet") scrollTo(fleetRef); 
-                  if (l === "Construction") scrollTo(constructionRef); 
-                  if (l === "Bespoke") scrollTo(bespokeRef); 
-                  if (l === "Contact") scrollTo(contactRef);
-                }}>
-                {l}
-              </button>
-            ))}
-          </div>
-        )}
-      </nav>
-  );
+  const navigation = <SiteNav logoUrl={SITE_MEDIA.logo} sections={NAV_SECTIONS} enquireId="contact" />;
 
   if (!activeBoat) return <div className="site-shell">{navigation}<div className="cms-status">Loading the Emirates Boats fleet...</div></div>;
 
@@ -388,7 +339,7 @@ export default function App() {
       <section className="construction-section" id="construction" ref={constructionRef}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
-            <div className="construction-image">
+            <div className="construction-image" data-reveal="">
               <img
                 src={SITE_MEDIA.construction}
                 alt="EB-63 center console hull in profile at the marina"
@@ -398,7 +349,7 @@ export default function App() {
               />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(4,13,23,0.5) 0%, transparent 65%)" }} />
             </div>
-            <div>
+            <div data-reveal="" style={revealDelay(140)}>
               <p className="section-kicker">
                 How We Build
               </p>
@@ -427,8 +378,8 @@ export default function App() {
                 { n: "02", t: "Lamination", b: "Pre-preg carbon (Cat 80) or infused vinylester (center consoles) laid in climate-controlled bays." },
                 { n: "03", t: "Systems Fit-Out", b: "Electronics, rigging, fuel, and propulsion installed and independently certified before launch." },
                 { n: "04", t: "Sea Trial", b: "Full-speed runs to rated maximum, instrument calibration, and customer handover in Dubai Marina." },
-              ].map(({ n, t, b }) => (
-                <div key={n} className="build-stage">
+              ].map(({ n, t, b }, index) => (
+                <div key={n} className="build-stage" data-reveal="" style={revealDelay(index * 90)}>
                   <span className="build-stage-number">{n}</span>
                   <p className="build-stage-title">{t}</p>
                   <p className="build-stage-copy">{b}</p>
@@ -440,11 +391,11 @@ export default function App() {
       </section>
 
       {/* ── GALLERY ─────────────────────────────────────── */}
-      <section className="gallery-section" ref={bespokeRef}>
+      <section className="gallery-section">
         <div className="max-w-7xl mx-auto px-6">
           <div className="gallery-grid grid grid-cols-3 gap-1.5">
-            {SITE_MEDIA.detailStrip.map(({ url, alt }) => (
-              <div key={url} className="gallery-tile">
+            {SITE_MEDIA.detailStrip.map(({ url, alt }, index) => (
+              <div key={url} className="gallery-tile" data-reveal="" style={revealDelay(index * 110)}>
                 <img
                   src={url}
                   alt={alt}
@@ -459,8 +410,8 @@ export default function App() {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────── */}
-      <section className="bespoke-section" id="contact" ref={contactRef}>
-        <div className="max-w-xl mx-auto text-center">
+      <section className="bespoke-section" id="bespoke" ref={bespokeRef}>
+        <div className="max-w-xl mx-auto text-center" data-reveal="">
           <p className="section-kicker">
             Bespoke Programme
           </p>
@@ -475,7 +426,9 @@ export default function App() {
           <button className="primary-action" onClick={() => scrollTo(contactRef)}>
             Contact the Build Team
           </button>
-          <ContactBox />
+          <div id="contact" ref={contactRef} className="contact-anchor">
+            <ContactBox />
+          </div>
         </div>
       </section>
 
