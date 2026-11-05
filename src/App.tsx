@@ -411,22 +411,35 @@ export default function App() {
 
       {/* ── CTA ─────────────────────────────────────────── */}
       <section className="bespoke-section" id="bespoke" ref={bespokeRef}>
-        <div className="max-w-xl mx-auto text-center" data-reveal="">
-          <p className="section-kicker">
-            Bespoke Programme
-          </p>
-          <h2 className="section-title">
-            Have a specific
-            <br />
-            <em>brief in mind?</em>
-          </h2>
-          <p className="bespoke-copy">
-            We take on bespoke commissions alongside our standard models. From an extended-range 55 ft center console to a custom 100 ft carbon cat — bring the spec, we'll build it.
-          </p>
-          <button className="primary-action" onClick={() => scrollTo(contactRef)}>
-            Contact the Build Team
-          </button>
-          <div id="contact" ref={contactRef} className="contact-anchor">
+        <div className="bespoke-layout max-w-7xl mx-auto">
+          <div className="bespoke-intro" data-reveal="">
+            <p className="section-kicker">
+              Bespoke Programme
+            </p>
+            <h2 className="section-title">
+              Have a specific
+              <br />
+              <em>brief in mind?</em>
+            </h2>
+            <p className="bespoke-copy">
+              We take on bespoke commissions alongside our standard models. From an extended-range 55 ft center console to a custom 100 ft carbon cat — bring the spec, we'll build it.
+            </p>
+            <dl className="bespoke-contact">
+              <div>
+                <dt>Build facility</dt>
+                <dd>Jebel Ali Industrial 1<br />P.O. Box 212300, Dubai</dd>
+              </div>
+              <div>
+                <dt>Call the yard</dt>
+                <dd><a href="tel:+97148804777">+971 4 880 4777</a></dd>
+              </div>
+              <div>
+                <dt>Response</dt>
+                <dd>Within one business day</dd>
+              </div>
+            </dl>
+          </div>
+          <div id="contact" ref={contactRef} className="contact-anchor" data-reveal="" style={revealDelay(150)}>
             <ContactBox />
           </div>
         </div>
