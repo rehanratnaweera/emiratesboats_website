@@ -2247,3 +2247,112 @@ body,
   from { scale: 1.16; }
   to { scale: 1; }
 }
+
+/* ── Bespoke / contact: the page's one light section ──
+   Scoped under .site-shell .bespoke-section so it outranks the dark
+   contact-form rules defined (and re-themed) earlier in this file. */
+.site-shell .bespoke-section {
+  --ink: #0c2238;
+  --ink-muted: #4d6073;
+  --accent-deep: #1f5f93;
+  --hairline: rgba(12, 34, 56, 0.12);
+  border: 0;
+  padding: clamp(88px, 11vw, 150px) clamp(20px, 4vw, 48px);
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(255, 255, 255, 0.75), transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(31, 95, 147, 0.09), transparent 55%),
+    #f3efe7 !important;
+  color: var(--ink);
+  color-scheme: light;
+}
+
+.bespoke-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  align-items: start;
+  gap: clamp(40px, 6vw, 96px);
+}
+
+.bespoke-intro { padding-top: 8px; }
+.site-shell .bespoke-section .section-kicker { margin-bottom: 18px; color: var(--accent-deep); }
+.site-shell .bespoke-section .section-title { margin-bottom: 22px; color: var(--ink); }
+.site-shell .bespoke-section .section-title em { color: var(--accent-deep); }
+.site-shell .bespoke-section .bespoke-copy { max-width: 44ch; margin: 0 0 40px; color: var(--ink-muted); font-size: 1rem; }
+
+.bespoke-contact { margin: 0; border-top: 1px solid var(--hairline); }
+.bespoke-contact > div {
+  display: grid;
+  grid-template-columns: 136px minmax(0, 1fr);
+  gap: 16px;
+  border-bottom: 1px solid var(--hairline);
+  padding: 16px 0;
+}
+.bespoke-contact dt { color: var(--ink-muted); font: 500 0.66rem/1.7 'DM Mono', 'Courier New', monospace; letter-spacing: 0.06em; text-transform: uppercase; }
+.bespoke-contact dd { margin: 0; color: var(--ink); font-size: 0.92rem; line-height: 1.6; }
+.bespoke-contact a { color: var(--ink); text-decoration-color: rgba(12, 34, 56, 0.3); text-underline-offset: 3px; transition: color 180ms ease; }
+.bespoke-contact a:hover { color: var(--accent-deep); }
+
+.site-shell .bespoke-section .contact-form,
+.site-shell .bespoke-section .contact-success {
+  max-width: none;
+  margin: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 16px;
+  padding: clamp(24px, 3vw, 40px);
+  background: #fffdf9;
+  box-shadow: 0 34px 80px -34px rgba(12, 34, 56, 0.3), 0 2px 6px rgba(12, 34, 56, 0.04);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.site-shell .bespoke-section .contact-form-heading { border-bottom-color: var(--hairline); }
+.site-shell .bespoke-section .contact-form-kicker { color: var(--ink); }
+.site-shell .bespoke-section .contact-form-note,
+.site-shell .bespoke-section .contact-field label,
+.site-shell .bespoke-section .contact-form-footer p { color: var(--ink-muted); font-size: 0.62rem; }
+.site-shell .bespoke-section .contact-form-footer p span { color: var(--accent-deep); }
+
+.site-shell .bespoke-section .contact-field input,
+.site-shell .bespoke-section .contact-field textarea {
+  border-color: rgba(12, 34, 56, 0.16);
+  border-radius: 9px;
+  background: #f7f4ee;
+  color: var(--ink);
+}
+
+.site-shell .bespoke-section .contact-field input::placeholder,
+.site-shell .bespoke-section .contact-field textarea::placeholder { color: #8b98a5; }
+
+.site-shell .bespoke-section .contact-field input:focus,
+.site-shell .bespoke-section .contact-field textarea:focus {
+  border-color: var(--accent-deep);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(31, 95, 147, 0.14);
+}
+
+.site-shell .bespoke-section .contact-field span[role='alert'] { color: #b23d26; }
+
+.site-shell .bespoke-section .contact-submit {
+  border-color: var(--ink);
+  border-radius: 999px;
+  padding: 15px 24px;
+  background: var(--ink);
+  box-shadow: none;
+  color: #f6f3ec;
+}
+
+.site-shell .bespoke-section .contact-submit:hover:not(:disabled) { border-color: var(--accent-deep); background: var(--accent-deep); color: #fff; }
+
+.site-shell .bespoke-section .contact-success-mark { border-color: var(--accent-deep); color: var(--accent-deep); }
+.site-shell .bespoke-section .contact-success-title { color: var(--ink); }
+.site-shell .bespoke-section .contact-success-copy { color: var(--ink-muted); }
+.site-shell .bespoke-section :where(button, a, input, textarea):focus-visible { outline-color: var(--accent-deep); }
+
+@media (max-width: 1023px) {
+  .bespoke-layout { grid-template-columns: minmax(0, 1fr); }
+  .site-shell .bespoke-section .bespoke-copy { margin-bottom: 32px; }
+}
+
+@media (max-width: 479px) {
+  .bespoke-contact > div { grid-template-columns: 112px minmax(0, 1fr); gap: 12px; }
+}
