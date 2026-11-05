@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { BoatGalleryImage } from "../cmsfetch";
 
 interface BoatDetailsModel {
   id: string;
@@ -15,11 +16,6 @@ interface BoatDetailsModel {
   description: string;
   datasheetUrl: string;
   gallery: BoatGalleryImage[];
-}
-
-interface BoatGalleryImage {
-  url: string;
-  alt: string;
 }
 
 interface BoatDetailsProps {
@@ -124,7 +120,7 @@ export default function BoatDetails({ boat, onBack }: BoatDetailsProps) {
               aria-label={`Show image ${index + 1}`}
               aria-pressed={index === activeImage}
             >
-              <img src={image.url} alt="" />
+              <img src={image.thumbUrl} alt="" loading="lazy" decoding="async" />
             </button>
           ))}
         </div>}
@@ -167,7 +163,7 @@ export default function BoatDetails({ boat, onBack }: BoatDetailsProps) {
             <button type="button" onClick={() => setIsLightboxOpen(false)} aria-label="Close enlarged image">Close <span aria-hidden="true">×</span></button>
           </div>
           <div className="boat-lightbox-image-wrap">
-            <img src={images[activeImage].url} alt={images[activeImage].alt} />
+            <img src={images[activeImage].largeUrl} alt={images[activeImage].alt} />
           </div>
           <button className="boat-lightbox-arrow boat-lightbox-prev" type="button" onClick={() => goToImage(-1)} aria-label="Previous image">←</button>
           <button className="boat-lightbox-arrow boat-lightbox-next" type="button" onClick={() => goToImage(1)} aria-label="Next image">→</button>

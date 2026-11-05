@@ -22,7 +22,12 @@ export interface BoatConfigurationGroup {
 }
 
 export interface BoatGalleryImage {
+  /** ~1600px display size */
   url: string;
+  /** small thumbnail strip size */
+  thumbUrl: string;
+  /** lightbox size */
+  largeUrl: string;
   alt: string;
 }
 
@@ -51,6 +56,40 @@ const DIRECTUS_URL = "https://cms.emirateboats.com";
 const ASSET_ROOT = `${DIRECTUS_URL}/assets/`;
 
 type DirectusRecord = Record<string, unknown>;
+
+interface ImageTransform {
+  width: number;
+  height?: number;
+  quality?: number;
+}
+
+/**
+ * URL for a Directus image asset resized and re-encoded as WebP. Originals in the
+ * CMS are multi-megabyte camera JPEGs, so never render them at full size.
+ */
+export function cmsImage(id: string, { width, height, quality = 72 }: ImageTransform) {
+  const params = new URLSearchParams({ width: String(width), quality: String(quality), format: "webp" });
+  if (height) {
+    params.set("height", String(height));
+    params.set("fit", "cover");
+  }
+  return `${ASSET_ROOT}${id}?${params}`;
+}
+
+/** Curated site-level media stored in the CMS (not tied to a boat record). */
+export const SITE_MEDIA = {
+  logo: `${ASSET_ROOT}b693203a-b37c-47ce-be08-2d9dfc9428ec`,
+  heroVideo: `${ASSET_ROOT}044420c8-8e1e-4c11-8c2d-4de5cc24fb13`,
+  /** Matches the first frame of the hero video loop; shown while the video loads. */
+  heroPoster: cmsImage("9f26a4aa-c647-4f0f-9719-e7c81ab4608c", { width: 1920, quality: 68 }),
+  performance: cmsImage("b0ad7e43-3a43-4e6b-a16c-941c60f453c9", { width: 2000, quality: 70 }),
+  construction: cmsImage("93bf4894-8385-44ea-8cd6-2ad35d045af8", { width: 1200, height: 800 }),
+  detailStrip: [
+    { url: cmsImage("f3ad6b10-ed70-4093-ad43-dbf0ecd5f200", { width: 900, height: 640 }), alt: "EB-63 helm with triple navigation displays" },
+    { url: cmsImage("91e91824-0729-4b65-af15-4b036407de37", { width: 900, height: 640 }), alt: "EB-63 electronics console with touchscreen controls" },
+    { url: cmsImage("f3dd5bea-5c57-4ff1-9682-e8b3db26ba30", { width: 900, height: 640 }), alt: "Radar domes and thermal camera on the EB-63 hardtop" },
+  ],
+} as const;
 
 function firstValue(record: DirectusRecord, ...keys: string[]) {
   return keys.map((key) => record[key]).find((value) => value !== undefined && value !== null && value !== "");
@@ -170,14 +209,32 @@ function materialColors(record: DirectusRecord): BoatMaterialColors {
   return colors;
 }
 
+/**
+ * Directus rejects transforms for files it has no dimensions for (some uploads are
+ * missing that metadata), so only request resized variants when width/height exist.
+ */
+function transformableImageId(asset: unknown): string | undefined {
+  if (!asset || typeof asset !== "object") return undefined;
+  const value = asset as DirectusRecord;
+  if (value.directus_files_id) return transformableImageId(value.directus_files_id);
+  const isImage = typeof value.type !== "string" || value.type.startsWith("image/");
+  return typeof value.id === "string" && isImage && Number(value.width) > 0 && Number(value.height) > 0 ? value.id : undefined;
+}
+
 function gallery(record: DirectusRecord, name: string): BoatGalleryImage[] {
   const source = firstValue(record, "gallery", "boat_images", "images", "gallery_images");
   const items = Array.isArray(source) ? source : source ? [source] : [];
   return items
-    .map((item, index) => ({
-      url: assetUrl(item),
-      alt: assetAlt(item, `${name} view ${index + 1}`),
-    }))
+    .map((item, index) => {
+      const original = assetUrl(item);
+      const id = transformableImageId(item);
+      return {
+        url: id ? cmsImage(id, { width: 1600 }) : original,
+        thumbUrl: id ? cmsImage(id, { width: 320, height: 220 }) : original,
+        largeUrl: id ? cmsImage(id, { width: 2560, quality: 80 }) : original,
+        alt: assetAlt(item, `${name} view ${index + 1}`),
+      };
+    })
     .filter((item) => item.url);
 }
 
