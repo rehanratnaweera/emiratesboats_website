@@ -2,7 +2,10 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import BoatViewer from "./components/BoatViewer";
 import BoatDetails from "./components/BoatDetails";
 import ContactBox from "./components/contactbox";
-import { fetchBoats, type BoatConfigurationGroup, type BoatModel } from "./cmsfetch";
+import HeroVideo from "./components/HeroVideo";
+import PerformanceBand from "./components/PerformanceBand";
+import { fetchBoats, SITE_MEDIA, type BoatConfigurationGroup, type BoatModel } from "./cmsfetch";
+import { fleetLinkLabel } from "./fleetFacts";
 
 const SPEC_KEYS: Array<keyof BoatModel> = ["length", "beam", "displacement", "range", "power", "speed", "capacity", "construction"];
 const SPEC_LABELS: Partial<Record<keyof BoatModel, string>> = {
@@ -71,6 +74,7 @@ export default function App() {
   const bespokeRef: React.RefObject<HTMLDivElement | null> = useRef(null);
   const contactRef: React.RefObject<HTMLDivElement | null> = useRef(null);
   const heroRef: React.RefObject<HTMLDivElement | null> = useRef(null);
+  const performanceRef: React.RefObject<HTMLDivElement | null> = useRef(null);
 
   useEffect(() => {
     const fn = () => setNavScrolled(window.scrollY > 60);
@@ -161,7 +165,7 @@ export default function App() {
         <div className="site-nav-inner max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* wordmark */}
           <div className="site-wordmark flex items-center gap-3">
-            <img src="https://cms.emirateboats.com/assets/b693203a-b37c-47ce-be08-2d9dfc9428ec" alt="Emirates Boats Logo" onClick={() => scrollTo(heroRef)} />
+            <img src={SITE_MEDIA.logo} alt="Emirates Boats Logo" onClick={() => scrollTo(heroRef)} />
           </div>
 
           {/* desktop links */}
@@ -222,18 +226,9 @@ export default function App() {
 
       {/* ── HERO ────────────────────────────────────────── */}
       <section ref={heroRef} className="hero-section relative flex flex-col justify-end overflow-hidden" style={{ minHeight: "100svh" }}>
-        <video
-          className="hero-video absolute inset-0 h-full w-full object-cover"
-          src="https://cms.emirateboats.com/assets/044420c8-8e1e-4c11-8c2d-4de5cc24fb13"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          aria-hidden="true"
-        />
-        <div className="hero-overlay hero-overlay-bottom absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(7,18,30,0.25) 0%, rgba(7,18,30,0.1) 30%, rgba(7,18,30,0.7) 68%, rgba(7,18,30,1.0) 100%)" }} />
-        <div className="hero-overlay hero-overlay-side absolute inset-0" style={{ background: "linear-gradient(100deg, rgba(7,18,30,0.55) 0%, transparent 55%)" }} />
+        <HeroVideo src={SITE_MEDIA.heroVideo} poster={SITE_MEDIA.heroPoster} loopStart={2.2} loopEnd={22.6} />
+        <div className="hero-overlay hero-overlay-bottom absolute inset-0" />
+        <div className="hero-overlay hero-overlay-side absolute inset-0" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 pb-20 pt-28 w-full">
           <div className="max-w-lg">
@@ -259,23 +254,16 @@ export default function App() {
           </div>
         </div>
 
-        {/* stats bar */}
-        <div className="hero-stats relative z-10 w-full">
-          <div className="hero-stats-grid max-w-7xl mx-auto px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              [String(boats.length), "Models Available"],
-              ["46–80 ft", "Range"],
-              ["Full Carbon", "Cat Construction"],
-              ["Dubai", "Build Facility"],
-            ].map(([val, lbl]) => (
-              <div key={lbl}>
-                <p className="stat-value">{val}</p>
-                <p className="stat-label">{lbl}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <button type="button" className="hero-scroll-cue" onClick={() => scrollTo(performanceRef)} aria-label="Scroll to performance figures">
+          <span>Scroll</span>
+          <span className="hero-scroll-line" aria-hidden="true" />
+        </button>
       </section>
+
+      {/* ── PERFORMANCE ─────────────────────────────────── */}
+      <div ref={performanceRef}>
+        <PerformanceBand boat={boats[0] ?? activeBoat} imageUrl={SITE_MEDIA.performance} />
+      </div>
 
       {/* ── FLEET / 3D VIEWER ───────────────────────────── */}
       <section className="fleet-section configurator-section" id="fleet" ref={fleetRef}>
@@ -402,9 +390,11 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
             <div className="construction-image">
               <img
-                src="https://images.unsplash.com/photo-1625183656263-171183307b15?w=900&h=600&fit=crop&auto=format"
-                alt="High-speed center console boat underway"
+                src={SITE_MEDIA.construction}
+                alt="EB-63 center console hull in profile at the marina"
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(4,13,23,0.5) 0%, transparent 65%)" }} />
             </div>
@@ -453,16 +443,14 @@ export default function App() {
       <section className="gallery-section" ref={bespokeRef}>
         <div className="max-w-7xl mx-auto px-6">
           <div className="gallery-grid grid grid-cols-3 gap-1.5">
-            {[
-              { url: "https://images.unsplash.com/photo-1552160757-52790c6f4faf?w=700&h=500&fit=crop&auto=format", alt: "Sport boat at speed" },
-              { url: "https://images.unsplash.com/photo-1621459287809-d7b86ccf69f8?w=700&h=500&fit=crop&auto=format", alt: "Catamaran under sail" },
-              { url: "https://images.unsplash.com/photo-1686048075764-996b3c825d7b?w=700&h=500&fit=crop&auto=format", alt: "Dubai marina" },
-            ].map(({ url, alt }) => (
+            {SITE_MEDIA.detailStrip.map(({ url, alt }) => (
               <div key={url} className="gallery-tile">
                 <img
                   src={url}
                   alt={alt}
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             ))}
@@ -505,7 +493,7 @@ export default function App() {
               </p>
             </div>
             {[
-              { h: "Fleet", links: ["EB-46 Center Console", "EB-63 Center Console", "EB Cat 80"], href: ["#fleet", "#fleet", "#fleet"] },
+              { h: "Fleet", links: boats.map(fleetLinkLabel), href: boats.map(() => "#fleet") },
               { h: "Company", links: ["About Us", "Instagram", "Facebook", "LinkedIn"], href: ["#construction", "https://www.instagram.com/emiratesboat", "https://www.facebook.com/emiratesboats", "https://www.linkedin.com/company/emirates-boats-llc"] },
               { h: "Services", links: ["Bespoke Builds", "Refit & Service", "Sea Trials", "Parts & Accessories"], href: ["#contact", "#contact", "#contact", "#contact"] },
             ].map(({ h, links, href }) => (
