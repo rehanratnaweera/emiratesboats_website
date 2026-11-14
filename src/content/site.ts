@@ -16,11 +16,11 @@ export const COMPANY = {
 
 /** Point of contact for the service department. */
 export const SERVICE_DESK = {
-  name: "Service Desk",
+  name: "Salah Amir Mosbah",
   role: "Services & Engineering",
-  phone: "+971 4 880 4777",
-  phoneHref: "tel:+97148804777",
-  email: "info@emirateboats.com",
+  phone: "+971 52 509 2200",
+  phoneHref: "tel:+971525092200",
+  email: "salah@emirateboats.com",
 } as const;
 
 /** Show notice in the hero. It removes itself once the show has closed. */
