@@ -1,10 +1,12 @@
-import type { BoatModel } from "./cmsfetch";
+import type { BoatModel } from "./cms";
 
 /** A numeric value pulled out of a free-text CMS spec field. */
 export interface Measure {
   value: number;
   unit: string;
   decimals: number;
+  /** "+" when the CMS states a floor, as in "60+ mph". */
+  suffix: string;
 }
 
 export interface PerformanceFact {
@@ -15,12 +17,12 @@ export interface PerformanceFact {
 
 /** First "<number> <unit>" in a spec string: "82 mph MAX / 60 mph Cruise" -> 82 mph. */
 export function firstMeasure(text: string): Measure | undefined {
-  const match = text.match(/(\d[\d,]*(?:\.\d+)?)\s*([a-z]+)/i);
+  const match = text.match(/(\d[\d,]*(?:\.\d+)?)(\+?)\s*([a-z]+)/i);
   if (!match) return undefined;
   const raw = match[1].replace(/,/g, "");
   const value = Number(raw);
   if (!Number.isFinite(value) || value <= 0) return undefined;
-  return { value, unit: match[2].toLowerCase(), decimals: raw.split(".")[1]?.length ?? 0 };
+  return { value, unit: match[3].toLowerCase(), decimals: raw.split(".")[1]?.length ?? 0, suffix: match[2] };
 }
 
 /** Total output from "3000 hp" or an engine count like "6 x Mercury 500R" -> 3000 hp. */
@@ -31,7 +33,7 @@ export function combinedHorsepower(power: string): Measure | undefined {
   const match = power.match(/(\d+)\s*[x×]\s*\D*?(\d{3,4})/i);
   if (!match) return undefined;
   const value = Number(match[1]) * Number(match[2]);
-  return value > 0 ? { value, unit: "hp", decimals: 0 } : undefined;
+  return value > 0 ? { value, unit: "hp", decimals: 0, suffix: "" } : undefined;
 }
 
 /** Text after the first "/" in fields like "63 ft / 19.2 m", used as a secondary line. */

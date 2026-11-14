@@ -1,33 +1,50 @@
-# Emirates Boats | Interactive Fleet Showcase
+# Emirates Boats | Fleet & Services
 
 > A production-facing website for **Emirates Boats LLC**, built as a portfolio project by [Rehan Rathnaweera](https://www.linkedin.com/in/rehanratnaweera).
 
-Emirates Boats is a Dubai-based marine manufacturer. This site presents the company, its build philosophy, and its current fleet through a cinematic responsive experience with live CMS content and interactive 3D boat models.
+Emirates Boats is a Dubai-based marine manufacturer. Version 2 of the site presents the company, its fleet and its service department as a quiet, photography-led experience. Fleet content is live from the CMS; service content comes from the yard's own service portfolios.
+
+The earlier site, with the interactive Three.js boat configurator, is archived on the `v1-3d-configurator` branch. That branch does not build Docker images or publish releases.
 
 ## What the site does
 
-- Loads boat records, technical specifications, imagery, model files, and datasheets from a Directus CMS.
-- Lets visitors switch between fleet models and inspect each one in a Three.js viewer.
-- Supports orbit controls, auto-rotation, zoom, responsive resizing, and CMS-driven material colours.
-- Provides a gallery with thumbnails, previous/next navigation, keyboard controls, and a lightbox.
-- Presents construction details, build stages, bespoke-build messaging, and company contact information.
-- Sends enquiries through Formspree without requiring a custom backend.
+- Loads boat records, specifications, galleries and datasheets from a Directus CMS.
+- Gives every boat its own page: lead photograph, headline figures, specification, datasheet download and a photo gallery with a lightbox.
+- Shows a caption on a gallery photo when its file has a title or description in Directus.
+- Lists the twelve services of the service department, with three in depth:
+  - **Painting** — a finish viewer in two lights and the 240-color swatch library; a chosen color is carried into the enquiry.
+  - **Tooling Center** — the 5-axis machine envelope and the twelve steps from CAD file to mold.
+  - **Hydraulic swim platforms** — the platforms the yard supplies and how they are installed.
+- Sends enquiries through Formspree, pre-filled with the boat or service the visitor was reading about.
 - Builds into a small static bundle served by Nginx inside a Docker image.
+
+## Pages
+
+There is no router library and no server-side routing. Pages are selected by a query parameter so the site works from any static host:
+
+| URL | Page |
+| --- | --- |
+| `/` | Home — sections `#fleet`, `#services`, `#craft`, `#contact` |
+| `/?model=<slug>` | A boat, for example `/?model=eb-63` |
+| `/?service=painting` | Marine painting and refinishing |
+| `/?service=tooling` | Tooling Center, 5-axis CNC |
+| `/?service=hydraulics` | Hydraulic swim platforms |
+
+A boat's slug is its name in lower case with spaces replaced by hyphens. `src/router.ts` intercepts ordinary same-site links, so pages are linked with plain `<a href>` elements.
 
 ## Product flow
 
 ```mermaid
 flowchart LR
 	Visitor[Visitor] --> React[React application]
-	React --> CMS[Directus CMS\nCMS.emirateboats.com]
-	CMS --> Fleet[Fleet records and assets]
-	Fleet --> Viewer[Three.js GLB viewer]
-	Fleet --> Details[Gallery and specifications]
+	React --> CMS[Directus CMS\ncms.emirateboats.com]
+	CMS --> Fleet[Boats, specifications,\ngalleries, datasheets]
+	React --> Content[Service content\nsrc/content]
 	Visitor --> Form[Enquiry form]
 	Form --> Formspree[Formspree]
 ```
 
-The browser requests the fleet on initial load. `src/cmsfetch.tsx` normalises the flexible Directus response into a typed `BoatModel`, so the rest of the UI can work with a stable shape. If the request fails, the app shows a clear CMS error state instead of rendering an empty fleet.
+The browser requests the fleet once on load. `src/cms.ts` turns the Directus response into a typed `BoatModel`, so the rest of the UI works with a stable shape. If the request fails, the fleet section and boat pages say so and point to the enquiry form; the service pages do not depend on the CMS.
 
 ## Tech stack
 
@@ -35,9 +52,9 @@ The browser requests the fleet on initial load. `src/cmsfetch.tsx` normalises th
 | --- | --- |
 | UI | React 19, TypeScript |
 | Build tool | Vite 8 |
-| Styling | Tailwind CSS 4 plus focused component CSS |
-| 3D | Three.js, `GLTFLoader`, `OrbitControls` |
-| Content | Directus REST API |
+| Styling | Hand-written CSS with theme tokens (Tailwind CSS 4 supplies the reset) |
+| Type | Marcellus (display), Jost (text) |
+| Content | Directus REST API, plus typed content modules for services |
 | Enquiries | Formspree React |
 | Production server | Nginx on Alpine Linux |
 | Release tooling | GitHub Actions, pnpm, semantic-release, Commitlint, Husky |
@@ -47,19 +64,20 @@ The browser requests the fleet on initial load. `src/cmsfetch.tsx` normalises th
 ```text
 .
 ├── src/
-│   ├── App.tsx                 # Page composition, navigation, sections, and fleet state
-│   ├── cmsfetch.tsx            # Directus client and CMS-to-UI data mapping
-│   ├── index.css               # Theme tokens, layout utilities, forms, gallery, and viewer styles
-│   ├── main.tsx                # React entry point
-│   └── components/
-│       ├── BoatViewer.tsx       # Three.js scene, GLB loading, lights, controls, and cleanup
-│       ├── BoatDetails.tsx      # Gallery, lightbox, specification sheet, and datasheet download
-│       └── contactbox.tsx       # Formspree enquiry form and validation states
+│   ├── App.tsx                 # Fleet loading, page selection, titles, scroll position
+│   ├── router.ts               # Query-parameter routes and link handling
+│   ├── cms.ts                  # Directus client, image URLs and CMS-to-UI mapping
+│   ├── fleetFacts.ts           # Headline figures derived from a boat's specification
+│   ├── index.css               # Design tokens and every component style
+│   ├── pages/                  # Home, Model, Painting, Tooling, Hydraulics, NotFound
+│   ├── components/             # Nav, footer, hero video, gallery, lightbox, enquiry form …
+│   ├── content/                # Company details, services, service pages, paint colors
+│   └── assets/services/        # Service photography (WebP)
 ├── .github/workflows/
 │   └── release.yml             # Build, publish, package, and release automation
-├── .eb/make/site.json          # Generated site metadata used by the Vite config
+├── .eb/make/site.json          # Site metadata used by the Vite config
 ├── dockerfile                  # Nginx image for the compiled dist/ directory
-├── vite.config.ts              # Vite, Tailwind, metadata, chunking, and server configuration
+├── vite.config.ts              # Vite, Tailwind, metadata, and server configuration
 └── package.json                # Scripts and dependency manifest
 ```
 
@@ -88,9 +106,11 @@ pnpm run format      # Format supported source files with oxfmt
 
 There is currently no test or lint script in `package.json`; the pre-commit hook runs the production build as the available application check.
 
-## CMS integration
+## Editing content
 
-The frontend reads from:
+### Boats — Directus
+
+The frontend reads published boats, in their Directus sort order, from:
 
 ```text
 https://cms.emirateboats.com/items/boats
@@ -98,17 +118,32 @@ https://cms.emirateboats.com/items/boats
 
 Each boat record can provide:
 
-- Identity: `id`, `name`, `tagline`
-- 3D asset: `model_file`
-- Downloadable document: `datasheet_file`
-- Gallery: `gallery`
-- Appearance: `material_colors`, `zoom_factor`
+- Identity: `name`, `tagline`
+- Editorial content: `description` (blank lines separate paragraphs)
 - Technical data: `length`, `beam`, `displacement`, `range`, `power`, `speed`, `capacity`, `construction`
-- Editorial content: `description`
+- Gallery: `gallery`
+- Downloadable document: `datasheet_file`
 
-The mapper accepts several field aliases and both Directus asset IDs and full URLs. Material colours may be supplied as a keyed object or as an array of mesh/material entries. This keeps the presentation layer independent of minor CMS naming differences.
+Empty specification fields are left out of the page. The headline figures (combined output, top speed, range, length) are worked out from `power`, `speed`, `range` and `length`, so write them as a number followed by a unit — for example `6 x Mercury 500R`, `82 mph MAX / 60 mph Cruise`, `1,200 nm`, `63 ft / 19.2 m`.
 
-The CMS must allow browser requests from the deployed site and expose the related asset fields requested by `fetchBoats`. The fleet query filters Directus records to `status=published`. If the CMS request fails or no published boats are returned, the site remains usable with a clearly labeled local EB-63 preview.
+Gallery photographs:
+
+- **Captions.** Give a file a **Title** and/or **Description** in the Directus file library and it appears as the photo's caption on the tile and in the lightbox. A title that is only the file name is ignored.
+- **Lead photograph.** The first gallery photo that Directus can resize is used as the boat's lead image on the home page and its own page. Reorder the gallery to change it.
+- **Large originals.** Directus can only resize a photo when it knows the file's width and height. Photos without those are kept out of the page grid and offered in the lightbox as full-resolution originals. Re-uploading them fixes this.
+
+The CMS must allow browser requests from the deployed site.
+
+### Services and company details — repository
+
+| File | Holds |
+| --- | --- |
+| `src/content/site.ts` | Address, phone numbers, service desk contact, boat show notice, build stages |
+| `src/content/services.ts` | The twelve services and the service process |
+| `src/content/servicePages.ts` | Painting, Tooling Center and hydraulics page content |
+| `src/content/paintColors.ts` | The 240-color swatch library |
+
+The boat show notice on the home page hides itself once the show's end date in `site.ts` has passed.
 
 ## Production delivery
 
@@ -134,12 +169,11 @@ Vite also supports an optional public path through `eb_PUBLIC_URL`. The dev and 
 
 ## Implementation notes
 
-- Three.js is isolated into its own Rollup chunk to improve browser caching for the heavier 3D dependency.
-- `BoatViewer` disposes controls, observers, animation frames, the renderer, and the scene when a model changes or the component unmounts.
-- Boat model bounds are calculated at runtime so different GLB dimensions can share a consistent viewing scale.
-- The UI uses responsive Tailwind layout utilities alongside CSS theme variables and the Fraunces / DM Mono / Inter type system.
-- The contact form includes browser validation, Formspree validation errors, submission state, and a success state.
+- Directus resizes and converts photographs to WebP on request; pages ask for the size they display.
 - The app uses an `AbortController` when loading fleet data, preventing stale requests during unmount.
+- Scroll position is kept per page, so the browser's back button returns to where the visitor was.
+- Scroll-reveal motion and the hero video respect the visitor's reduced-motion setting.
+- The enquiry form includes browser validation, Formspree validation errors, submission state, and a success state.
 
 ## Project status
 
@@ -147,4 +181,4 @@ This is an actively evolving portfolio representation of a live client-facing si
 
 ## License and content
 
-The source is published for portfolio and demonstration purposes. Emirates Boats branding, copy, imagery, 3D assets, and CMS content belong to their respective owners and should not be reused without permission.
+The source is published for portfolio and demonstration purposes. Emirates Boats branding, copy, imagery, and CMS content belong to their respective owners and should not be reused without permission.

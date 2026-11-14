@@ -1,21 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import type { BoatModel } from "../cmsfetch";
+import type { BoatModel } from "../cms";
 import { performanceFacts, type Measure } from "../fleetFacts";
-
-interface PerformanceBandProps {
-  boat: BoatModel;
-  imageUrl: string;
-}
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 function formatMeasure(value: number, measure: Measure) {
-  return value.toLocaleString("en-US", {
+  const number = value.toLocaleString("en-US", {
     minimumFractionDigits: measure.decimals,
     maximumFractionDigits: measure.decimals,
   });
+  return `${number}${measure.suffix}`;
 }
 
 /** Becomes true once the element has scrolled into view, then stays true. */
@@ -69,39 +65,26 @@ function CountUp({ measure, run }: { measure: Measure; run: boolean }) {
   return <>{formatMeasure(value, measure)}</>;
 }
 
-export default function PerformanceBand({ boat, imageUrl }: PerformanceBandProps) {
+/** Headline numbers parsed from a boat's CMS spec fields. Renders nothing if too few can be read. */
+export default function Figures({ boat, animate = true }: { boat: BoatModel; animate?: boolean }) {
   const facts = performanceFacts(boat);
-  const [contentRef, revealed] = useRevealOnce<HTMLDivElement>(0.3);
+  const [ref, revealed] = useRevealOnce<HTMLDListElement>(0.3);
 
   if (facts.length < 2) return null;
 
   return (
-    <section className={`performance-band${revealed ? " is-revealed" : ""}`} aria-labelledby="performance-title">
-      <img className="performance-band-image" src={imageUrl} alt="" loading="lazy" decoding="async" />
-      <div className="performance-band-shade" aria-hidden="true" />
-
-      <div ref={contentRef} className="performance-band-content relative z-10 max-w-7xl mx-auto px-6">
-        <p className="section-kicker">{boat.name} · By the numbers</p>
-        <h2 id="performance-title" className="section-title performance-title">
-          Gulf-proven <em>performance.</em>
-        </h2>
-
-        <dl className="performance-grid">
-          {facts.map((fact, index) => (
-            <div key={fact.label} className="performance-fact" style={{ transitionDelay: `${index * 120}ms` }}>
-              <dt>{fact.label}</dt>
-              <dd className="performance-figure">
-                <span className="performance-value" aria-hidden="true">
-                  <CountUp measure={fact.measure} run={revealed} />
-                </span>
-                <span className="sr-only">{formatMeasure(fact.measure.value, fact.measure)}</span>
-                <span className="performance-unit">{fact.measure.unit}</span>
-              </dd>
-              {fact.detail && <dd className="performance-detail">{fact.detail}</dd>}
-            </div>
-          ))}
-        </dl>
-      </div>
-    </section>
+    <dl ref={ref} className={`figures${revealed ? " is-revealed" : ""}`} style={{ "--figure-count": facts.length } as React.CSSProperties}>
+      {facts.map((fact, index) => (
+        <div key={fact.label} className="figure" style={{ transitionDelay: `${index * 110}ms` }}>
+          <dt>{fact.label}</dt>
+          <dd className="figure-number">
+            <span aria-hidden="true">{animate ? <CountUp measure={fact.measure} run={revealed} /> : formatMeasure(fact.measure.value, fact.measure)}</span>
+            <span className="sr-only">{formatMeasure(fact.measure.value, fact.measure)}</span>
+            <small>{fact.measure.unit}</small>
+          </dd>
+          {fact.detail && <dd className="figure-detail">{fact.detail}</dd>}
+        </div>
+      ))}
+    </dl>
   );
 }

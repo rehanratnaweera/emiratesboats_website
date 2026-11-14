@@ -51,7 +51,7 @@ export default function HeroVideo({ src, poster, loopStart, loopEnd }: HeroVideo
   return (
     <video
       ref={videoRef}
-      className="hero-video absolute inset-0 h-full w-full object-cover"
+      className="hero-video"
       src={`${src}#t=${loopStart}`}
       poster={poster}
       muted

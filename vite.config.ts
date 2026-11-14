@@ -15,13 +15,6 @@ export default defineConfig(({ mode }) => {
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,
       minify: !emitSourcemaps,
-      chunkSizeWarningLimit: 650,
-      rollupOptions: {
-        output: {
-          manualChunks: (moduleId: string) =>
-            moduleId.includes('node_modules/three') ? 'three' : undefined,
-        },
-      },
     },
     plugins: [
       react(),

@@ -3,4 +3,19 @@
   <url>
     <loc>https://emirateboats.com/</loc>
   </url>
+  <url>
+    <loc>https://emirateboats.com/?model=eb-63</loc>
+  </url>
+  <url>
+    <loc>https://emirateboats.com/?model=eb-46</loc>
+  </url>
+  <url>
+    <loc>https://emirateboats.com/?service=painting</loc>
+  </url>
+  <url>
+    <loc>https://emirateboats.com/?service=tooling</loc>
+  </url>
+  <url>
+    <loc>https://emirateboats.com/?service=hydraulics</loc>
+  </url>
 </urlset>
