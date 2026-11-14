@@ -5,6 +5,8 @@ export const COMPANY = {
   postal: "P.O. Box 212300, Dubai, UAE",
   phone: "+971 4 880 4777",
   phoneHref: "tel:+97148804777",
+  developer: "Rehan Rathnaweera",
+  developerHref: "https://github.com/rehanratnaweera",
   socials: [
     { label: "Instagram", href: "https://www.instagram.com/emiratesboat" },
     { label: "Facebook", href: "https://www.facebook.com/emiratesboats" },
@@ -14,11 +16,11 @@ export const COMPANY = {
 
 /** Point of contact for the service department. */
 export const SERVICE_DESK = {
-  name: "Salah Amir Mosbah",
-  role: "Naval Architect & Yacht Designer",
-  phone: "+971 52 509 2200",
-  phoneHref: "tel:+971525092200",
-  email: "salah@emirateboats.com",
+  name: "Service Desk",
+  role: "Services & Engineering",
+  phone: "+971 4 880 4777",
+  phoneHref: "tel:+97148804777",
+  email: "info@emirateboats.com",
 } as const;
 
 /** Show notice in the hero. It removes itself once the show has closed. */

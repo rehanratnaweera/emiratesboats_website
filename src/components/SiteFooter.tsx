@@ -60,7 +60,11 @@ export default function SiteFooter({ boats, logoUrl }: { boats: BoatModel[]; log
 
         <div className="site-footer-base">
           <p>
-            © {new Date().getFullYear()} {COMPANY.name}. All rights reserved.
+            © {new Date().getFullYear()} {COMPANY.name}. All rights reserved. Developed by{" "}
+            <a href={COMPANY.developerHref} target="_blank" rel="noreferrer">
+              {COMPANY.developer}
+            </a>
+            .
           </p>
           <ul>
             {COMPANY.socials.map((social) => (
