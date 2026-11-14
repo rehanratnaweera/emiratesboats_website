@@ -1,17 +1,15 @@
-name: Production Release Pipeline
+name: Docker Image Pipeline
 
 on:
   push:
     branches: [main]
 
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
   packages: write
 
 jobs:
-  release:
+  docker:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -37,7 +35,7 @@ jobs:
       - name: Build Project
         run: pnpm run build # Generates /dist folder
 
-      # DHCR
+      # GHCR
       - name: Log in to Github container registry
         uses: docker/login-action@v3
         with:
@@ -51,16 +49,3 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/rehanratnaweera/emiratesboats_website:latest
-
-      - name: Bundle Assets
-        run: tar -czf build-output.tar.gz -C dist .
-      
-      - name: Debug Dirty Tree
-        run: |
-          git status
-          git diff
-
-      - name: Run Semantic Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release

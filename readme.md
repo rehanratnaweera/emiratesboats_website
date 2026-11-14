@@ -57,7 +57,7 @@ The browser requests the fleet once on load. `src/cms.ts` turns the Directus res
 | Content | Directus REST API, plus typed content modules for services |
 | Enquiries | Formspree React |
 | Production server | Nginx on Alpine Linux |
-| Release tooling | GitHub Actions, pnpm, semantic-release, Commitlint, Husky |
+| Release tooling | GitHub Actions, pnpm, Docker (GHCR), Commitlint, Husky |
 
 ## Repository map
 
@@ -152,8 +152,6 @@ Pushing to `main` triggers [.github/workflows/release.yml](.github/workflows/rel
 1. Installs the locked dependency tree with pnpm.
 2. Builds the Vite application into `dist/`.
 3. Builds and publishes `ghcr.io/rehanratnaweera/emiratesboats_website:latest`.
-4. Archives the static build as a release asset.
-5. Runs semantic-release to analyse Conventional Commits and publish release metadata.
 
 The Docker image uses Nginx to serve the compiled static files:
 
