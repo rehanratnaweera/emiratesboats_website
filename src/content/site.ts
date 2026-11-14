@@ -27,7 +27,7 @@ export const SERVICE_DESK = {
 export const BOAT_SHOW = {
   name: "Abu Dhabi International Boat Show",
   dates: "19–22 November 2026",
-  venue: "Marina Hall, ADNEC Centre",
+  venue: "M036, E005B, E005A, Marina Hall, ADNEC Centre",
   endsAt: "2026-11-22T23:59:59+04:00",
 } as const;
 

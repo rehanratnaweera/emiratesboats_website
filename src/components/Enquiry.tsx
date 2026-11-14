@@ -145,7 +145,7 @@ export default function EnquirySection({ boats, title, copy }: EnquirySectionPro
               </dd>
             </div>
             <div>
-              <dt>Service department</dt>
+              <dt>Engineering & Service department</dt>
               <dd>
                 {SERVICE_DESK.name}
                 <br />
