@@ -1,6 +1,6 @@
 import type { BoatModel } from "../cms";
 import { SERVICE_PAGES } from "../content/services";
-import { COMPANY, SERVICE_DESK } from "../content/site";
+import { COMPANY, SERVICE_DESK, DEVELOPER_INFO } from "../content/site";
 import { homeHref, modelHref, serviceHref } from "../router";
 
 export default function SiteFooter({ boats, logoUrl }: { boats: BoatModel[]; logoUrl: string }) {
@@ -61,8 +61,8 @@ export default function SiteFooter({ boats, logoUrl }: { boats: BoatModel[]; log
         <div className="site-footer-base">
           <p>
             © {new Date().getFullYear()} {COMPANY.name}. All rights reserved. Developed by{" "}
-            <a href={COMPANY.developerHref} target="_blank" rel="noreferrer">
-              {COMPANY.developer}
+            <a href={DEVELOPER_INFO.href} target="_blank" rel="noreferrer">
+              {DEVELOPER_INFO.name}
             </a>
             .
           </p>

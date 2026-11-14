@@ -5,13 +5,16 @@ export const COMPANY = {
   postal: "P.O. Box 212300, Dubai, UAE",
   phone: "+971 4 880 4777",
   phoneHref: "tel:+97148804777",
-  developer: "Rehan Rathnaweera",
-  developerHref: "https://github.com/rehanratnaweera",
   socials: [
     { label: "Instagram", href: "https://www.instagram.com/emiratesboat" },
     { label: "Facebook", href: "https://www.facebook.com/emiratesboats" },
     { label: "LinkedIn", href: "https://www.linkedin.com/company/emirates-boats-llc" },
   ],
+} as const;
+
+export const DEVELOPER_INFO = {
+  name: "Rehan Rathnaweera",
+  href: "https://github.com/rehanratnaweera",
 } as const;
 
 /** Point of contact for the service department. */
