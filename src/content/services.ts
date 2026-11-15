@@ -1,7 +1,7 @@
 import painting from "../assets/services/finish-electric-blue-golden.webp";
 import antifouling from "../assets/services/index-antifouling.webp";
 import maintenance from "../assets/services/index-maintenance.webp";
-import reparation from "../assets/services/index-reparation.webp";
+import structuralRepair from "../assets/services/index-structuralRepair.webp";
 import hydraulics from "../assets/services/index-hydraulics.webp";
 import electrical from "../assets/services/index-electrical.webp";
 import lighting from "../assets/services/index-lighting.webp";
@@ -63,11 +63,11 @@ export const SERVICES: Service[] = [
     imageAlt: "Marine generator installed in a clean machinery space",
   },
   {
-    id: "reparation",
-    name: "Boat Reparation",
+    id: "structural-repair",
+    name: "Structural Repair",
     tagline: "Structural and composite repair",
     points: ["Hull, deck & gelcoat repair", "Fiberglass & carbon laminate work", "Collision & damage restoration", "Finishing and paint matched to the hull"],
-    image: reparation,
+    image: structuralRepair,
     imageAlt: "Technician applying compound to a composite surface",
   },
   {
