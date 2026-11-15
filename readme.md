@@ -1,10 +1,17 @@
 # Emirates Boats | Fleet & Services
 
-> A production-facing website for **Emirates Boats LLC**, built as a portfolio project by [Rehan Rathnaweera](https://www.linkedin.com/in/rehanratnaweera).
+> The production website for **Emirates Boats LLC**, built as a portfolio project by [Rehan Rathnaweera](https://www.linkedin.com/in/rehanratnaweera).
 
-Emirates Boats is a Dubai-based marine manufacturer. Version 2 of the site presents the company, its fleet and its service department as a quiet, photography-led experience. Fleet content is live from the CMS; service content comes from the yard's own service portfolios.
+Emirates Boats is a Dubai-based marine manufacturer. Version 2 of the site, live at [emirateboats.com](https://emirateboats.com), presents the company, its fleet and its service department as a quiet, photography-led experience. Fleet content is loaded live from the CMS; service content comes from the yard's own service portfolios.
 
-The earlier site, with the interactive Three.js boat configurator, is archived on the `v1-3d-configurator` branch. That branch does not build Docker images or publish releases.
+## Status
+
+| Part | State |
+| --- | --- |
+| Website v2 (fleet, boat pages, services, enquiries) | **Live** — deployed from `main` |
+| Interactive 3D boat configurator (Three.js) | **In development** — not part of the current site |
+
+The 3D configurator was shipped with version 1 of the site and was taken out of `main` for the v2 release (commit `1406067`). It is being rebuilt separately and will return to the site once it is ready. Until then, visitors choose colors with the painting page's swatch library and send their configuration through the enquiry form.
 
 ## What the site does
 
@@ -12,15 +19,17 @@ The earlier site, with the interactive Three.js boat configurator, is archived o
 - Gives every boat its own page: lead photograph, headline figures, specification, datasheet download and a photo gallery with a lightbox.
 - Shows a caption on a gallery photo when its file has a title or description in Directus.
 - Lists the twelve services of the service department, with three in depth:
-  - **Painting** — a finish viewer in two lights and the 240-color swatch library; a chosen color is carried into the enquiry.
+  - **Painting** — a finish viewer in two lights and the 240-color Cromax® swatch library; a chosen color is carried into the enquiry.
   - **Tooling Center** — the 5-axis machine envelope and the twelve steps from CAD file to mold.
   - **Hydraulic swim platforms** — the platforms the yard supplies and how they are installed.
 - Sends enquiries through Formspree, pre-filled with the boat or service the visitor was reading about.
+- Publishes search and sharing metadata (title, description, canonical URL, Open Graph and Twitter cards), a `robots.txt` and a `sitemap.xml`.
+- Reports page views to Google Analytics.
 - Builds into a small static bundle served by Nginx inside a Docker image.
 
 ## Pages
 
-There is no router library and no server-side routing. Pages are selected by a query parameter so the site works from any static host:
+There is no router library and no server-side routing. Pages are selected by a query parameter, so the site works from any static host:
 
 | URL | Page |
 | --- | --- |
@@ -31,6 +40,8 @@ There is no router library and no server-side routing. Pages are selected by a q
 | `/?service=hydraulics` | Hydraulic swim platforms |
 
 A boat's slug is its name in lower case with spaces replaced by hyphens. `src/router.ts` intercepts ordinary same-site links, so pages are linked with plain `<a href>` elements.
+
+When a boat or service page is added, also add it to `public/sitemap.xml`.
 
 ## Product flow
 
@@ -56,8 +67,9 @@ The browser requests the fleet once on load. `src/cms.ts` turns the Directus res
 | Type | Marcellus (display), Jost (text) |
 | Content | Directus REST API, plus typed content modules for services |
 | Enquiries | Formspree React |
+| Analytics | Google Analytics 4 (gtag), injected at build time |
 | Production server | Nginx on Alpine Linux |
-| Release tooling | GitHub Actions, pnpm, Docker (GHCR), Commitlint, Husky |
+| Tooling | GitHub Actions, pnpm, Docker (GHCR), Commitlint, Husky, oxfmt |
 
 ## Repository map
 
@@ -68,16 +80,19 @@ The browser requests the fleet once on load. `src/cms.ts` turns the Directus res
 │   ├── router.ts               # Query-parameter routes and link handling
 │   ├── cms.ts                  # Directus client, image URLs and CMS-to-UI mapping
 │   ├── fleetFacts.ts           # Headline figures derived from a boat's specification
+│   ├── useScrollReveal.ts      # Scroll-reveal motion
 │   ├── index.css               # Design tokens and every component style
 │   ├── pages/                  # Home, Model, Painting, Tooling, Hydraulics, NotFound
 │   ├── components/             # Nav, footer, hero video, gallery, lightbox, enquiry form …
 │   ├── content/                # Company details, services, service pages, paint colors
 │   └── assets/services/        # Service photography (WebP)
+├── public/                     # robots.txt and sitemap.xml
 ├── .github/workflows/
-│   └── release.yml             # Build, publish, package, and release automation
-├── .eb/make/site.json          # Site metadata used by the Vite config
+│   └── release.yml             # Builds the site and publishes the Docker image
+├── .eb/make/site.json          # Site title, description, URL, social image, analytics ID
+├── .husky/                     # Pre-commit build and commit message linting
 ├── dockerfile                  # Nginx image for the compiled dist/ directory
-├── vite.config.ts              # Vite, Tailwind, metadata, and server configuration
+├── vite.config.ts              # Vite, Tailwind, metadata injection and server configuration
 └── package.json                # Scripts and dependency manifest
 ```
 
@@ -104,7 +119,7 @@ pnpm run preview     # Serve the production bundle locally
 pnpm run format      # Format supported source files with oxfmt
 ```
 
-There is currently no test or lint script in `package.json`; the pre-commit hook runs the production build as the available application check.
+There is no test or lint script yet. The pre-commit hook runs the production build as the application check, and the commit-msg hook enforces [Conventional Commits](https://www.conventionalcommits.org/) with Commitlint.
 
 ## Editing content
 
@@ -145,6 +160,10 @@ The CMS must allow browser requests from the deployed site.
 
 The boat show notice on the home page hides itself once the show's end date in `site.ts` has passed.
 
+### Site metadata and analytics
+
+`.eb/make/site.json` holds the page title, meta description, canonical site URL, Open Graph image and Google Analytics measurement ID. A Vite plugin in `vite.config.ts` writes these into `index.html` at build time; remove `googleAnalyticsId` to build without analytics.
+
 ## Production delivery
 
 Pushing to `main` triggers [.github/workflows/release.yml](.github/workflows/release.yml), which:
@@ -152,6 +171,8 @@ Pushing to `main` triggers [.github/workflows/release.yml](.github/workflows/rel
 1. Installs the locked dependency tree with pnpm.
 2. Builds the Vite application into `dist/`.
 3. Builds and publishes `ghcr.io/rehanratnaweera/emiratesboats_website:latest`.
+
+There are no versioned releases or changelog; every push to `main` replaces the `latest` image.
 
 The Docker image uses Nginx to serve the compiled static files:
 
@@ -173,9 +194,9 @@ Vite also supports an optional public path through `eb_PUBLIC_URL`. The dev and 
 - Scroll-reveal motion and the hero video respect the visitor's reduced-motion setting.
 - The enquiry form includes browser validation, Formspree validation errors, submission state, and a success state.
 
-## Project status
+## Roadmap
 
-This is an actively evolving portfolio representation of a live client-facing site. CMS content, external media URLs, Formspree configuration, and deployment credentials are intentionally kept outside the repository where possible.
+- Finish the interactive 3D boat configurator and bring it back to the site.
 
 ## License and content
 
