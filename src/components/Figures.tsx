@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { BoatModel } from "../cms";
 import { performanceFacts, type Measure } from "../fleetFacts";
+import { useI18n } from "../i18n";
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -67,6 +68,7 @@ function CountUp({ measure, run }: { measure: Measure; run: boolean }) {
 
 /** Headline numbers parsed from a boat's CMS spec fields. Renders nothing if too few can be read. */
 export default function Figures({ boat, animate = true }: { boat: BoatModel; animate?: boolean }) {
+  const { t } = useI18n();
   const facts = performanceFacts(boat);
   const [ref, revealed] = useRevealOnce<HTMLDListElement>(0.3);
 
@@ -76,7 +78,7 @@ export default function Figures({ boat, animate = true }: { boat: BoatModel; ani
     <dl ref={ref} className={`figures${revealed ? " is-revealed" : ""}`} style={{ "--figure-count": facts.length } as React.CSSProperties}>
       {facts.map((fact, index) => (
         <div key={fact.label} className="figure" style={{ transitionDelay: `${index * 110}ms` }}>
-          <dt>{fact.label}</dt>
+          <dt>{t(fact.label)}</dt>
           <dd className="figure-number">
             <span aria-hidden="true">{animate ? <CountUp measure={fact.measure} run={revealed} /> : formatMeasure(fact.measure.value, fact.measure)}</span>
             <span className="sr-only">{formatMeasure(fact.measure.value, fact.measure)}</span>

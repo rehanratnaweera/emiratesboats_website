@@ -1,4 +1,5 @@
 import type { BoatModel } from "./cms";
+import { msg } from "./i18n";
 
 /** A numeric value pulled out of a free-text CMS spec field. */
 export interface Measure {
@@ -44,10 +45,10 @@ function secondaryPart(text: string) {
 /** Headline numbers for a boat; entries whose CMS text can't be parsed are dropped. */
 export function performanceFacts(boat: BoatModel): PerformanceFact[] {
   const facts: Array<PerformanceFact | undefined> = [
-    withMeasure("Combined output", combinedHorsepower(boat.power), boat.power),
-    withMeasure("Top speed", firstMeasure(boat.speed), secondaryPart(boat.speed)),
-    withMeasure("Range", firstMeasure(boat.range)),
-    withMeasure("Length overall", firstMeasure(boat.length), secondaryPart(boat.length)),
+    withMeasure(msg("Combined output"), combinedHorsepower(boat.power), boat.power),
+    withMeasure(msg("Top speed"), firstMeasure(boat.speed), secondaryPart(boat.speed)),
+    withMeasure(msg("Range"), firstMeasure(boat.range)),
+    withMeasure(msg("Length overall"), firstMeasure(boat.length), secondaryPart(boat.length)),
   ];
   return facts.filter((fact): fact is PerformanceFact => Boolean(fact));
 }

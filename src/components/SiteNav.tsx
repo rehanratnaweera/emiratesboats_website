@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { COMPANY } from "../content/site";
+import { LANGUAGES, setLanguage, useI18n } from "../i18n";
 import { homeHref } from "../router";
 
 interface NavSection {
@@ -76,7 +77,31 @@ function useActiveSection(ids: string[], enabled: boolean) {
   return active;
 }
 
+/** Language picker. Shows each language by its own name; English is the source and the fallback. */
+function LanguageSelect() {
+  const { language, t } = useI18n();
+  if (LANGUAGES.length < 2) return null;
+
+  return (
+    <label className="language-select">
+      <span className="sr-only">{t("Language")}</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" />
+      </svg>
+      <select value={language.code} onChange={(event) => setLanguage(event.target.value)}>
+        {LANGUAGES.map((option) => (
+          <option key={option.code} value={option.code} lang={option.code}>
+            {option.name}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 export default function SiteNav({ logoUrl, sections, onHome, overHero }: SiteNavProps) {
+  const { t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const { scrolled, hidden } = useScrollState(menuOpen);
   const active = useActiveSection(sections.map((section) => section.id), onHome);
@@ -110,11 +135,11 @@ export default function SiteNav({ logoUrl, sections, onHome, overHero }: SiteNav
   return (
     <header className={`site-nav ${state}`}>
       <div className="site-nav-bar">
-        <a className="site-nav-logo" href={homeHref()} onClick={closeMenu} aria-label="Emirates Boats — home">
+        <a className="site-nav-logo" href={homeHref()} onClick={closeMenu} aria-label={t("Emirates Boats — home")}>
           <img src={logoUrl} alt="Emirates Boats" width={740} height={339} />
         </a>
 
-        <nav className="site-nav-links" aria-label="Primary">
+        <nav className="site-nav-links" aria-label={t("Primary")}>
           {sections.map((section) => (
             <a
               key={section.id}
@@ -122,20 +147,22 @@ export default function SiteNav({ logoUrl, sections, onHome, overHero }: SiteNav
               className={`site-nav-link${active === section.id ? " is-active" : ""}`}
               aria-current={active === section.id ? "location" : undefined}
             >
-              {section.label}
+              {t(section.label)}
             </a>
           ))}
         </nav>
 
+        <LanguageSelect />
+
         <a className="site-nav-cta" href="#contact">
-          Enquire
+          {t("Enquire")}
         </a>
 
         <button
           ref={toggleRef}
           type="button"
           className="site-nav-toggle"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-label={menuOpen ? t("Close menu") : t("Open menu")}
           aria-expanded={menuOpen}
           aria-controls="site-mobile-menu"
           onClick={() => setMenuOpen((open) => !open)}
@@ -146,13 +173,13 @@ export default function SiteNav({ logoUrl, sections, onHome, overHero }: SiteNav
       </div>
 
       <div id="site-mobile-menu" className="site-mobile-menu" inert={!menuOpen}>
-        <nav aria-label="Mobile">
+        <nav aria-label={t("Mobile")}>
           <ol>
             {sections.map((section, index) => (
               <li key={section.id} style={{ transitionDelay: menuOpen ? `${120 + index * 70}ms` : "0ms" }}>
                 <a ref={index === 0 ? firstMenuLinkRef : undefined} href={homeHref(section.id)} onClick={closeMenu}>
                   <span className="site-mobile-index">{String(index + 1).padStart(2, "0")}</span>
-                  {section.label}
+                  {t(section.label)}
                 </a>
               </li>
             ))}
@@ -160,10 +187,10 @@ export default function SiteNav({ logoUrl, sections, onHome, overHero }: SiteNav
         </nav>
         <div className="site-mobile-footer">
           <a className="btn btn-gold" href="#contact" onClick={closeMenu}>
-            Enquire
+            {t("Enquire")}
           </a>
           <p>
-            {COMPANY.yard}, Dubai, UAE
+            {t("{yard}, Dubai, UAE", { yard: COMPANY.yard })}
             <br />
             <a href={COMPANY.phoneHref}>{COMPANY.phone}</a>
           </p>

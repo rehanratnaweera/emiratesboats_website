@@ -43,6 +43,8 @@ export interface BoatModel {
   description: string;
 }
 
+import { msg } from "./i18n";
+
 const DIRECTUS_URL = "https://cms.emirateboats.com";
 const ASSET_ROOT = `${DIRECTUS_URL}/assets/`;
 
@@ -75,12 +77,12 @@ export const SITE_MEDIA = {
   heroPoster: cmsImage("9f26a4aa-c647-4f0f-9719-e7c81ab4608c", { width: 1920, quality: 68 }),
   craft: {
     url: cmsImage("93bf4894-8385-44ea-8cd6-2ad35d045af8", { width: 1400, height: 1050 }),
-    alt: "EB-63 center console in profile at the marina",
+    alt: msg("EB-63 center console in profile at the marina"),
   },
   craftDetails: [
-    { url: cmsImage("f3ad6b10-ed70-4093-ad43-dbf0ecd5f200", { width: 900, height: 640 }), alt: "EB-63 helm with triple navigation displays" },
-    { url: cmsImage("91e91824-0729-4b65-af15-4b036407de37", { width: 900, height: 640 }), alt: "EB-63 electronics console with touchscreen controls" },
-    { url: cmsImage("f3dd5bea-5c57-4ff1-9682-e8b3db26ba30", { width: 900, height: 640 }), alt: "Radar domes and thermal camera on the EB-63 hardtop" },
+    { url: cmsImage("f3ad6b10-ed70-4093-ad43-dbf0ecd5f200", { width: 900, height: 640 }), alt: msg("EB-63 helm with triple navigation displays") },
+    { url: cmsImage("91e91824-0729-4b65-af15-4b036407de37", { width: 900, height: 640 }), alt: msg("EB-63 electronics console with touchscreen controls") },
+    { url: cmsImage("f3dd5bea-5c57-4ff1-9682-e8b3db26ba30", { width: 900, height: 640 }), alt: msg("Radar domes and thermal camera on the EB-63 hardtop") },
   ],
 } as const;
 

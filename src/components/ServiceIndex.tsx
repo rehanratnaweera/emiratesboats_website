@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SERVICES } from "../content/services";
+import { useI18n } from "../i18n";
 import { serviceHref } from "../router";
 import { useEnquiry } from "./Enquiry";
 
@@ -9,6 +10,7 @@ export default function ServiceIndex() {
   // Photographs are only requested once their service has been opened.
   const [seen, setSeen] = useState(() => new Set([SERVICES[0].id]));
   const { setInterest } = useEnquiry();
+  const { t } = useI18n();
 
   const open = (id: string) => {
     setActiveId(id);
@@ -31,27 +33,27 @@ export default function ServiceIndex() {
                   onClick={() => open(service.id)}
                 >
                   <span className="service-number">{String(index + 1).padStart(2, "0")}</span>
-                  <span className="service-name">{service.name}</span>
-                  <span className="service-tagline">{service.tagline}</span>
+                  <span className="service-name">{t(service.name)}</span>
+                  <span className="service-tagline">{t(service.tagline)}</span>
                   <span className="service-mark" aria-hidden="true" />
                 </button>
               </h3>
               <div id={`service-panel-${service.id}`} className="service-panel" role="region" aria-labelledby={`service-${service.id}`} hidden={!isOpen}>
-                <img className="service-panel-image" src={service.image} alt={service.imageAlt} loading="lazy" decoding="async" />
-                <p className="service-panel-tagline">{service.tagline}</p>
+                <img className="service-panel-image" src={service.image} alt={t(service.imageAlt)} loading="lazy" decoding="async" />
+                <p className="service-panel-tagline">{t(service.tagline)}</p>
                 <ul>
                   {service.points.map((point) => (
-                    <li key={point}>{point}</li>
+                    <li key={point}>{t(point)}</li>
                   ))}
                 </ul>
                 <div className="service-panel-links">
                   {service.page && (
                     <a className="text-link" href={serviceHref(service.page)}>
-                      Explore in depth
+                      {t("Explore in depth")}
                     </a>
                   )}
                   <a className="text-link" href="#contact" onClick={() => setInterest(service.name)}>
-                    Request a quote
+                    {t("Request a quote")}
                   </a>
                 </div>
               </div>

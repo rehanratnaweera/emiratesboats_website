@@ -4,6 +4,7 @@ import { EnquiryProvider, GENERAL_INTEREST, useEnquiry } from "./components/Enqu
 import SiteFooter from "./components/SiteFooter";
 import SiteNav from "./components/SiteNav";
 import { SERVICE_PAGES } from "./content/services";
+import { msg, useI18n } from "./i18n";
 import HomePage, { type FleetState } from "./pages/HomePage";
 import HydraulicsPage from "./pages/HydraulicsPage";
 import ModelPage from "./pages/ModelPage";
@@ -14,9 +15,9 @@ import { routeKey, scrollToSection, takeArrival, useRoute, type Route } from "./
 import { useScrollReveal } from "./useScrollReveal";
 
 const NAV_SECTIONS = [
-  { id: "fleet", label: "Fleet" },
-  { id: "services", label: "Services" },
-  { id: "craft", label: "Craft" },
+  { id: "fleet", label: msg("Fleet") },
+  { id: "services", label: msg("Services") },
+  { id: "craft", label: msg("Craft") },
 ];
 
 /** The title written into index.html at build time; used for the home page. */
@@ -87,18 +88,20 @@ function useRouteScroll(key: string, fleetStatus: FleetState["status"]) {
 }
 
 function Page({ route, fleet }: { route: Route; fleet: FleetState }) {
+  const { t } = useI18n();
   const boats = fleet.status === "ready" ? fleet.boats : [];
   if (route.page === "home") return <HomePage fleet={fleet} />;
   if (route.page === "model") return <ModelPage slug={route.slug} fleet={fleet} />;
   if (route.slug === "painting") return <PaintingPage boats={boats} />;
   if (route.slug === "tooling") return <ToolingPage boats={boats} />;
   if (route.slug === "hydraulics") return <HydraulicsPage boats={boats} />;
-  return <NotFoundPage title="We couldn't find that page." copy="The service you are looking for may have moved. Everything we do is listed on the home page." />;
+  return <NotFoundPage title={t("We couldn't find that page.")} copy={t("The service you are looking for may have moved. Everything we do is listed on the home page.")} />;
 }
 
 function Site() {
   const route = useRoute();
   const fleet = useFleet();
+  const { t } = useI18n();
   const key = routeKey(route);
   const { setInterest, setMessage } = useEnquiry();
   const mainRef = useRef<HTMLElement>(null);
@@ -111,11 +114,11 @@ function Site() {
   const boat = route.page === "model" ? boats.find((candidate) => candidate.slug === route.slug) : undefined;
   const servicePage = route.page === "service" ? SERVICE_PAGES[route.slug] : undefined;
   const subject = boat?.name ?? servicePage?.interest ?? GENERAL_INTEREST;
-  const title = boat ? [boat.name, boat.tagline].filter(Boolean).join(" — ") : servicePage?.title;
+  const title = boat ? [boat.name, boat.tagline].filter(Boolean).join(" — ") : servicePage && t(servicePage.title);
 
   useEffect(() => {
-    document.title = title ? `${title} | Emirates Boats` : HOME_TITLE;
-  }, [title]);
+    document.title = title ? `${title} | Emirates Boats` : t(HOME_TITLE);
+  }, [title, t]);
 
   // Each page starts a fresh enquiry about its own subject.
   useEffect(() => {

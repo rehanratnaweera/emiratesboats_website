@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import type { BoatImage } from "../cms";
+import { useI18n } from "../i18n";
 import Lightbox from "./Lightbox";
 
 /** Column spans (out of six) for each row of the mosaic, repeated down the page. */
@@ -33,6 +34,7 @@ function mosaicSpans(count: number) {
  */
 export default function Gallery({ images, label }: { images: BoatImage[]; label: string }) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { t } = useI18n();
   const { tiles, ordered, extra } = useMemo(() => {
     const optimised = images.filter((image) => image.optimised);
     const originals = images.filter((image) => !image.optimised);
@@ -52,7 +54,7 @@ export default function Gallery({ images, label }: { images: BoatImage[]; label:
             className="gallery-tile"
             style={{ "--span": spans[index] } as React.CSSProperties}
             onClick={() => setOpenIndex(index)}
-            aria-label={`Open photograph ${index + 1} of ${ordered.length}${image.title ? `: ${image.title}` : ""}`}
+            aria-label={[t("Open photograph {number} of {total}", { number: index + 1, total: ordered.length }), image.title].filter(Boolean).join(": ")}
           >
             <img
               src={image.thumb}
@@ -78,8 +80,8 @@ export default function Gallery({ images, label }: { images: BoatImage[]; label:
             onClick={() => setOpenIndex(tiles.length)}
           >
             <span className="gallery-more-count">{tiles.length > 0 ? `+${extra}` : extra}</span>
-            <span className="gallery-more-label">{tiles.length > 0 ? "more photographs" : "photographs"}</span>
-            <span className="gallery-more-note">Full-resolution originals</span>
+            <span className="gallery-more-label">{tiles.length > 0 ? t("more photographs") : t("photographs")}</span>
+            <span className="gallery-more-note">{t("Full-resolution originals")}</span>
           </button>
         )}
       </div>

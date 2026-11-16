@@ -1,6 +1,8 @@
+import { useI18n } from "../i18n";
 import { homeHref } from "../router";
 
 export default function NotFoundPage({ title, copy }: { title: string; copy: string }) {
+  const { t } = useI18n();
   return (
     <section className="not-found theme-dark">
       <div className="wrap">
@@ -9,10 +11,10 @@ export default function NotFoundPage({ title, copy }: { title: string; copy: str
         <p className="lede">{copy}</p>
         <div className="actions">
           <a className="btn btn-gold" href={homeHref("fleet")}>
-            View the fleet
+            {t("View the fleet")}
           </a>
           <a className="btn btn-outline" href={homeHref("services")}>
-            Our services
+            {t("Our services")}
           </a>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useI18n } from "../i18n";
 import { homeHref } from "../router";
 
 interface PageHeroProps {
@@ -15,11 +16,12 @@ interface PageHeroProps {
 
 /** Opening band for the in-depth service pages: breadcrumb, title, and an optional photograph. */
 export default function PageHero({ parent, current, kicker, title, lede, image, imageAlt = "", children }: PageHeroProps) {
+  const { t } = useI18n();
   return (
     <section className={`page-hero theme-dark${image ? " has-image" : ""}`}>
       <div className="wrap page-hero-layout">
         <div className="page-hero-copy">
-          <nav className="crumbs" aria-label="Breadcrumb">
+          <nav className="crumbs" aria-label={t("Breadcrumb")}>
             <a href={homeHref(parent.id)}>{parent.label}</a>
             <span aria-hidden="true">/</span>
             <span aria-current="page">{current}</span>

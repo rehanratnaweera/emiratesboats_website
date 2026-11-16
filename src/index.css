@@ -16,8 +16,10 @@
   --gold-soft: #d9c19a;
   --gold-deep: #7d6232;
 
-  --font-display: "Marcellus", "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --font-body: "Jost", "Helvetica Neue", Arial, sans-serif;
+  /* Noto Kufi Arabic only draws the characters Jost and Marcellus lack (Arabic),
+     so its files are downloaded only when a page shows Arabic. */
+  --font-display: "Marcellus", "Noto Kufi Arabic", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-body: "Jost", "Noto Kufi Arabic", "Helvetica Neue", Arial, sans-serif;
 
   --gutter: clamp(1.25rem, 4.2vw, 4rem);
   --wrap: 1320px;
@@ -328,8 +330,8 @@ a:hover > .text-link::after {
 
 .callout {
   margin-top: clamp(3rem, 6vw, 5rem);
-  padding-left: clamp(1.25rem, 3vw, 2.5rem);
-  border-left: 1px solid var(--accent);
+  padding-inline-start: clamp(1.25rem, 3vw, 2.5rem);
+  border-inline-start: 1px solid var(--accent);
 }
 
 .callout-copy {
@@ -364,7 +366,7 @@ a:hover > .text-link::after {
 }
 
 .spec-rows dd {
-  text-align: right;
+  text-align: end;
   font-size: 1rem;
   font-weight: 400;
   color: var(--heading);
@@ -524,7 +526,7 @@ a:hover > .text-link::after {
 
 .site-nav-logo {
   flex: none;
-  margin-right: auto;
+  margin-inline-end: auto;
 }
 
 .site-nav-logo img {
@@ -587,12 +589,60 @@ a:hover > .text-link::after {
   color: var(--ink);
 }
 
+.language-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: rgba(246, 242, 234, 0.8);
+  transition: color 0.3s ease;
+}
+
+.language-select:hover,
+.language-select:focus-within {
+  color: #fff;
+}
+
+.language-select svg {
+  position: absolute;
+  inset-inline-start: 0;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  pointer-events: none;
+}
+
+.language-select select {
+  appearance: none;
+  padding-block: 0.5rem;
+  padding-inline: 1.5rem 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.language-select select:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.language-select option {
+  background: var(--ink);
+  color: #f6f2ea;
+}
+
 .site-nav-toggle {
   position: relative;
   display: none;
   width: 2.75rem;
   height: 2.75rem;
-  margin-right: -0.5rem;
+  margin-inline-end: -0.5rem;
 }
 
 .site-nav-toggle span {
@@ -797,8 +847,9 @@ a:hover > .text-link::after {
 
 .show-notice {
   max-width: 19rem;
-  padding: 0.25rem 0 0.25rem 1.5rem;
-  border-left: 1px solid var(--gold);
+  padding-block: 0.25rem;
+  padding-inline: 1.5rem 0;
+  border-inline-start: 1px solid var(--gold);
   animation: rise-in 1.2s var(--ease) 0.5s both;
 }
 
@@ -854,15 +905,15 @@ a:hover > .text-link::after {
 
 .figure {
   padding: 1.75rem clamp(1rem, 2vw, 2rem) 0.25rem;
-  border-left: 1px solid var(--rule);
+  border-inline-start: 1px solid var(--rule);
   transition:
     opacity 1s var(--ease),
     transform 1.2s var(--ease);
 }
 
 .figure:first-child {
-  padding-left: 0;
-  border-left: 0;
+  padding-inline-start: 0;
+  border-inline-start: 0;
 }
 
 .reveal-ready .figures:not(.is-revealed) .figure {
@@ -888,7 +939,7 @@ a:hover > .text-link::after {
 }
 
 .figure-number small {
-  margin-left: 0.45rem;
+  margin-inline-start: 0.45rem;
   font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 400;
@@ -973,7 +1024,7 @@ a:hover > .text-link::after {
   display: inline-block;
   width: 2.5rem;
   height: 1px;
-  margin-left: 1rem;
+  margin-inline-start: 1rem;
   vertical-align: middle;
   background: var(--rule);
 }
@@ -1096,7 +1147,7 @@ a:hover > .text-link::after {
   align-items: baseline;
   width: 100%;
   padding: 1.25rem 0;
-  text-align: left;
+  text-align: start;
 }
 
 .service-number {
@@ -1121,7 +1172,7 @@ a:hover > .text-link::after {
 
 .service-tagline {
   justify-self: end;
-  text-align: right;
+  text-align: end;
   font-size: 0.92rem;
   color: var(--muted);
 }
@@ -1155,7 +1206,8 @@ a:hover > .text-link::after {
 }
 
 .service-panel {
-  padding: 0 0 2rem 4rem;
+  padding-block: 0 2rem;
+  padding-inline: 4rem 0;
   animation: panel-in 0.6s var(--ease) both;
 }
 
@@ -1179,7 +1231,7 @@ a:hover > .text-link::after {
 
 .service-panel ul li {
   position: relative;
-  padding-left: 1.25rem;
+  padding-inline-start: 1.25rem;
   font-size: 0.98rem;
   line-height: 1.55;
 }
@@ -1188,7 +1240,7 @@ a:hover > .text-link::after {
   content: "";
   position: absolute;
   top: 0.78em;
-  left: 0;
+  inset-inline-start: 0;
   width: 0.6rem;
   height: 1px;
   background: var(--accent);
@@ -1255,8 +1307,8 @@ a:hover > .text-link::after {
   display: grid;
   gap: 0.4rem;
   justify-items: start;
-  padding-left: clamp(0rem, 3vw, 3rem);
-  border-left: 1px solid var(--rule);
+  padding-inline-start: clamp(0rem, 3vw, 3rem);
+  border-inline-start: 1px solid var(--rule);
 }
 
 .quote-band-contact a:not(.btn) {
@@ -1860,7 +1912,7 @@ a:hover > .text-link::after {
   gap: 0.2rem;
   padding: 3.5rem 1.25rem 1.1rem;
   background: linear-gradient(to top, rgba(6, 18, 30, 0.88), rgba(6, 18, 30, 0));
-  text-align: left;
+  text-align: start;
 }
 
 .gallery-caption-title {
@@ -1952,7 +2004,8 @@ a:hover > .text-link::after {
 }
 
 .lightbox-close {
-  padding: 0.75rem 0 0.75rem 1rem;
+  padding-block: 0.75rem;
+  padding-inline: 1rem 0;
   font-size: 0.74rem;
   font-weight: 500;
   letter-spacing: 0.22em;
@@ -2275,7 +2328,7 @@ a:hover > .text-link::after {
 
 .studio-lights {
   position: absolute;
-  left: 1rem;
+  inset-inline-start: 1rem;
   bottom: 1rem;
   display: flex;
   background: rgba(6, 18, 30, 0.72);
@@ -2456,7 +2509,7 @@ a:hover > .text-link::after {
 
 .library-bar-detail {
   display: grid;
-  margin-right: auto;
+  margin-inline-end: auto;
 }
 
 .library-bar-name {
@@ -2520,7 +2573,8 @@ a:hover > .text-link::after {
   flex-direction: column-reverse;
   justify-content: flex-end;
   gap: 0.5rem;
-  padding: 1.25rem 0.75rem 0 0;
+  padding-block: 1.25rem 0;
+  padding-inline: 0 0.75rem;
 }
 
 .machine-axes dd,
@@ -2661,6 +2715,77 @@ a:hover > .text-link::after {
 }
 
 /* ════════════════════════════════════════════════════════════════════════
+   Right-to-left languages
+   Layout uses logical properties (inline-start/end), so it mirrors on its own.
+   These rules cover what does not: gradients, transform origins, arrow glyphs,
+   and Arabic type, which joins its letters and needs more room than Latin.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Tracking pulls joined Arabic letters apart. */
+:lang(ar) {
+  letter-spacing: normal !important;
+}
+
+:lang(ar) .display-1 {
+  line-height: 1.25;
+}
+
+:lang(ar) .display-2,
+:lang(ar) .statement-copy,
+:lang(ar) .fleet-chapter-name {
+  line-height: 1.35;
+}
+
+/* Small uppercase labels rely on tracking for legibility; Arabic gets size instead. */
+:lang(ar) .eyebrow,
+:lang(ar) .btn,
+:lang(ar) .text-link,
+:lang(ar) .crumbs,
+:lang(ar) .site-nav-link,
+:lang(ar) .site-nav-cta,
+:lang(ar) .spec-rows dt,
+:lang(ar) .figure dt,
+:lang(ar) .contact-list dt,
+:lang(ar) .field label,
+:lang(ar) .site-footer-heading,
+:lang(ar) .machine-axes dt,
+:lang(ar) .stat-row dt,
+:lang(ar) .brand-detail,
+:lang(ar) .library-family h3,
+:lang(ar) .studio-lights button,
+:lang(ar) .gallery-more-label,
+:lang(ar) .library-bar-prompt,
+:lang(ar) .fleet-chapter-index,
+:lang(ar) .paint-band-swatches li,
+:lang(ar) .lightbox-close {
+  font-size: 0.86rem;
+}
+
+[dir="rtl"] .site-nav-link::after {
+  transform-origin: right;
+}
+
+[dir="rtl"] .lightbox-arrow span {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+@media (min-width: 760px) {
+  [dir="rtl"] .hero-shade {
+    background:
+      linear-gradient(to top, rgba(6, 18, 30, 0.94) 0%, rgba(6, 18, 30, 0.5) 34%, rgba(6, 18, 30, 0) 62%),
+      linear-gradient(to left, rgba(6, 18, 30, 0.62) 0%, rgba(6, 18, 30, 0) 62%);
+  }
+}
+
+[dir="rtl"] .model-hero-shade {
+  background:
+    linear-gradient(to top, rgba(6, 18, 30, 0.95) 0%, rgba(6, 18, 30, 0.6) 32%, rgba(6, 18, 30, 0) 64%),
+    linear-gradient(to left, rgba(6, 18, 30, 0.6) 0%, rgba(6, 18, 30, 0) 52%),
+    linear-gradient(to bottom, rgba(6, 18, 30, 0.5) 0%, rgba(6, 18, 30, 0) 22%);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
    Responsive
    ════════════════════════════════════════════════════════════════════════ */
 
@@ -2743,7 +2868,7 @@ a:hover > .text-link::after {
   }
 
   .service-panel {
-    padding-left: 0;
+    padding-inline-start: 0;
   }
 
   .service-panel-image {
@@ -2757,7 +2882,7 @@ a:hover > .text-link::after {
   .quote-band-contact {
     padding: 2rem 0 0;
     border-top: 1px solid var(--rule);
-    border-left: 0;
+    border-inline-start: 0;
   }
 
   .signature-grid,
@@ -2773,9 +2898,10 @@ a:hover > .text-link::after {
 
   .figure,
   .figure:first-child {
-    padding: 1.5rem 1rem 1.5rem 0;
+    padding-block: 1.5rem;
+    padding-inline: 0 1rem;
     border-top: 1px solid var(--rule);
-    border-left: 0;
+    border-inline-start: 0;
   }
 
   .studio-detail {

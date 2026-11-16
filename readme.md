@@ -160,6 +160,17 @@ The CMS must allow browser requests from the deployed site.
 
 The boat show notice on the home page hides itself once the show's end date in `site.ts` has passed.
 
+### Languages
+
+English is the only language anyone writes. The site opens in the visitor's saved choice, or the first browser language it supports, and falls back to English. The selector in the nav switches language and remembers the choice.
+
+- Text in components goes through `t("…")` from `src/i18n`. Values like `{name}` are passed as `t("Discover the {name}", { name })`. Text that contains a link uses `rich("… <link>contact the yard</link> …", { link: … })`.
+- Text in `src/content/` is wrapped in `msg("…")` so the translation script can find it, then shown with `t(value)`.
+- `pnpm translate` sends new or changed English text to Claude (`claude-opus-5-5`) and writes the results to `src/i18n/locales/<code>.json`. Run it after editing copy and commit the JSON. It needs `ANTHROPIC_API_KEY`. Text that is already translated is never sent again, so hand corrections in the JSON are kept until the English changes.
+- `pnpm run build` reports any text without a translation. That text shows in English until it is translated.
+- Add a language by adding it to `src/i18n/languages.json` and running `pnpm translate`.
+- Boat content from Directus, the paint swatch names and the addresses stay in English.
+
 ### Site metadata and analytics
 
 `.eb/make/site.json` holds the page title, meta description, canonical site URL, Open Graph image and Google Analytics measurement ID. A Vite plugin in `vite.config.ts` writes these into `index.html` at build time; remove `googleAnalyticsId` to build without analytics.

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { BoatImage } from "../cms";
+import { useI18n } from "../i18n";
 
 interface LightboxProps {
   images: BoatImage[];
@@ -19,6 +20,9 @@ export default function Lightbox({ images, index, label, onIndexChange, onClose 
   const dialogRef = useRef<HTMLDivElement>(null);
   const swipeStart = useRef<number | null>(null);
   const [loadedId, setLoadedId] = useState<string | null>(null);
+  const { language, t } = useI18n();
+  /** In right-to-left languages "next" sits on the left: arrow keys and swipes follow the layout. */
+  const forward = language.dir === "rtl" ? -1 : 1;
 
   const step = useCallback(
     (delta: number) => onIndexChange((index + delta + count) % count),
@@ -39,8 +43,8 @@ export default function Lightbox({ images, index, label, onIndexChange, onClose 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
-      else if (event.key === "ArrowRight") step(1);
-      else if (event.key === "ArrowLeft") step(-1);
+      else if (event.key === "ArrowRight") step(forward);
+      else if (event.key === "ArrowLeft") step(-forward);
       else if (event.key === "Tab") {
         // Keep focus inside the dialog.
         const focusable = dialogRef.current?.querySelectorAll<HTMLElement>("button");
@@ -58,7 +62,7 @@ export default function Lightbox({ images, index, label, onIndexChange, onClose 
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [onClose, step]);
+  }, [forward, onClose, step]);
 
   // Warm the neighbours, but never pull multi-megabyte originals ahead of time.
   useEffect(() => {
@@ -76,7 +80,7 @@ export default function Lightbox({ images, index, label, onIndexChange, onClose 
       className="lightbox"
       role="dialog"
       aria-modal="true"
-      aria-label={`${label} photographs`}
+      aria-label={t("{name} photographs", { name: label })}
       onClick={(event) => event.target === event.currentTarget && onClose()}
     >
       <header className="lightbox-bar">
@@ -84,7 +88,7 @@ export default function Lightbox({ images, index, label, onIndexChange, onClose 
           <span>{String(index + 1).padStart(2, "0")}</span> / {String(count).padStart(2, "0")}
         </p>
         <button ref={closeRef} type="button" className="lightbox-close" onClick={onClose}>
-          Close
+          {t("Close")}
         </button>
       </header>
 
@@ -97,13 +101,13 @@ export default function Lightbox({ images, index, label, onIndexChange, onClose 
           swipeStart.current = null;
           if (start === null || count < 2) return;
           const distance = event.clientX - start;
-          if (Math.abs(distance) > SWIPE_DISTANCE) step(distance < 0 ? 1 : -1);
+          if (Math.abs(distance) > SWIPE_DISTANCE) step(distance < 0 ? forward : -forward);
         }}
       >
         {loading && (
           <p className="lightbox-loading" role="status">
             <span className="lightbox-spinner" aria-hidden="true" />
-            {image.optimised ? "Loading" : "Loading full-resolution original"}
+            {image.optimised ? t("Loading") : t("Loading full-resolution original")}
           </p>
         )}
         <img
@@ -118,7 +122,7 @@ export default function Lightbox({ images, index, label, onIndexChange, onClose 
       </div>
 
       <footer className="lightbox-footer">
-        <button type="button" className="lightbox-arrow" onClick={() => step(-1)} aria-label="Previous photograph" disabled={count < 2}>
+        <button type="button" className="lightbox-arrow" onClick={() => step(-1)} aria-label={t("Previous photograph")} disabled={count < 2}>
           <span aria-hidden="true">←</span>
         </button>
         <div className="lightbox-caption">
@@ -126,7 +130,7 @@ export default function Lightbox({ images, index, label, onIndexChange, onClose 
           {image.description && <p className="lightbox-caption-copy">{image.description}</p>}
           {!image.title && !image.description && <p className="lightbox-caption-copy">{label}</p>}
         </div>
-        <button type="button" className="lightbox-arrow" onClick={() => step(1)} aria-label="Next photograph" disabled={count < 2}>
+        <button type="button" className="lightbox-arrow" onClick={() => step(1)} aria-label={t("Next photograph")} disabled={count < 2}>
           <span aria-hidden="true">→</span>
         </button>
       </footer>
