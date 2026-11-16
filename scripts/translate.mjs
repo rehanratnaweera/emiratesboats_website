@@ -6,28 +6,36 @@
  *   1. collects every English string the site can show: the first argument of
  *      t(), rich() and msg() calls in src/, plus the site title from .eb/make/site.json;
  *   2. for each language in src/i18n/languages.json, translates the strings that
- *      src/i18n/locales/<code>.json does not have yet, using Claude;
+ *      src/i18n/locales/<code>.json does not have yet, using Gemini;
  *   3. drops translations of English text the site no longer uses.
  *
  * Translations are committed. Existing entries are never re-translated while
  * their English text is unchanged, so a hand-corrected translation stays.
  *
- *   pnpm translate            translate new or changed text (needs ANTHROPIC_API_KEY)
+ *   pnpm translate            translate new or changed text (needs GEMINI_API_KEY in .env)
  *   pnpm translate --check    report untranslated text without calling the API
  *   pnpm translate --check --strict   same, but exit 1 when anything is missing
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import Anthropic from "@anthropic-ai/sdk";
+import { ApiError, FinishReason, GoogleGenAI } from "@google/genai";
 import ts from "typescript";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SRC = path.join(ROOT, "src");
 const LOCALES = path.join(SRC, "i18n", "locales");
 const MARKERS = new Set(["t", "rich", "msg"]);
-const MODEL = "claude-opus-5-5";
 const BATCH_SIZE = 60;
+
+// GEMINI_API_KEY (and optionally GEMINI_MODEL) come from .env, which is not committed.
+// A variable already set in the shell wins over the file.
+try {
+  process.loadEnvFile(path.join(ROOT, ".env"));
+} catch {
+  // No .env: only --check works without a key.
+}
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
 const args = new Set(process.argv.slice(2));
 const checkOnly = args.has("--check");
@@ -116,26 +124,23 @@ const SCHEMA = {
 };
 
 async function translateBatch(client, language, batch) {
-  const stream = client.beta.messages.stream({
+  const response = await client.models.generateContent({
     model: MODEL,
-    max_tokens: 32000,
-    // If Claude Opus 5.5 declines a request, the API retries it on a fallback model.
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
-    output_config: { effort: "medium", format: { type: "json_schema", schema: SCHEMA } },
-    system: SYSTEM,
-    messages: [
-      {
-        role: "user",
-        content: `Translate into ${language.name} (language code "${language.code}").\n\n${JSON.stringify(batch.map((text, id) => ({ id, text })))}`,
-      },
-    ],
+    contents: `Translate into ${language.name} (language code "${language.code}").\n\n${JSON.stringify(batch.map((text, id) => ({ id, text })))}`,
+    config: {
+      systemInstruction: SYSTEM,
+      maxOutputTokens: 32000,
+      responseMimeType: "application/json",
+      responseJsonSchema: SCHEMA,
+    },
   });
-  const response = await stream.finalMessage();
 
-  if (response.stop_reason === "refusal") throw new Error(`The model declined the request (${response.stop_details?.category ?? "no category"}).`);
-  if (response.stop_reason === "max_tokens") throw new Error("The response was cut off; lower BATCH_SIZE.");
-  const text = response.content.find((block) => block.type === "text")?.text;
+  const blocked = response.promptFeedback?.blockReason;
+  if (blocked) throw new Error(`Gemini blocked the request (${blocked}).`);
+  const finish = response.candidates?.[0]?.finishReason;
+  if (finish === FinishReason.MAX_TOKENS) throw new Error("The response was cut off; lower BATCH_SIZE.");
+  if (finish && finish !== FinishReason.STOP) throw new Error(`Gemini stopped early (${finish}).`);
+  const text = response.text;
   if (!text) throw new Error("The response had no text.");
 
   const result = new Map();
@@ -197,13 +202,17 @@ async function main() {
 
     const translations = { ...existing };
     if (missing.length) {
-      // Credentials come from ANTHROPIC_API_KEY, or a profile saved by `ant auth login`.
-      client ??= new Anthropic();
-      console.log(`${language.name}: translating ${missing.length} strings…`);
+      if (!process.env.GEMINI_API_KEY) {
+        throw new Error("GEMINI_API_KEY is not set. Add it to .env (see .env.example) and run again.");
+      }
+      client ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      console.log(`${language.name}: translating ${missing.length} strings with ${MODEL}…`);
       for (let start = 0; start < missing.length; start += BATCH_SIZE) {
         const batch = missing.slice(start, start + BATCH_SIZE);
         const result = await translateBatch(client, language, batch);
         result.forEach((translation, english) => (translations[english] = translation));
+        // Saved after every batch, so a quota error part-way loses nothing already translated.
+        writeLocale(language.code, sources, translations);
         console.log(`  ${Math.min(start + BATCH_SIZE, missing.length)} / ${missing.length}`);
       }
     }
@@ -217,12 +226,16 @@ async function main() {
 }
 
 main().catch((error) => {
-  if (error instanceof Anthropic.AuthenticationError) {
-    console.error("The Anthropic API rejected the credentials. Check ANTHROPIC_API_KEY and try again.");
-  } else if (error instanceof Anthropic.AnthropicError) {
-    console.error(`Translation failed: ${error.message}\nSet ANTHROPIC_API_KEY (or run \`ant auth login\`) to translate.`);
+  if (error instanceof ApiError && (error.status === 400 || error.status === 401 || error.status === 403) && /key/i.test(error.message)) {
+    console.error("The Gemini API rejected the key. Check GEMINI_API_KEY in .env and try again.");
+  } else if (error instanceof ApiError && error.status === 404) {
+    console.error(`Gemini has no model "${MODEL}". Set GEMINI_MODEL in .env to a current model ID.`);
+  } else if (error instanceof ApiError && error.status === 429) {
+    console.error("Gemini rate limit or quota reached. Wait a minute and run again; finished batches are already saved.");
+  } else if (error instanceof ApiError) {
+    console.error(`Translation failed (${error.status}): ${error.message}`);
   } else {
-    console.error(error);
+    console.error(error instanceof Error ? error.message : error);
   }
   process.exit(1);
 });
