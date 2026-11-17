@@ -123,8 +123,25 @@ const SCHEMA = {
   additionalProperties: false,
 };
 
+const RETRY_STATUSES = new Set([429, 500, 503]);
+const RETRIES = 5;
+
+/** Retries overload, rate-limit and server errors, waiting 5 s, 10 s, 20 s… between attempts. */
+async function withRetry(request) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await request();
+    } catch (error) {
+      if (!(error instanceof ApiError) || !RETRY_STATUSES.has(error.status) || attempt >= RETRIES) throw error;
+      const seconds = 5 * 2 ** attempt;
+      console.warn(`  Gemini returned ${error.status}; retrying in ${seconds} s (${attempt + 1} of ${RETRIES})…`);
+      await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+    }
+  }
+}
+
 async function translateBatch(client, language, batch) {
-  const response = await client.models.generateContent({
+  const response = await withRetry(() => client.models.generateContent({
     model: MODEL,
     contents: `Translate into ${language.name} (language code "${language.code}").\n\n${JSON.stringify(batch.map((text, id) => ({ id, text })))}`,
     config: {
@@ -133,7 +150,7 @@ async function translateBatch(client, language, batch) {
       responseMimeType: "application/json",
       responseJsonSchema: SCHEMA,
     },
-  });
+  }));
 
   const blocked = response.promptFeedback?.blockReason;
   if (blocked) throw new Error(`Gemini blocked the request (${blocked}).`);

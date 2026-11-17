@@ -22,7 +22,7 @@ The 3D configurator was shipped with version 1 of the site and was taken out of 
   - **Painting** — a finish viewer in two lights and the 240-color Cromax® swatch library; a chosen color is carried into the enquiry.
   - **Tooling Center** — the 5-axis machine envelope and the twelve steps from CAD file to mold.
   - **Hydraulic swim platforms** — the platforms the yard supplies and how they are installed.
-- Sends enquiries through Formspree, pre-filled with the boat or service the visitor was reading about.
+- Saves enquiries to the Directus `enquiries` collection, where a flow emails them to the yard, pre-filled with the boat or service the visitor was reading about.
 - Publishes search and sharing metadata (title, description, canonical URL, Open Graph and Twitter cards), a `robots.txt` and a `sitemap.xml`.
 - Reports page views to Google Analytics.
 - Builds into a small static bundle served by Nginx inside a Docker image.
@@ -52,7 +52,7 @@ flowchart LR
 	CMS --> Fleet[Boats, specifications,\ngalleries, datasheets]
 	React --> Content[Service content\nsrc/content]
 	Visitor --> Form[Enquiry form]
-	Form --> Formspree[Formspree]
+	Form --> Enquiries[Directus enquiries\nemail flow]
 ```
 
 The browser requests the fleet once on load. `src/cms.ts` turns the Directus response into a typed `BoatModel`, so the rest of the UI works with a stable shape. If the request fails, the fleet section and boat pages say so and point to the enquiry form; the service pages do not depend on the CMS.
@@ -66,7 +66,7 @@ The browser requests the fleet once on load. `src/cms.ts` turns the Directus res
 | Styling | Hand-written CSS with theme tokens (Tailwind CSS 4 supplies the reset) |
 | Type | Marcellus (display), Jost (text) |
 | Content | Directus REST API, plus typed content modules for services |
-| Enquiries | Formspree React |
+| Enquiries | Directus REST API (`enquiries` collection, email flow) |
 | Analytics | Google Analytics 4 (gtag), injected at build time |
 | Production server | Nginx on Alpine Linux |
 | Tooling | GitHub Actions, pnpm, Docker (GHCR), Commitlint, Husky, oxfmt |
@@ -204,7 +204,7 @@ Vite also supports an optional public path through `eb_PUBLIC_URL`. The dev and 
 - The app uses an `AbortController` when loading fleet data, preventing stale requests during unmount.
 - Scroll position is kept per page, so the browser's back button returns to where the visitor was.
 - Scroll-reveal motion and the hero video respect the visitor's reduced-motion setting.
-- The enquiry form includes browser validation, Formspree validation errors, submission state, and a success state.
+- The enquiry form includes browser validation, an error message when Directus rejects the submission, submission state, and a success state.
 
 ## Roadmap
 

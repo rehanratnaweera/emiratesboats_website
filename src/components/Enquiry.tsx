@@ -1,6 +1,5 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { useForm, ValidationError } from "@formspree/react";
-import type { BoatModel } from "../cms";
+import { createContext, useContext, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { DIRECTUS_URL, type BoatModel } from "../cms";
 import { COMPANY, SERVICE_DESK } from "../content/site";
 import { SERVICES } from "../content/services";
 import { msg, useI18n } from "../i18n";
@@ -33,12 +32,57 @@ export function useEnquiry() {
   return context;
 }
 
+type SubmitStatus = "idle" | "submitting" | "succeeded" | "failed";
+
+/** Fields the Directus `enquiries` collection requires. */
+const REQUIRED_FIELDS = ["name", "email", "message"] as const;
+/** The soft length limit set on the `message` field in Directus. */
+const MESSAGE_MAX_LENGTH = 65554;
+
+/** Creates an item in the Directus `enquiries` collection; a Directus flow emails it to the yard. */
+async function sendEnquiry(form: HTMLFormElement) {
+  const data = new FormData(form);
+  const field = (name: string) => String(data.get(name) ?? "").trim();
+  const response = await fetch(`${DIRECTUS_URL}/items/enquiries`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: field("name"),
+      email: field("email"),
+      // An empty string, not null, so the email flow shows a blank phone rather than "null".
+      phone: field("phone"),
+      interest: field("interest"),
+      message: field("message"),
+    }),
+  });
+  if (!response.ok) throw new Error(`Directus responded ${response.status}`);
+}
+
 function EnquiryForm({ boats }: { boats: BoatModel[] }) {
-  const [state, handleSubmit] = useForm("mjykyokj");
+  const [status, setStatus] = useState<SubmitStatus>("idle");
   const { interest, message, setInterest, setMessage } = useEnquiry();
   const { t } = useI18n();
 
-  if (state.succeeded) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (status === "submitting") return;
+    const form = event.currentTarget;
+    // Required fields made only of spaces pass the browser's check, so trim them and validate again.
+    for (const name of REQUIRED_FIELDS) {
+      const input = form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | null;
+      if (input) input.value = input.value.trim();
+    }
+    if (!form.reportValidity()) return;
+    setStatus("submitting");
+    try {
+      await sendEnquiry(form);
+      setStatus("succeeded");
+    } catch {
+      setStatus("failed");
+    }
+  }
+
+  if (status === "succeeded") {
     return (
       <div className="enquiry-success" role="status">
         <span className="enquiry-success-mark" aria-hidden="true" />
@@ -56,19 +100,16 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
         <div className="field">
           <label htmlFor="enquiry-name">{t("Name")}</label>
           <input id="enquiry-name" type="text" name="name" autoComplete="name" required />
-          <ValidationError className="field-error" prefix={t("Name")} field="name" errors={state.errors} />
         </div>
         <div className="field">
           <label htmlFor="enquiry-email">{t("Email")}</label>
           <input id="enquiry-email" type="email" name="email" autoComplete="email" required />
-          <ValidationError className="field-error" prefix={t("Email")} field="email" errors={state.errors} />
         </div>
         <div className="field">
           <label htmlFor="enquiry-phone">
             {t("Phone")} <span>{t("Optional")}</span>
           </label>
           <input id="enquiry-phone" type="tel" name="phone" autoComplete="tel" />
-          <ValidationError className="field-error" prefix={t("Phone")} field="phone" errors={state.errors} />
         </div>
         <div className="field">
           <label htmlFor="enquiry-interest">{t("I'm interested in")}</label>
@@ -102,20 +143,24 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
           id="enquiry-message"
           name="message"
           rows={4}
+          maxLength={MESSAGE_MAX_LENGTH}
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           placeholder={t("Your boat, the model or service you have in mind, and your timing.")}
           required
         />
-        <ValidationError className="field-error" prefix={t("Message")} field="message" errors={state.errors} />
       </div>
 
-      <ValidationError className="field-error" errors={state.errors} />
+      {status === "failed" && (
+        <p className="field-error" role="alert">
+          {t("Your enquiry could not be sent. Please try again, or call or email us directly.")}
+        </p>
+      )}
 
       <div className="enquiry-actions">
         <p>{t("We reply within one business day.")}</p>
-        <button className="btn btn-gold" type="submit" disabled={state.submitting}>
-          {state.submitting ? t("Sending…") : t("Send enquiry")}
+        <button className="btn btn-gold" type="submit" disabled={status === "submitting"}>
+          {status === "submitting" ? t("Sending…") : t("Send enquiry")}
         </button>
       </div>
     </form>

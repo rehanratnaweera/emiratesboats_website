@@ -45,7 +45,7 @@ export interface BoatModel {
 
 import { msg } from "./i18n";
 
-const DIRECTUS_URL = "https://cms.emirateboats.com";
+export const DIRECTUS_URL = "https://cms.emirateboats.com";
 const ASSET_ROOT = `${DIRECTUS_URL}/assets/`;
 
 type DirectusRecord = Record<string, unknown>;
