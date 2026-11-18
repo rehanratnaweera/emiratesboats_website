@@ -11,6 +11,7 @@ export const COMPANY = {
     { label: "Instagram", href: "https://www.instagram.com/emiratesboat" },
     { label: "Facebook", href: "https://www.facebook.com/emiratesboats" },
     { label: "LinkedIn", href: "https://www.linkedin.com/company/emirates-boats-llc" },
+    { label: "TikTok", href: "https://www.tiktok.com/@emiratesboats" },
   ],
 } as const;
 
