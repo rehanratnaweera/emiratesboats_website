@@ -28,14 +28,36 @@ const LOCALES = path.join(SRC, "i18n", "locales");
 const MARKERS = new Set(["t", "rich", "msg"]);
 const BATCH_SIZE = 60;
 
-// GEMINI_API_KEY (and optionally GEMINI_MODEL) come from .env, which is not committed.
+// GEMINI_API_KEY (and optionally GEMINI_MODELS) come from .env, which is not committed.
 // A variable already set in the shell wins over the file.
 try {
   process.loadEnvFile(path.join(ROOT, ".env"));
 } catch {
   // No .env: only --check works without a key.
 }
-const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+
+/**
+ * Free-tier limits per model, from Google AI Studio → Rate limits: requests per
+ * minute and per day. Update them here if Google changes them; a model not listed
+ * is treated as 5 per minute, 20 per day.
+ */
+const MODEL_LIMITS = {
+  "gemini-4-hydrogen": { rpm: 5, rpd: 20 },
+  "gemini-3.8-flash": { rpm: 5, rpd: 20 },
+  "gemini-3.6-flash": { rpm: 5, rpd: 20 },
+  "gemini-3.5-flash-lite": { rpm: 15, rpd: 500 },
+};
+/** Models in order of preference. A batch goes to the first one with quota left. */
+const MODELS = (process.env.GEMINI_MODELS || "gemini-4-hydrogen,gemini-3.8-flash,gemini-3.6-flash")
+  .split(",")
+  .map((model) => model.trim())
+  .filter(Boolean);
+/** Requests sent today per model, kept between runs because the daily limit is. */
+const USAGE_FILE = path.join(ROOT, ".cache", "gemini-usage.json");
+/** A model that reports it is overloaded is left alone this long before it is tried again. */
+const OVERLOAD_PAUSE_MS = 2 * 60_000;
+/** After this many overload errors in a row, a model is dropped for the rest of the run. */
+const OVERLOAD_STRIKES = 3;
 
 const args = new Set(process.argv.slice(2));
 const checkOnly = args.has("--check");
@@ -123,26 +145,163 @@ const SCHEMA = {
   additionalProperties: false,
 };
 
-const RETRY_STATUSES = new Set([429, 500, 503]);
-const RETRIES = 5;
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const seconds = (ms) => `${Math.ceil(ms / 1000)} s`;
 
-/** Retries overload, rate-limit and server errors, waiting 5 s, 10 s, 20 s… between attempts. */
-async function withRetry(request) {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await request();
-    } catch (error) {
-      if (!(error instanceof ApiError) || !RETRY_STATUSES.has(error.status) || attempt >= RETRIES) throw error;
-      const seconds = 5 * 2 ** attempt;
-      console.warn(`  Gemini returned ${error.status}; retrying in ${seconds} s (${attempt + 1} of ${RETRIES})…`);
-      await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-    }
+/** Free-tier daily quotas reset at midnight Pacific time. */
+function quotaDay(now = Date.now()) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" }).format(now);
+}
+
+/** Thrown when every model is out of requests for today. */
+class QuotaExhausted extends Error {}
+
+/** The error body Gemini sends with a failed request, if it parses. */
+function errorBody(error) {
+  try {
+    return JSON.parse(error.message).error ?? {};
+  } catch {
+    return {};
   }
 }
 
-async function translateBatch(client, language, batch) {
-  const response = await withRetry(() => client.models.generateContent({
-    model: MODEL,
+/**
+ * Sends each request to the most preferred model that still has quota, keeping
+ * every model within its requests per minute and per day. Rate-limited and
+ * overloaded models are skipped in favor of the next one rather than retried
+ * in place, because on the free tier a failed request still counts.
+ */
+class ModelPool {
+  constructor(client, models) {
+    this.client = client;
+    this.models = models;
+    this.pausedUntil = new Map();
+    this.strikes = new Map();
+    this.usage = { day: quotaDay(), models: {} };
+    try {
+      const saved = readJson(USAGE_FILE);
+      if (saved.day === this.usage.day) this.usage = saved;
+    } catch {
+      // No usage recorded yet today.
+    }
+  }
+
+  state(model) {
+    this.usage.models[model] ??= { requests: 0, recent: [], exhausted: false };
+    return this.usage.models[model];
+  }
+
+  limits(model) {
+    return MODEL_LIMITS[model] ?? { rpm: 5, rpd: 20 };
+  }
+
+  save() {
+    fs.mkdirSync(path.dirname(USAGE_FILE), { recursive: true });
+    fs.writeFileSync(USAGE_FILE, `${JSON.stringify(this.usage, null, 2)}\n`);
+  }
+
+  /** Milliseconds until the model may take a request; Infinity when it is done for today or this run. */
+  waitFor(model, now) {
+    const state = this.state(model);
+    const { rpm, rpd } = this.limits(model);
+    if (state.exhausted || state.requests >= rpd) return Infinity;
+    state.recent = state.recent.filter((time) => now - time < 60_000);
+    let wait = Math.max(0, (this.pausedUntil.get(model) ?? 0) - now);
+    if (state.recent.length >= rpm) wait = Math.max(wait, state.recent[0] + 60_000 - now);
+    return wait;
+  }
+
+  async generate(request) {
+    for (;;) {
+      if (this.quotaDayChanged()) continue;
+      const now = Date.now();
+      const options = this.models.map((model) => ({ model, wait: this.waitFor(model, now) })).filter((option) => option.wait !== Infinity);
+      if (!options.length) throw new QuotaExhausted(this.outOfModels());
+      const choice = options.find((option) => option.wait === 0) ?? options.reduce((a, b) => (b.wait < a.wait ? b : a));
+      if (choice.wait > 0) {
+        const paused = (this.pausedUntil.get(choice.model) ?? 0) - now >= choice.wait;
+        console.log(`  waiting ${seconds(choice.wait)} for ${choice.model} (${paused ? "paused after an error" : "per-minute limit"})…`);
+        await sleep(choice.wait);
+        continue;
+      }
+
+      const { model } = choice;
+      const state = this.state(model);
+      state.requests += 1;
+      state.recent.push(Date.now());
+      this.save();
+      try {
+        const response = await this.client.models.generateContent({ ...request, model });
+        this.strikes.delete(model);
+        return { model, response };
+      } catch (error) {
+        if (!this.skip(model, error)) throw error;
+      }
+    }
+  }
+
+  /** A run that crosses midnight Pacific time starts the day's counts again. */
+  quotaDayChanged() {
+    if (this.usage.day === quotaDay()) return false;
+    this.usage = { day: quotaDay(), models: {} };
+    return true;
+  }
+
+  /** Records why a model failed and decides whether another model can take the request. */
+  skip(model, error) {
+    if (!(error instanceof ApiError)) return false;
+    const body = errorBody(error);
+    const reason = body.message?.split("\n")[0] ?? error.message;
+
+    if (error.status === 429) {
+      const violations = (body.details ?? []).flatMap((detail) => detail.violations ?? []);
+      if (violations.some((violation) => /PerDay/i.test(violation.quotaId ?? ""))) {
+        this.state(model).exhausted = true;
+        this.save();
+        console.warn(`  ${model} is out of free requests for today; moving on.`);
+      } else {
+        const delay = (body.details ?? []).find((detail) => detail.retryDelay)?.retryDelay;
+        const wait = delay ? parseFloat(delay) * 1000 : 60_000;
+        this.pausedUntil.set(model, Date.now() + wait);
+        console.warn(`  ${model} hit its per-minute limit; pausing it for ${seconds(wait)}.`);
+      }
+      return true;
+    }
+    if (error.status === 500 || error.status === 503) {
+      const strikes = (this.strikes.get(model) ?? 0) + 1;
+      this.strikes.set(model, strikes);
+      const dropped = strikes >= OVERLOAD_STRIKES;
+      this.pausedUntil.set(model, dropped ? Infinity : Date.now() + OVERLOAD_PAUSE_MS);
+      console.warn(`  ${model} is unavailable (${error.status}: ${reason}); ${dropped ? "dropping it for this run" : `trying another model, back to it in ${seconds(OVERLOAD_PAUSE_MS)}`}.`);
+      return true;
+    }
+    if (error.status === 404) {
+      this.pausedUntil.set(model, Infinity);
+      console.warn(`  Gemini has no model "${model}"; check GEMINI_MODELS in .env. Using the others.`);
+      return true;
+    }
+    return false;
+  }
+
+  /** Why no model is left: out of today's requests, or dropped for this run after errors. */
+  outOfModels() {
+    const spent = this.models.filter((model) => this.state(model).exhausted || this.state(model).requests >= this.limits(model).rpd);
+    const failing = this.models.filter((model) => !spent.includes(model));
+    const lines = ["No model is left to translate with; finished batches are saved."];
+    if (spent.length) lines.push(`  Out of free requests until midnight Pacific time: ${spent.join(", ")}.`);
+    if (failing.length) lines.push(`  Kept failing (overloaded or not found) and still have requests today: ${failing.join(", ")}.`);
+    lines.push(failing.length ? 'Run "pnpm translate" again in a few minutes.' : 'Run "pnpm translate" again after midnight Pacific time.');
+    return lines.join("\n");
+  }
+
+  /** Today's requests per model, for the summary line. */
+  summary() {
+    return this.models.map((model) => `${model} ${this.state(model).requests}/${this.limits(model).rpd}`).join(", ");
+  }
+}
+
+async function translateBatch(pool, language, batch) {
+  const { model, response } = await pool.generate({
     contents: `Translate into ${language.name} (language code "${language.code}").\n\n${JSON.stringify(batch.map((text, id) => ({ id, text })))}`,
     config: {
       systemInstruction: SYSTEM,
@@ -150,7 +309,7 @@ async function translateBatch(client, language, batch) {
       responseMimeType: "application/json",
       responseJsonSchema: SCHEMA,
     },
-  }));
+  });
 
   const blocked = response.promptFeedback?.blockReason;
   if (blocked) throw new Error(`Gemini blocked the request (${blocked}).`);
@@ -170,7 +329,7 @@ async function translateBatch(client, language, batch) {
     }
     result.set(english, translation);
   }
-  return result;
+  return { model, result };
 }
 
 /* ── 3. Write the locale files ──────────────────────────────────────── */
@@ -198,7 +357,7 @@ async function main() {
   const sources = [...strings.keys()];
   const targets = readJson(path.join(SRC, "i18n", "languages.json")).slice(1);
   let missingTotal = 0;
-  let client;
+  let pool;
 
   for (const language of targets) {
     const existing = readLocale(language.code);
@@ -222,15 +381,15 @@ async function main() {
       if (!process.env.GEMINI_API_KEY) {
         throw new Error("GEMINI_API_KEY is not set. Add it to .env (see .env.example) and run again.");
       }
-      client ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      console.log(`${language.name}: translating ${missing.length} strings with ${MODEL}…`);
+      pool ??= new ModelPool(new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }), MODELS);
+      console.log(`${language.name}: translating ${missing.length} strings. Requests today: ${pool.summary()}.`);
       for (let start = 0; start < missing.length; start += BATCH_SIZE) {
         const batch = missing.slice(start, start + BATCH_SIZE);
-        const result = await translateBatch(client, language, batch);
+        const { model, result } = await translateBatch(pool, language, batch);
         result.forEach((translation, english) => (translations[english] = translation));
         // Saved after every batch, so a quota error part-way loses nothing already translated.
         writeLocale(language.code, sources, translations);
-        console.log(`  ${Math.min(start + BATCH_SIZE, missing.length)} / ${missing.length}`);
+        console.log(`  ${Math.min(start + BATCH_SIZE, missing.length)} / ${missing.length} (${model})`);
       }
     }
     writeLocale(language.code, sources, translations);
@@ -239,16 +398,15 @@ async function main() {
     missingTotal = missingTotal - missing.length + stillMissing;
   }
 
+  if (pool) console.log(`Requests today: ${pool.summary()}.`);
   if (missingTotal > 0 && (strict || !checkOnly)) process.exitCode = 1;
 }
 
 main().catch((error) => {
-  if (error instanceof ApiError && (error.status === 400 || error.status === 401 || error.status === 403) && /key/i.test(error.message)) {
+  if (error instanceof QuotaExhausted) {
+    console.error(error.message);
+  } else if (error instanceof ApiError && (error.status === 400 || error.status === 401 || error.status === 403) && /key/i.test(error.message)) {
     console.error("The Gemini API rejected the key. Check GEMINI_API_KEY in .env and try again.");
-  } else if (error instanceof ApiError && error.status === 404) {
-    console.error(`Gemini has no model "${MODEL}". Set GEMINI_MODEL in .env to a current model ID.`);
-  } else if (error instanceof ApiError && error.status === 429) {
-    console.error("Gemini rate limit or quota reached. Wait a minute and run again; finished batches are already saved.");
   } else if (error instanceof ApiError) {
     console.error(`Translation failed (${error.status}): ${error.message}`);
   } else {
