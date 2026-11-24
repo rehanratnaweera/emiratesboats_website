@@ -1,9 +1,10 @@
-import { createContext, useContext, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { DIRECTUS_URL, type BoatModel } from "../cms";
 import { COMPANY, SERVICE_DESK } from "../content/site";
 import { SERVICES } from "../content/services";
 import { msg, useI18n } from "../i18n";
 import { revealDelay } from "../useScrollReveal";
+import Turnstile, { type TurnstileHandle } from "./Turnstile";
 
 /** Subjects stay in English as form values, so the yard always receives them in English. */
 export const GENERAL_INTEREST = msg("General enquiry");
@@ -32,15 +33,44 @@ export function useEnquiry() {
   return context;
 }
 
-type SubmitStatus = "idle" | "submitting" | "succeeded" | "failed";
+type SubmitStatus = "idle" | "submitting" | "succeeded" | "failed" | "captcha-missing" | "captcha-failed";
+
+/**
+ * Public Cloudflare Turnstile site key. The widget's hostnames in Cloudflare must
+ * include every domain the site is served from. The secret key lives only in Directus.
+ */
+const TURNSTILE_SITE_KEY = "REPLACE_WITH_TURNSTILE_SITE_KEY";
+
+/**
+ * The error code the Directus flow throws when Cloudflare rejects the token.
+ * Matched in the error's code or message, so a visitor is told to redo the check
+ * rather than that the enquiry failed.
+ */
+const CAPTCHA_ERROR = "CAPTCHA_FAILED";
+
+class CaptchaRejected extends Error {}
+
+interface DirectusErrorBody {
+  errors?: { message?: unknown; extensions?: { code?: unknown } }[];
+}
+
+async function isCaptchaRejection(response: Response) {
+  const body = (await response.json().catch(() => null)) as DirectusErrorBody | null;
+  return (body?.errors ?? []).some(
+    (error) => error?.extensions?.code === CAPTCHA_ERROR || String(error?.message ?? "").includes(CAPTCHA_ERROR),
+  );
+}
 
 /** Fields the Directus `enquiries` collection requires. */
 const REQUIRED_FIELDS = ["name", "email", "message"] as const;
 /** The soft length limit set on the `message` field in Directus. */
 const MESSAGE_MAX_LENGTH = 65554;
 
-/** Creates an item in the Directus `enquiries` collection; a Directus flow emails it to the yard. */
-async function sendEnquiry(form: HTMLFormElement) {
+/**
+ * Creates an item in the Directus `enquiries` collection; a Directus flow emails it to the yard.
+ * A blocking Directus flow verifies `cf_token` with Cloudflare before the item is created.
+ */
+async function sendEnquiry(form: HTMLFormElement, captchaToken: string) {
   const data = new FormData(form);
   const field = (name: string) => String(data.get(name) ?? "").trim();
   const response = await fetch(`${DIRECTUS_URL}/items/enquiries`, {
@@ -53,15 +83,32 @@ async function sendEnquiry(form: HTMLFormElement) {
       phone: field("phone"),
       interest: field("interest"),
       message: field("message"),
+      cf_token: captchaToken,
     }),
   });
-  if (!response.ok) throw new Error(`Directus responded ${response.status}`);
+  if (response.ok) return;
+  if (await isCaptchaRejection(response)) throw new CaptchaRejected();
+  throw new Error(`Directus responded ${response.status}`);
 }
 
 function EnquiryForm({ boats }: { boats: BoatModel[] }) {
   const [status, setStatus] = useState<SubmitStatus>("idle");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaUnavailable, setCaptchaUnavailable] = useState(false);
+  const captcha = useRef<TurnstileHandle>(null);
   const { interest, message, setInterest, setMessage } = useEnquiry();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+
+  const handleCaptchaToken = useCallback((token: string | null) => {
+    setCaptchaToken(token);
+    if (token) {
+      setCaptchaUnavailable(false);
+      // "Complete the check" is out of date once it is complete. A rejection stays
+      // on screen until the next submit, since a fresh token can arrive within a second.
+      setStatus((current) => (current === "captcha-missing" ? "idle" : current));
+    }
+  }, []);
+  const handleCaptchaUnavailable = useCallback(() => setCaptchaUnavailable(true), []);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,12 +120,18 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
       if (input) input.value = input.value.trim();
     }
     if (!form.reportValidity()) return;
+    if (!captchaToken) {
+      setStatus("captcha-missing");
+      return;
+    }
     setStatus("submitting");
     try {
-      await sendEnquiry(form);
+      await sendEnquiry(form, captchaToken);
       setStatus("succeeded");
-    } catch {
-      setStatus("failed");
+    } catch (error) {
+      setStatus(error instanceof CaptchaRejected ? "captcha-failed" : "failed");
+      // Cloudflare accepts a token once, so the visitor needs a fresh one to try again.
+      captcha.current?.reset();
     }
   }
 
@@ -150,6 +203,28 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
           required
         />
       </div>
+
+      <Turnstile
+        ref={captcha}
+        siteKey={TURNSTILE_SITE_KEY}
+        language={language.code}
+        onToken={handleCaptchaToken}
+        onUnavailable={handleCaptchaUnavailable}
+      />
+
+      {captchaUnavailable ? (
+        <p className="field-error" role="alert">
+          {t("The security check could not load. Please refresh the page, or call or email us directly.")}
+        </p>
+      ) : status === "captcha-missing" ? (
+        <p className="field-error" role="alert">
+          {t("Please complete the security check before sending.")}
+        </p>
+      ) : status === "captcha-failed" ? (
+        <p className="field-error" role="alert">
+          {t("The security check failed. Please complete it again, then send your enquiry.")}
+        </p>
+      ) : null}
 
       {status === "failed" && (
         <p className="field-error" role="alert">

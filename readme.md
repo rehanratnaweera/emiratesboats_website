@@ -66,7 +66,7 @@ The browser requests the fleet once on load. `src/cms.ts` turns the Directus res
 | Styling | Hand-written CSS with theme tokens (Tailwind CSS 4 supplies the reset) |
 | Type | Marcellus (display), Jost (text) |
 | Content | Directus REST API, plus typed content modules for services |
-| Enquiries | Directus REST API (`enquiries` collection, email flow) |
+| Enquiries | Directus REST API (`enquiries` collection, email flow), Cloudflare Turnstile |
 | Analytics | Google Analytics 4 (gtag), injected at build time |
 | Production server | Nginx on Alpine Linux |
 | Tooling | GitHub Actions, pnpm, Docker (GHCR), Commitlint, Husky, oxfmt |
@@ -206,6 +206,23 @@ Vite also supports an optional public path through `eb_PUBLIC_URL`. The dev and 
 - Scroll position is kept per page, so the browser's back button returns to where the visitor was.
 - Scroll-reveal motion and the hero video respect the visitor's reduced-motion setting.
 - The enquiry form includes browser validation, an error message when Directus rejects the submission, submission state, and a success state.
+
+## Spam protection
+
+The `enquiries` collection lets the public create items, so a bot can post to it without loading the site. Cloudflare Turnstile guards it, and Directus checks every token with Cloudflare before it saves the enquiry.
+
+**Website.** `src/components/Turnstile.tsx` renders the widget above the send button, in the page's language. The form sends the token as `cf_token` and asks for a new one after every attempt, because a token works only once. Set the public site key in `TURNSTILE_SITE_KEY` in `src/components/Enquiry.tsx`. In Cloudflare, the widget's hostnames must include every domain the site runs on.
+
+**Directus.**
+
+1. Add a hidden `cf_token` field to `enquiries` and let the Public role create it. Do this before deploying the website, or Directus rejects every enquiry for the unknown field.
+2. Put the secret key in the Directus environment as `TURNSTILE_SECRET` and add `FLOWS_ENV_ALLOW_LIST=TURNSTILE_SECRET`.
+3. Add a flow triggered by **Event Hook → Filter (Blocking)** on `items.create` for `enquiries`:
+   - **Webhook / Request URL**: `POST https://challenges.cloudflare.com/turnstile/v0/siteverify`, JSON body `{"secret": "{{$env.TURNSTILE_SECRET}}", "response": "{{$trigger.payload.cf_token}}"}`
+   - **Condition**: `{"$last": {"data": {"success": {"_eq": true}}}}`
+   - On the reject path, stop the request with an error whose code or message contains `CAPTCHA_FAILED`. The form shows that error as a failed security check and any other error as a failed send.
+
+The email flow runs after the item is created, so it never sees a rejected enquiry.
 
 ## Roadmap
 
