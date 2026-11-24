@@ -1575,9 +1575,6 @@ a:hover > .text-link::after {
 }
 
 /* Holds the Turnstile widget's height so the form does not jump when it loads. */
-.enquiry-captcha {
-  min-height: 65px;
-}
 
 .enquiry-actions {
   display: flex;
