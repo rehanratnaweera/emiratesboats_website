@@ -11,6 +11,7 @@ interface TurnstileRenderOptions {
   sitekey: string;
   theme?: "light" | "dark" | "auto";
   size?: "normal" | "flexible" | "compact";
+  appearance?: "always" | "execute" | "interaction-only";
   language?: string;
   "response-field"?: boolean;
   callback?: (token: string) => void;
@@ -99,6 +100,7 @@ export default function Turnstile({ siteKey, language, onToken, onUnavailable, r
         widgetId.current = turnstile.render(container.current, {
           sitekey: siteKey,
           theme: "dark",
+          appearance: "interaction-only",
           size: "flexible",
           language: turnstileLanguage(language),
           // The token is sent in the JSON body, so the form needs no hidden input.
