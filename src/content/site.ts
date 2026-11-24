@@ -31,10 +31,10 @@ export const SERVICE_DESK = {
 
 /** Show notice in the hero. It removes itself once the show has closed. */
 export const BOAT_SHOW = {
-  name: msg("Abu Dhabi International Boat Show"),
-  dates: msg("19–22 November 2026"),
-  venue: "M036/E005B/E005A, Marina Hall, ADNEC Centre",
-  endsAt: "2026-11-22T23:59:59+04:00",
+  name: msg("Dubai International Boat Show"),
+  dates: msg("25–29 November 2026"),
+  venue: "OD-09/ MD-43, Dubai Harbour",
+  endsAt: "2026-11-29T23:59:59+04:00",
 } as const;
 
 export function boatShowIsCurrent(now = Date.now()) {
