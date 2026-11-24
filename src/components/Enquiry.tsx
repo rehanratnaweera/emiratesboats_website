@@ -39,7 +39,7 @@ type SubmitStatus = "idle" | "submitting" | "succeeded" | "failed" | "captcha-mi
  * Public Cloudflare Turnstile site key. The widget's hostnames in Cloudflare must
  * include every domain the site is served from. The secret key lives only in Directus.
  */
-const TURNSTILE_SITE_KEY = "REPLACE_WITH_TURNSTILE_SITE_KEY";
+const TURNSTILE_SITE_KEY = "0x4AAAAAAGQOen7U-GoaEmkc";
 
 /**
  * The error code the Directus flow throws when Cloudflare rejects the token.
