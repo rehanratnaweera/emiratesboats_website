@@ -230,6 +230,23 @@ button {
   cursor: progress;
 }
 
+.btn-spinner {
+  flex: none;
+  width: 0.95em;
+  height: 0.95em;
+  margin-inline-end: 0.7rem;
+  border: 1.5px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: btn-spin 0.8s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .btn-outline {
   border-color: color-mix(in srgb, currentColor 42%, transparent);
   color: var(--heading);
@@ -1572,6 +1589,11 @@ a:hover > .text-link::after {
 .field-error {
   font-size: 0.88rem;
   color: #f0a79b;
+}
+
+.field-note {
+  font-size: 0.88rem;
+  color: var(--muted);
 }
 
 /* Holds the Turnstile widget's height so the form does not jump when it loads. */

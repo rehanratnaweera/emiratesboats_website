@@ -18,6 +18,8 @@ interface TurnstileRenderOptions {
   "expired-callback"?: () => void;
   "timeout-callback"?: () => void;
   "error-callback"?: (code: string) => void;
+  "before-interactive-callback"?: () => void;
+  "after-interactive-callback"?: () => void;
 }
 
 interface TurnstileApi {
@@ -73,15 +75,17 @@ interface TurnstileProps {
   onToken: (token: string | null) => void;
   /** The script or the widget could not load, so no token will arrive until it recovers. */
   onUnavailable: () => void;
+  /** True while Cloudflare is showing the visitor a challenge to click, false once it is done. */
+  onInteractive?: (shown: boolean) => void;
   ref?: Ref<TurnstileHandle>;
 }
 
-export default function Turnstile({ siteKey, language, onToken, onUnavailable, ref }: TurnstileProps) {
+export default function Turnstile({ siteKey, language, onToken, onUnavailable, onInteractive, ref }: TurnstileProps) {
   const container = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | undefined>(undefined);
   // The widget is rendered once per language, so it reads the latest callbacks through a ref.
-  const callbacks = useRef({ onToken, onUnavailable });
-  callbacks.current = { onToken, onUnavailable };
+  const callbacks = useRef({ onToken, onUnavailable, onInteractive });
+  callbacks.current = { onToken, onUnavailable, onInteractive };
 
   useImperativeHandle(ref, () => ({
     reset() {
@@ -112,6 +116,8 @@ export default function Turnstile({ siteKey, language, onToken, onUnavailable, r
             callbacks.current.onToken(null);
             callbacks.current.onUnavailable();
           },
+          "before-interactive-callback": () => callbacks.current.onInteractive?.(true),
+          "after-interactive-callback": () => callbacks.current.onInteractive?.(false),
         });
       })
       .catch(() => {

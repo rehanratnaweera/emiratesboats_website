@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { DIRECTUS_URL, type BoatModel } from "../cms";
 import { privacyHref } from "../router";
 import { COMPANY, SERVICE_DESK } from "../content/site";
@@ -34,7 +34,15 @@ export function useEnquiry() {
   return context;
 }
 
-type SubmitStatus = "idle" | "submitting" | "succeeded" | "failed" | "captcha-missing" | "captcha-failed";
+/**
+ * "verifying": the visitor pressed send before the background security check had
+ * finished; the enquiry goes as soon as a token arrives.
+ * "captcha-slow": the check produced no token in time while verifying.
+ */
+type SubmitStatus = "idle" | "verifying" | "submitting" | "succeeded" | "failed" | "captcha-slow" | "captcha-failed";
+
+/** How long to wait for the background check before telling the visitor it is slow. */
+const VERIFY_TIMEOUT_MS = 20_000;
 
 /**
  * Public Cloudflare Turnstile site key. The widget's hostnames in Cloudflare must
@@ -96,7 +104,12 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [captchaUnavailable, setCaptchaUnavailable] = useState(false);
+  /** True while Cloudflare shows a challenge the visitor has to click. */
+  const [challengeShown, setChallengeShown] = useState(false);
   const captcha = useRef<TurnstileHandle>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  /** A token the server rejected is replaced and the enquiry re-sent once, without asking the visitor. */
+  const retriedCaptcha = useRef(false);
   const { interest, message, setInterest, setMessage } = useEnquiry();
   const { t, rich, language } = useI18n();
 
@@ -104,16 +117,52 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
     setCaptchaToken(token);
     if (token) {
       setCaptchaUnavailable(false);
-      // "Complete the check" is out of date once it is complete. A rejection stays
+      // "The check is slow" is out of date once it is complete. A rejection stays
       // on screen until the next submit, since a fresh token can arrive within a second.
-      setStatus((current) => (current === "captcha-missing" ? "idle" : current));
+      setStatus((current) => (current === "captcha-slow" ? "idle" : current));
     }
   }, []);
   const handleCaptchaUnavailable = useCallback(() => setCaptchaUnavailable(true), []);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const submit = useCallback(async (token: string) => {
+    const form = formRef.current;
+    if (!form) return;
+    setStatus("submitting");
+    try {
+      await sendEnquiry(form, token);
+      setStatus("succeeded");
+    } catch (error) {
+      // Cloudflare accepts a token once, so any retry needs a fresh one.
+      captcha.current?.reset();
+      if (error instanceof CaptchaRejected && !retriedCaptcha.current) {
+        retriedCaptcha.current = true;
+        setStatus("verifying");
+        return;
+      }
+      setStatus(error instanceof CaptchaRejected ? "captcha-failed" : "failed");
+    }
+  }, []);
+
+  // Send pressed before the check finished: send as soon as the token arrives.
+  useEffect(() => {
+    if (status !== "verifying") return;
+    if (captchaToken) {
+      void submit(captchaToken);
+      return;
+    }
+    if (captchaUnavailable) {
+      setStatus("idle");
+      return;
+    }
+    // The visitor is solving a challenge; give them all the time they need.
+    if (challengeShown) return;
+    const timer = window.setTimeout(() => setStatus("captcha-slow"), VERIFY_TIMEOUT_MS);
+    return () => window.clearTimeout(timer);
+  }, [status, captchaToken, captchaUnavailable, challengeShown, submit]);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (status === "submitting") return;
+    if (status === "submitting" || status === "verifying") return;
     const form = event.currentTarget;
     // Required fields made only of spaces pass the browser's check, so trim them and validate again.
     for (const name of REQUIRED_FIELDS) {
@@ -121,20 +170,15 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
       if (input) input.value = input.value.trim();
     }
     if (!form.reportValidity()) return;
-    if (!captchaToken) {
-      setStatus("captcha-missing");
-      return;
-    }
-    setStatus("submitting");
-    try {
-      await sendEnquiry(form, captchaToken);
-      setStatus("succeeded");
-    } catch (error) {
-      setStatus(error instanceof CaptchaRejected ? "captcha-failed" : "failed");
-      // Cloudflare accepts a token once, so the visitor needs a fresh one to try again.
-      captcha.current?.reset();
+    retriedCaptcha.current = false;
+    if (captchaToken) {
+      void submit(captchaToken);
+    } else {
+      setStatus("verifying");
     }
   }
+
+  const busy = status === "verifying" || status === "submitting";
 
   if (status === "succeeded") {
     return (
@@ -149,7 +193,7 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
   const known = [GENERAL_INTEREST, BESPOKE_INTEREST, ...boats.map((boat) => boat.name), ...SERVICES.map((service) => service.name)];
 
   return (
-    <form className="enquiry-form" onSubmit={handleSubmit}>
+    <form className="enquiry-form" ref={formRef} onSubmit={handleSubmit}>
       <div className="enquiry-grid">
         <div className="field">
           <label htmlFor="enquiry-name">{t("Name")}</label>
@@ -211,15 +255,20 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
         language={language.code}
         onToken={handleCaptchaToken}
         onUnavailable={handleCaptchaUnavailable}
+        onInteractive={setChallengeShown}
       />
 
       {captchaUnavailable ? (
         <p className="field-error" role="alert">
           {t("The security check could not load. Please refresh the page, or call or email us directly.")}
         </p>
-      ) : status === "captcha-missing" ? (
-        <p className="field-error" role="alert">
+      ) : status === "verifying" && challengeShown ? (
+        <p className="field-note" role="status">
           {t("Please complete the security check before sending.")}
+        </p>
+      ) : status === "captcha-slow" ? (
+        <p className="field-error" role="alert">
+          {t("The security check is taking longer than usual. Please wait a moment and send again, or call or email us directly.")}
         </p>
       ) : status === "captcha-failed" ? (
         <p className="field-error" role="alert">
@@ -235,8 +284,9 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
 
       <div className="enquiry-actions">
         <p>{t("We reply within one business day.")}</p>
-        <button className="btn btn-gold" type="submit" disabled={status === "submitting"}>
-          {status === "submitting" ? t("Sending…") : t("Send enquiry")}
+        <button className="btn btn-gold" type="submit" disabled={busy} aria-busy={busy}>
+          {busy && <span className="btn-spinner" aria-hidden="true" />}
+          {status === "verifying" ? t("Verifying…") : status === "submitting" ? t("Sending…") : t("Send enquiry")}
         </button>
       </div>
 
