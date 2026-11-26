@@ -1,8 +1,9 @@
 import type { BoatModel } from "../cms";
 import { SERVICE_PAGES } from "../content/services";
 import { COMPANY, SERVICE_DESK, DEVELOPER_INFO } from "../content/site";
+import { analyticsEnabled, openCookieSettings } from "../consent";
 import { useI18n } from "../i18n";
-import { homeHref, modelHref, serviceHref } from "../router";
+import { homeHref, modelHref, privacyHref, serviceHref } from "../router";
 
 export default function SiteFooter({ boats, logoUrl }: { boats: BoatModel[]; logoUrl: string }) {
   const { t, rich } = useI18n();
@@ -75,6 +76,16 @@ export default function SiteFooter({ boats, logoUrl }: { boats: BoatModel[]; log
             )}
           </p>
           <ul>
+            <li>
+              <a href={privacyHref()}>{t("Privacy & cookie policy")}</a>
+            </li>
+            {analyticsEnabled && (
+              <li>
+                <button className="site-footer-link-button" type="button" onClick={openCookieSettings}>
+                  {t("Cookie settings")}
+                </button>
+              </li>
+            )}
             {COMPANY.socials.map((social) => (
               <li key={social.label}>
                 <a href={social.href} target="_blank" rel="noreferrer">

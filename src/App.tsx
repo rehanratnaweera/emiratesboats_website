@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { fetchBoats, SITE_MEDIA } from "./cms";
+import CookieBanner from "./components/CookieBanner";
 import { EnquiryProvider, GENERAL_INTEREST, useEnquiry } from "./components/Enquiry";
 import SiteFooter from "./components/SiteFooter";
 import SiteNav from "./components/SiteNav";
@@ -10,6 +11,7 @@ import HydraulicsPage from "./pages/HydraulicsPage";
 import ModelPage from "./pages/ModelPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import PaintingPage from "./pages/PaintingPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import ToolingPage from "./pages/ToolingPage";
 import { routeKey, scrollToSection, takeArrival, useRoute, type Route } from "./router";
 import { useScrollReveal } from "./useScrollReveal";
@@ -92,6 +94,7 @@ function Page({ route, fleet }: { route: Route; fleet: FleetState }) {
   const boats = fleet.status === "ready" ? fleet.boats : [];
   if (route.page === "home") return <HomePage fleet={fleet} />;
   if (route.page === "model") return <ModelPage slug={route.slug} fleet={fleet} />;
+  if (route.page === "privacy") return <PrivacyPage />;
   if (route.slug === "painting") return <PaintingPage boats={boats} />;
   if (route.slug === "tooling") return <ToolingPage boats={boats} />;
   if (route.slug === "hydraulics") return <HydraulicsPage boats={boats} />;
@@ -114,7 +117,11 @@ function Site() {
   const boat = route.page === "model" ? boats.find((candidate) => candidate.slug === route.slug) : undefined;
   const servicePage = route.page === "service" ? SERVICE_PAGES[route.slug] : undefined;
   const subject = boat?.name ?? servicePage?.interest ?? GENERAL_INTEREST;
-  const title = boat ? [boat.name, boat.tagline].filter(Boolean).join(" — ") : servicePage && t(servicePage.title);
+  const title = boat
+    ? [boat.name, boat.tagline].filter(Boolean).join(" — ")
+    : route.page === "privacy"
+      ? t("Privacy & cookie policy")
+      : servicePage && t(servicePage.title);
 
   useEffect(() => {
     document.title = title ? `${title} | Emirates Boats` : t(HOME_TITLE);
@@ -142,6 +149,7 @@ function Site() {
         <Page route={route} fleet={fleet} />
       </main>
       <SiteFooter boats={boats} logoUrl={SITE_MEDIA.logo} />
+      <CookieBanner />
     </div>
   );
 }

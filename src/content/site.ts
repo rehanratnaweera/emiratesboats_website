@@ -18,6 +18,7 @@ export const COMPANY = {
 export const DEVELOPER_INFO = {
   name: "Rehan Rathnaweera",
   href: "https://github.com/rehanratnaweera",
+  email: "rehanratnaweera@gmail.com",
 } as const;
 
 /** Point of contact for the service department. */
@@ -28,6 +29,9 @@ export const SERVICE_DESK = {
   phoneHref: "tel:+971525092200",
   email: "salah@emirateboats.com",
 } as const;
+
+/** Where visitors send privacy questions and data requests (shown on the privacy policy). */
+export const PRIVACY_CONTACT: string = DEVELOPER_INFO.email;
 
 /** Show notice in the hero. It removes itself once the show has closed. */
 export const BOAT_SHOW = {

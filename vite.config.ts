@@ -166,26 +166,40 @@ function ebSiteConfiguration(config: ebSiteConfiguration): Plugin {
         }
 
         if (googleAnalyticsId) {
-          tags.push(
-            {
-              tag: 'script',
-              attrs: {
-                async: true,
-                src: `https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`,
-              },
-              injectTo: 'head',
-            },
-            {
-              tag: 'script',
-              children: `
+          // Google Consent Mode, basic: everything starts denied and gtag.js is not
+          // downloaded until the visitor accepts analytics cookies in the banner
+          // (src/consent.ts). A visitor who accepted on an earlier visit, within
+          // CONSENT_MAX_AGE_MS, gets analytics straight away. Keep the storage key,
+          // format and max age in step with src/consent.ts.
+          tags.push({
+            tag: 'script',
+            children: `
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied' });
   gtag('js', new Date());
   gtag('config', ${JSON.stringify(googleAnalyticsId)});
+  window.ebAnalytics = {
+    id: ${JSON.stringify(googleAnalyticsId)},
+    load: function () {
+      if (this.loaded) return;
+      this.loaded = true;
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + this.id;
+      document.head.appendChild(script);
+    }
+  };
+  try {
+    var saved = JSON.parse(localStorage.getItem('eb-cookie-consent') || 'null');
+    if (saved && saved.analytics === true && Date.now() - saved.at < 365 * 24 * 60 * 60 * 1000) {
+      gtag('consent', 'update', { analytics_storage: 'granted' });
+      window.ebAnalytics.load();
+    }
+  } catch (error) {}
 `,
-              injectTo: 'head',
-            },
-          )
+            injectTo: 'head',
+          })
         }
 
         if (config.accessibility?.addBypassLinks) {

@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { DIRECTUS_URL, type BoatModel } from "../cms";
+import { privacyHref } from "../router";
 import { COMPANY, SERVICE_DESK } from "../content/site";
 import { SERVICES } from "../content/services";
 import { msg, useI18n } from "../i18n";
@@ -97,7 +98,7 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
   const [captchaUnavailable, setCaptchaUnavailable] = useState(false);
   const captcha = useRef<TurnstileHandle>(null);
   const { interest, message, setInterest, setMessage } = useEnquiry();
-  const { t, language } = useI18n();
+  const { t, rich, language } = useI18n();
 
   const handleCaptchaToken = useCallback((token: string | null) => {
     setCaptchaToken(token);
@@ -238,6 +239,12 @@ function EnquiryForm({ boats }: { boats: BoatModel[] }) {
           {status === "submitting" ? t("Sending…") : t("Send enquiry")}
         </button>
       </div>
+
+      <p className="enquiry-privacy">
+        {rich("We use your details only to reply to your enquiry. See our <link>privacy policy</link>.", {
+          link: (text) => <a href={privacyHref()}>{text}</a>,
+        })}
+      </p>
     </form>
   );
 }

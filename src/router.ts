@@ -8,7 +8,8 @@ import { useEffect, useSyncExternalStore } from "react";
 export type Route =
   | { page: "home" }
   | { page: "model"; slug: string }
-  | { page: "service"; slug: string };
+  | { page: "service"; slug: string }
+  | { page: "privacy" };
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -24,17 +25,22 @@ export function serviceHref(slug: string) {
   return `${BASE}?service=${encodeURIComponent(slug)}`;
 }
 
+export function privacyHref() {
+  return `${BASE}?page=privacy`;
+}
+
 function parseRoute(search: string): Route {
   const params = new URLSearchParams(search);
   const model = params.get("model");
   if (model) return { page: "model", slug: model };
   const service = params.get("service");
   if (service) return { page: "service", slug: service };
+  if (params.get("page") === "privacy") return { page: "privacy" };
   return { page: "home" };
 }
 
 export function routeKey(route: Route) {
-  return route.page === "home" ? "home" : `${route.page}:${route.slug}`;
+  return "slug" in route ? `${route.page}:${route.slug}` : route.page;
 }
 
 const listeners = new Set<() => void>();
