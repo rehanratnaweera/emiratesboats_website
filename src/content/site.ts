@@ -37,7 +37,7 @@ export const PRIVACY_CONTACT: string = DEVELOPER_INFO.email;
 export const BOAT_SHOW = {
   name: msg("Dubai International Boat Show"),
   dates: msg("25–29 November 2026"),
-  venue: "OD-09/ MD-43, Dubai Harbour",
+  venue: "OD-09 / MD-43, Dubai Harbour",
   endsAt: "2026-11-29T23:59:59+04:00",
 } as const;
 
